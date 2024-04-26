@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
 const language = require('./static_content.language');
 
-const Area_Content = SequelizeDB.define('static_content.area', {
+const Area_Content = SequelizeDB.define('static_content.area_content', {
   AREA_ID: {
     type: Sequelize.INTEGER,
     primaryKey: true,

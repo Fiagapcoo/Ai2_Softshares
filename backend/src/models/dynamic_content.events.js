@@ -1,15 +1,32 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
+const RegionalOffice = require('./centers.regional_office');
+const Users = require('./hr_users');
 const SubArea = require('./static_content.sub_area');
 
-const User = require('./hr_users');
-const Posts = SequelizeDB.define('dynamic_content.posts', {
-    POST_ID: {
+const Events = SequelizeDB.define('dynamic_content.events', {
+  EVENT_ID: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     allowNull: false
   },
-  SUB_AREA_ID: {
+  PUBLISHER_ID: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+    references: {
+      model: Users,
+      key: 'USER_ID'
+    }
+  },
+  OFFICE_ID: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: RegionalOffice,
+      key: 'OFFICE_ID'
+    }
+  },
+  SUBAREA_ID: {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
@@ -17,65 +34,45 @@ const Posts = SequelizeDB.define('dynamic_content.posts', {
       key: 'SUB_AREA_ID'
     }
   },
-  OFFICE_ID: {
+  ADMIN_ID: {
     type: Sequelize.INTEGER,
     allowNull: false,
-    unique: true,
     references: {
-      model: Office,
-      key: 'OFFICE_ID'
+      model: Users,
+      key: 'USER_ID'
     }
   },
-  ADMIN_ID : {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    unique: true,
-    references: {
-      model: User,
-      key: 'ADMIN_ID'
-    }
+  NAME: {
+    type: Sequelize.STRING(255),
+    allowNull: false
   },
-  PUBLISHER_ID: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    unique: true,
-    references: {
-      model: User,
-      key: 'PUBLISHER_ID'
-    }
+  DESCRIPTION: {
+    type: Sequelize.TEXT,
+    allowNull: false
   },
-  CREATION_DATE : {
+  EVENT_DATE: {
     type: Sequelize.DATE,
     allowNull: false
   },
-
-  VALIDATION : {
+  FILEPATH: {
+    type: Sequelize.TEXT,
+    allowNull: true
+  },
+  RECURRING: {
     type: Sequelize.BOOLEAN,
     allowNull: false
   },
-
-  TITLE: {
-    type: Sequelize.STRING(255),
-    allowNull: false
-  },
-
-  CONTENT: {
-    type: Sequelize.STRING(255),
-    allowNull: false
-  },
-
-  FILEPATH : {
+  RECURRING_PATTERN: {
     type: Sequelize.STRING(255),
     allowNull: true
   },
-
+  VALIDADO: {
+    type: Sequelize.BOOLEAN,
+    allowNull: true
+  }
 }, {
   timestamps: false,
   freezeTableName: true
 });
 
-Posts.sync();
-
-module.exports = Posts;
-
-
+module.exports = Events;

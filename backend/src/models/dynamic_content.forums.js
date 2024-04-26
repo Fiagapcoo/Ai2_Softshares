@@ -1,20 +1,20 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
 const SubArea = require('./static_content.sub_area');
-
+const Office = require('./centers.office_workers');
 const User = require('./hr_users');
-const Forums = SequelizeDB.define('static_content.sub_area', {
-    POST_ID: {
+const Forums = SequelizeDB.define('static_content.forums', {
+  FORUM_ID: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     allowNull: false
   },
-  SUB_AREA_ID: {
+  PUBLISHER_ID: {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: SubArea,
-      key: 'SUB_AREA_ID'
+      model: User,
+      key: 'PUBLISHER_ID'
     }
   },
   OFFICE_ID: {
@@ -35,22 +35,16 @@ const Forums = SequelizeDB.define('static_content.sub_area', {
       key: 'ADMIN_ID'
     }
   },
-  PUBLISHER_ID: {
+  SUB_AREA_ID: {
     type: Sequelize.INTEGER,
     allowNull: false,
-    unique: true,
     references: {
-      model: User,
-      key: 'PUBLISHER_ID'
+      model: SubArea,
+      key: 'SUB_AREA_ID'
     }
   },
   CREATION_DATE : {
     type: Sequelize.DATE,
-    allowNull: false
-  },
-
-  VALIDATION : {
-    type: Sequelize.BOOLEAN,
     allowNull: false
   },
 
@@ -59,15 +53,6 @@ const Forums = SequelizeDB.define('static_content.sub_area', {
     allowNull: false
   },
 
-  CONTENT: {
-    type: Sequelize.STRING(255),
-    allowNull: false
-  },
-
-  FILEPATH : {
-    type: Sequelize.STRING(255),
-    allowNull: true
-  },
 
 }, {
   timestamps: false,
