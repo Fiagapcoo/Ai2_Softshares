@@ -46,5 +46,5 @@ const Rating = SequelizeDB.define('dynamic_content.rating', {
   timestamps: false,
   freezeTableName: true,
 });
-
+Rating.sync();
 module.exports = Rating;

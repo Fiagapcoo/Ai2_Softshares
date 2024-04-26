@@ -54,5 +54,5 @@ Answers.belongsTo(Fields, {
   },
   constraints: true
 });
-
+Answers.sync();
 module.exports = Answers;

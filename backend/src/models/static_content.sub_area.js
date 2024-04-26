@@ -26,4 +26,6 @@ const SubArea = SequelizeDB.define('static_content.sub_area', {
   freezeTableName: true
 });
 
+SubArea.sync();
+
 module.exports = SubArea;

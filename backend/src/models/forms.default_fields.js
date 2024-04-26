@@ -31,5 +31,5 @@ const DefaultFields = SequelizeDB.define('forms.default_fields', {
   timestamps: false,
   freezeTableName: true
 });
-
+DefaultFields.sync();
 module.exports = DefaultFields;

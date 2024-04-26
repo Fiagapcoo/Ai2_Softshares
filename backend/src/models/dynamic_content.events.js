@@ -74,5 +74,5 @@ const Events = SequelizeDB.define('dynamic_content.events', {
   timestamps: false,
   freezeTableName: true
 });
-
+Events.sync();
 module.exports = Events;

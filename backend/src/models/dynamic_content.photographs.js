@@ -38,4 +38,6 @@ const Photographs = SequelizeDB.define('dynamic_content.photographs', {
   freezeTableName: true
 });
 
+Photographs.sync();
+
 module.exports = Photographs;

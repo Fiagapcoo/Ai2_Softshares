@@ -51,4 +51,6 @@ const Fields = SequelizeDB.define('forms.fields', {
   freezeTableName: true
 });
 
+Fields.sync();
+
 module.exports = Fields;
