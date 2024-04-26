@@ -26,4 +26,6 @@ const RegionalOffice = SequelizeDB.define('centers.regional_office', {
   freezeTableName: true
 });
 
+RegionalOffice.sync();
+
 module.exports = RegionalOffice;

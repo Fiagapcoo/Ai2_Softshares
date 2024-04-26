@@ -27,4 +27,6 @@ const OfficeWorkers = SequelizeDB.define('centers.office_workers', {
   freezeTableName: true
 });
 
+OfficeWorkers.sync();
+
 module.exports = OfficeWorkers;

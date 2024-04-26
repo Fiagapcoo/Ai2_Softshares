@@ -40,4 +40,6 @@ const Users = SequelizeDB.define('hr.users', {
   freezeTableName: true
 });
 
+Users.sync();
+
 module.exports = Users;

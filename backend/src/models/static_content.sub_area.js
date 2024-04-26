@@ -1,11 +1,20 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
+const Area = require('./static_content.area');
 
-const Area = SequelizeDB.define('static_content.area', {
-  AREA_ID: {
+const SubArea = SequelizeDB.define('static_content.sub_area', {
+  SUB_AREA_ID: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     allowNull: false
+  },
+  AREA_ID: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: Area,
+      key: 'AREA_ID'
+    }
   },
   TITLE: {
     type: Sequelize.STRING(255),
@@ -17,6 +26,4 @@ const Area = SequelizeDB.define('static_content.area', {
   freezeTableName: true
 });
 
-Area.sync();
-
-module.exports = Area;
+module.exports = SubArea;
