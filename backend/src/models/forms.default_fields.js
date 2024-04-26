@@ -31,5 +31,9 @@ const DefaultFields = SequelizeDB.define('forms.default_fields', {
   timestamps: false,
   freezeTableName: true
 });
-DefaultFields.sync();
+DefaultFields.sync();    "success": true,
+"message": "User registered",
+"data": {
+    "name": "SequelizeValidationError",
+    "errors": [
 module.exports = DefaultFields;
