@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-const UserRoutes = require('./routes/UserRoutes');
+
 const PermissionRoutes = require('./routes/PermissionsRoutes');
+const UserRoutes = require('./routes/UserRoutes');
+
 
 
 const port = process.env.PORT || 8000;
@@ -21,8 +23,10 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cors());
 
-app.use('/user', UserRoutes);
+
 app.use('/permission', PermissionRoutes);
+app.use('/user', UserRoutes);
+
 
 
 app.listen(app.get('port'), () => {

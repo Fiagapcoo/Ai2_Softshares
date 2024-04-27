@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
 
+const Role = require('./security_permissions')
+
 const Users = SequelizeDB.define('users', {
   USER_ID: {
     type: Sequelize.INTEGER,
@@ -20,9 +22,13 @@ const Users = SequelizeDB.define('users', {
     type: Sequelize.TEXT,
     allowNull: true,
   },
-  RoleID: {
+  ROLEID: {
     type: Sequelize.INTEGER,
     allowNull: true,
+    references: {
+      model: Role,
+      key: 'RoleID',
+    },
   },
   JOIN_DATE: {
     type: Sequelize.DATE,
@@ -43,5 +49,7 @@ const Users = SequelizeDB.define('users', {
 });
 
 Users.sync({ alter: true });
+
+Users.belongsTo(Role, { foreignKey: 'ROLEID' });
 
 module.exports = Users;

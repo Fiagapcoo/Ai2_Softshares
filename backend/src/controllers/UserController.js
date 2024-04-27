@@ -1,5 +1,6 @@
 const UserModel = require('../models/hr_users');
 const sequelize = require('../models/db');
+const Role = require('../models/security_permissions');
 const controllers = {};
 
 sequelize.sync();
@@ -69,7 +70,7 @@ controllers.login = async (req, res) => {
 
 controllers.list = async (req, res) => {
     try {
-        const users = await UserModel.findAll();
+        const users = await UserModel.findAll({ include: Role});
 
         const sanitizedUsers = users.map((user) => {
             const userCopy = { ...user.dataValues };
@@ -124,29 +125,21 @@ controllers.list = async (req, res) => {
  *****************************************************************************************************************************************************************************/
 
 controllers.register = async (req, res) => {
-    const {
-        email,
-        password,
-        profile_pic,
-        roleid,
-        join_date,
-        name,
-        last_access
-    } = req.body;
-
-    console.log(email, password, profile_pic, roleid, join_date, name, last_access);
-
     try {
+        const { email, password, profile_pic, roleid, join_date, name, last_access } = req.body;
+
+        // Only include valid fields for the UserModel
         const newUser = await UserModel.create({
             EMAIL: email,
             PASSWORD: password,
             PROFILE_PIC: profile_pic,
-            RoleID: roleid,
             JOIN_DATE: join_date,
             NAME: name,
-            LAST_ACCESS: last_access
+            LAST_ACCESS: last_access,
+            ROLEID: roleid
         });
 
+        // Sanitize the data (remove password) before sending the response
         delete newUser.dataValues.PASSWORD;
 
         res.status(201).json({
@@ -163,6 +156,7 @@ controllers.register = async (req, res) => {
         });
     }
 };
+
 
 
 
