@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
 
-const permissions = SequelizeDB.define('security.permissions', {
+const permissions = SequelizeDB.define('permissions', {
   RoleID: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -11,10 +11,11 @@ const permissions = SequelizeDB.define('security.permissions', {
   RoleLevel: Sequelize.INTEGER
 }, {
   timestamps: false,
-  freezeTableName: true // Prevent Sequelize from pluralizing the table name
+  freezeTableName: true,
+  schema: 'security' 
 });
 
 
-permissions.sync();
+permissions.sync({ alter: true });
 
 module.exports = permissions;

@@ -6,7 +6,7 @@ const Users = SequelizeDB.define('users', {
     type: Sequelize.INTEGER,
     primaryKey: true,
     allowNull: false,
-    autoIncrement: true, // Auto-increment enabled
+    autoIncrement: true,
   },
   EMAIL: {
     type: Sequelize.STRING(100),
@@ -22,7 +22,7 @@ const Users = SequelizeDB.define('users', {
   },
   RoleID: {
     type: Sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   JOIN_DATE: {
     type: Sequelize.DATE,
@@ -34,15 +34,14 @@ const Users = SequelizeDB.define('users', {
   },
   LAST_ACCESS: {
     type: Sequelize.DATE,
-    allowNull: false,
+    allowNull: true,
   },
 }, {
   timestamps: false,
   freezeTableName: true,
-  schema: 'hr', // Ensure schema is specified
+  schema: 'hr', 
 });
 
-// Sync the model to create or update the table in the 'hr' schema
-Users.sync({ alter: true }); // Ensure table is synced with auto-increment
+Users.sync({ alter: true });
 
 module.exports = Users;
