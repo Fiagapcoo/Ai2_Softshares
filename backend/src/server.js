@@ -3,8 +3,10 @@ const cors = require('cors');
 const app = express();
 
 
+
 const PermissionRoutes = require('./routes/PermissionsRoutes');
 const UserRoutes = require('./routes/UserRoutes');
+const RegionalOfficeRoutes = require('./routes/RegionalOfficeRoutes');
 
 
 
@@ -26,6 +28,7 @@ app.use(cors());
 
 app.use('/permission', PermissionRoutes);
 app.use('/user', UserRoutes);
+app.use('/regional_office', RegionalOfficeRoutes);
 
 
 

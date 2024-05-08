@@ -1,18 +1,19 @@
 const Sequelize = require('sequelize');
 const SequelizeDB = require('./db');
-const Users = require('hr_users'); // Import the Users model for the foreign key relationship
+const Users = require('./hr_users');
 
-const RegionalOffice = SequelizeDB.define('centers.regional_office', {
+const RegionalOffice = SequelizeDB.define('regional_office', {
   OFFICE_ID: {
     type: Sequelize.INTEGER,
     primaryKey: true,
-    allowNull: false
+    allowNull: false,
+    autoIncrement: true
   },
   MANAGER_ID: {
     type: Sequelize.INTEGER,
     allowNull: false,
     references: {
-      model: Users, // Set the reference to the Users model
+      model: Users,
       key: 'USER_ID'
     }
   },
@@ -23,9 +24,12 @@ const RegionalOffice = SequelizeDB.define('centers.regional_office', {
   }
 }, {
   timestamps: false,
-  freezeTableName: true
+  freezeTableName: true,
+  schema: 'centers'
 });
 
-RegionalOffice.sync();
+RegionalOffice.sync({ alter: true });
+
+RegionalOffice.belongsTo(Users, { foreignKey: 'MANAGER_ID' });
 
 module.exports = RegionalOffice;
