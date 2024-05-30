@@ -3,8 +3,11 @@ import Navbar from "../../components/Navbar/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./Profile.css";
 import PostsCard from "../../components/PostsCard/PostCard";
-
+import { useEffect } from "react";
 const Profile = () => {
+    useEffect(() => {
+        document.title = "SoftShares - Home Page";
+      }, []);
     return (
         <>
             <Navbar />

@@ -1,11 +1,14 @@
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./Login.css";
-
-
+import { useEffect } from "react";
 
 const Login = () => {
-  const Login = () =>{
+  useEffect(() => {
+    document.title = "SoftShares - Login";
+  }, []);
+
+  const handleLogin = () => {
     alert("Login");
   };
 
@@ -25,7 +28,7 @@ const Login = () => {
         <Col md={6} lg={4}>
           <Form className="facebook-login">
             <div className="mb-4 text-center">
-              <div className="welcome-please-insert mt-4 welcome-text">
+              <div className="welcome-please-insert welcome-text">
                 Welcome! Please insert your details:
               </div>
             </div>
@@ -60,7 +63,7 @@ const Login = () => {
                 <Button
                   className="w-100 login-button"
                   variant="primary"
-                  onClick={Login}
+                  onClick={handleLogin}
                 >
                   Login
                 </Button>

@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
-
+import { useEffect } from "react";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./SignUp.css";
 
 const SignUp = () => {
+  useEffect(() => {
+    document.title = "SoftShares - SignUp";
+  }, []);
+
   const navigate = useNavigate();
 
   const SignUpAction = () => {

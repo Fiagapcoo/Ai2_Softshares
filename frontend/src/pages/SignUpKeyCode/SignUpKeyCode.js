@@ -1,7 +1,13 @@
 import { useCallback, useRef, useState } from "react";
+import { useEffect } from "react";
 import "./SignUpKeyCode.css";
 
 const SignUpKeyCode = () => {
+
+  useEffect(() => {
+    document.title = "SoftShares - SignUpKeyCode";
+  }, []);
+
   const [keyCode, setKeyCode] = useState(Array(7).fill(""));
   const inputRefs = useRef([]);
 

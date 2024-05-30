@@ -3,12 +3,16 @@ import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
+import { useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col } from 'react-bootstrap';
 import './Homepage.css';
 
 const Homepage = () => {
+  useEffect(() => {
+    document.title = "SoftShares - Home Page";
+  }, []);
   return (
     <>
       <Navbar />
