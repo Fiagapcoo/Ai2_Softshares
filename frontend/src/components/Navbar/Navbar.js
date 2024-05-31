@@ -14,17 +14,17 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary">
       <div className="container-fluid">
-        <a className="navbar-brand align-items-center" href="#">Home</a>
+        <a className="navbar-brand align-items-center" href="/homepage">Home</a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
           <ul className="navbar-nav align-items-center">
             <li className="nav-item">
-            <a className="nav-link" href="#">Publications</a>
+              <a className="nav-link" href="/posts">Publications</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Events</a>
+              <a className="nav-link" href="/events">Events</a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
@@ -57,13 +57,15 @@ const Navbar = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Manage</a>
+              <a className="nav-link" href="/manage">Manage</a>
             </li>
           </ul>
           <h1 className="navbar-text mx-auto d-none d-lg-block">Soft<span className="text-primary">Shares</span></h1>
           <ul className="navbar-nav align-items-center">
             <li className="nav-item d-flex align-items-center">
-              <FaUserCircle size="1.5em" className="me-3 softinsa_icon" />
+              <a className="nav-link" href="/profile">
+                <FaUserCircle size="1.5em" className="me-3 softinsa_icon" />
+              </a>
             </li>
             <li className="nav-item d-flex align-items-center">
               <FaBell size="1.5em" className="me-3 softinsa_icon" />

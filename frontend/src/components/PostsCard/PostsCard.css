@@ -4,6 +4,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   width: 100%;
+  max-width: 300px;
   margin: 16px;
   height: 450px;
   font-family: Arial, sans-serif;
@@ -92,11 +93,13 @@
 .DeleteDropdownItem {
   background-color: red;
   color: white;
+  border-radius: 5px;
 }
 
 .EditDropdownItem {
   background-color: #00c2ff;
   color: white;
+  border-radius: 5px;
 }
 
 .dropdown-menu {
@@ -108,3 +111,4 @@
 .dropdown-toggle-no-caret{
   color: black;
 }
+

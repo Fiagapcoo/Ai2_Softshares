@@ -6,7 +6,7 @@ import PostsCard from "../../components/PostsCard/PostCard";
 import { useEffect } from "react";
 const Profile = () => {
     useEffect(() => {
-        document.title = "SoftShares - Home Page";
+        document.title = "SoftShares - Profile";
       }, []);
     return (
         <>
