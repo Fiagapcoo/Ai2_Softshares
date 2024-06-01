@@ -15,7 +15,7 @@ const CategoryCard = () => {
   ];
 
   return (
-    <div className="card" style={{ width: '18rem', borderColor: '#00BFFF', borderWidth: '1px' }}>
+    <div className="card" style={{ width: '22rem', borderColor: '#00BFFF', borderWidth: '1px' }}>
       <ul className="list-group list-group-flush">
         {categories.map((category, index) => (
           <a key={index} href={category.link} className="list-group-item list-group-item-action d-flex justify-content-between align-items-center area-item">
