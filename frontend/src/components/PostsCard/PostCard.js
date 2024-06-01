@@ -9,11 +9,13 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
   const renderStars = () => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
-      stars.push(
-        <span key={i} className="star">
-          {i < rating ? '★' : '☆'}
-        </span>
-      );
+      if (i < Math.floor(rating)) {
+        stars.push(<i key={i} className="softinsa-color fas fa-star"></i>);
+      } else if (i < rating) {
+        stars.push(<i key={i} className="softinsa-color fas fa-star-half-alt"></i>);
+      } else {
+        stars.push(<i key={i} className="softinsa-color far fa-star"></i>);
+      }
     }
     return stars;
   };
@@ -44,13 +46,12 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
             <i className="fas fa-ellipsis-v"></i>
           </Dropdown.Toggle>
           <Dropdown.Menu className="dropdown-menu">
-          <Dropdown.Item className='EditDropdownItem' href="#/edit">
+            <Dropdown.Item className='EditDropdownItem' href="#/edit">
               <i className="fas fa-pencil-alt"></i> Edit
             </Dropdown.Item>
             <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
               <i className="fas fa-trash-alt"></i> Delete
             </Dropdown.Item>
-            
           </Dropdown.Menu>
         </Dropdown>
       </div>

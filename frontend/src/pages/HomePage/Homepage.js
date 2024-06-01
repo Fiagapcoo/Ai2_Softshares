@@ -38,6 +38,7 @@ const Homepage = () => {
               content="Some quick example text to build on the card title."
               rating={4.5}
               postedBy="Nathan Drake"
+              id='1'
             />
             <PostsCard
               imagealt="Lisbon"
@@ -47,6 +48,7 @@ const Homepage = () => {
               content="Some quick example text to build on the card title."
               rating={4.0}
               postedBy="Elena Fisher"
+              id='2'
             />
             <PostsCard
               imagealt="Lisbon"
@@ -56,6 +58,7 @@ const Homepage = () => {
               content="Some quick example text to build on the card title."
               rating={4.0}
               postedBy="Elena Fisher"
+              id='2'
             />
             <PostsCard
               imagealt="Lisbon"
@@ -63,8 +66,9 @@ const Homepage = () => {
               title="Lisbon Theatre"
               description="POI"
               content="Some quick example text to build on the card title."
-              rating={4.0}
+              rating={4.5}
               postedBy="Elena Fisher"
+              id='2'
             />
           </Col>
         </Row>
