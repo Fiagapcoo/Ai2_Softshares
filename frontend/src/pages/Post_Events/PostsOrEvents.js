@@ -43,7 +43,7 @@ const PostsOrEvents = ({ type }) => {
               title="Teatro Viriato"
               description="POI"
               content="Some quick example text to build on the card title."
-              rating={4.5}
+              rating={4}
               postedBy="Nathan Drake"
               id='1'
             />

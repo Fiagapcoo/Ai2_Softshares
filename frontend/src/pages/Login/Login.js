@@ -2,14 +2,17 @@ import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./Login.css";
 import { useEffect } from "react";
+import {useNavigate} from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = "SoftShares - Login";
   }, []);
 
   const handleLogin = () => {
     alert("Login");
+    navigate('/homepage');
   };
 
   return (

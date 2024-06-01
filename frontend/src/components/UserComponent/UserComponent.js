@@ -2,9 +2,9 @@ import React from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './UserComponent.css';
 
-const UserComponent = ({ name }) => {
+const UserComponent = ({ name, onClick }) => {
     return (
-        <div className="user-component">
+        <div className="user-component" onClick={onClick} style={{ cursor: "pointer" }}>
             <div className="user-icon">
                 <i className="fas fa-user-circle"></i>
             </div>

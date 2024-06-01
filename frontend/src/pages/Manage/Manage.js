@@ -5,6 +5,8 @@ import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
 import UserComponent from '../../components/UserComponent/UserComponent';
 import ButtonWithIcon from '../../components/ButtonWithIcon/ButtonWithIcon';
+import ParentComponent from '../../components/ParentComponent/ParentComponent';
+import '../../components/ValidateItem/ValidateItemPopup'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Button } from 'react-bootstrap';
@@ -83,9 +85,9 @@ const Manage = () => {
             <Row>
             <h1 className="title my-4">Validate Users</h1>
             <div className="d-flex flex-wrap justify-content-start">
-            <UserComponent name={"New User 1"} />
-            <UserComponent name={"New User 2"} />
-            <UserComponent name={"New User 3"} />
+            <ParentComponent name="User1" />
+            <ParentComponent name="User2" />
+            <ParentComponent name="User3" />
             </div>
             </Row>
           </Col>
