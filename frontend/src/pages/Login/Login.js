@@ -1,18 +1,64 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./Login.css";
-import { useEffect } from "react";
-import {useNavigate} from 'react-router-dom';
+import BACKEND_URL from "../../config/config";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   useEffect(() => {
     document.title = "SoftShares - Login";
   }, []);
 
   const handleLogin = () => {
-    alert("Login");
-    navigate('/homepage');
+    if (email === "" || password === "") {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all fields.',
+      });
+      return;
+    }
+
+    axios.post(`${BACKEND_URL}/user/login`, {
+      EMAIL: email,
+      HASHED_PASSWORD: password,
+    })
+    .then(function (response) {
+      if (response.data.admin == true) {
+        console.log(response.data);
+        localStorage.setItem('userID', response.data.user.USER_ID);
+        localStorage.setItem('Name', response.data.user.firstNAME + ' ' + response.data.user.lastNAME);
+        navigate('/homepage');
+      } else if (response.data.admin == false) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'You are not an admin. Please login using the admin account.',
+        });
+      
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'Email or Password is incorrect. Please try again.',
+        });
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response.data.message,
+      });
+    });
   };
 
   return (
@@ -45,10 +91,22 @@ const Login = () => {
             </div>
             <div className="input-fields mb-4">
               <Form.Group controlId="formUsername" className="mb-3">
-                <Form.Control type="text" placeholder="Username" />
+                <Form.Control
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </Form.Group>
               <Form.Group controlId="formPassword" className="mb-3">
-                <Form.Control type="password" placeholder="Password" />
+                <Form.Control
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </Form.Group>
               <div className="d-flex justify-content-between mb-3">
                 <a

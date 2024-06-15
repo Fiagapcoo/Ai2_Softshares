@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
-import { useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col } from 'react-bootstrap';
 import './Homepage.css';
 
 const Homepage = () => {
+  const [userID, setUserID] = useState('');
+
   useEffect(() => {
+    const userIDD = localStorage.getItem('userID');
+    setUserID(userIDD);
     document.title = "SoftShares - Home Page";
   }, []);
+
   return (
     <>
       <Navbar />
@@ -40,36 +44,7 @@ const Homepage = () => {
               postedBy="Nathan Drake"
               id='1'
             />
-            <PostsCard
-              imagealt="Lisbon"
-              imagePlaceholderChangeIma="https://example.com/lisbon.jpg"
-              title="Lisbon Theatre"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.0}
-              postedBy="Elena Fisher"
-              id='2'
-            />
-            <PostsCard
-              imagealt="Lisbon"
-              imagePlaceholderChangeIma="https://example.com/lisbon.jpg"
-              title="Lisbon Theatre"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.0}
-              postedBy="Elena Fisher"
-              id='2'
-            />
-            <PostsCard
-              imagealt="Lisbon"
-              imagePlaceholderChangeIma="https://example.com/lisbon.jpg"
-              title="Lisbon Theatre"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Elena Fisher"
-              id='2'
-            />
+            
           </Col>
         </Row>
       </Container>
