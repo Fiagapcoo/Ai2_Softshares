@@ -3,29 +3,50 @@ const fs = require('fs');
 const path = require('path');
 
 const sequelize = new Sequelize({
-    // your database config here
+    host: 'localhost',
+    port: 5432, 
     dialect: 'postgres',
+    username: 'adminpint',
+    password: 'softshares',
+    database: 'postgres',
+    logging: console.log, // Enable logging to see SQL queries
+})
+/*
+const sequelize = new Sequelize({
+    // your database config here
+    dialect: '',
     host: 'softshares-postgresql.postgres.database.azure.com',
     port: 5432,
     username: 'pintsoftshares',
     password: '--',
     database: 'postgres',
 });
-
+*/
 const db = {};
+const modelDir = path.join(__dirname);
 
-// Read all model files and import them into Sequelize
-fs.readdirSync(__dirname)
-    .filter(file => file !== 'index.js' && file.endsWith('.js'))
-    .forEach(file => {
-        const model = require(path.join(__dirname, file))(sequelize, DataTypes);
-        db[model.name] = model;
+// Function to recursively read model files
+const readModels = (dir) => {
+    fs.readdirSync(dir).forEach(file => {
+        const fullPath = path.join(dir, file);
+        if (fs.lstatSync(fullPath).isDirectory()) {
+            readModels(fullPath);
+        } else if (file.endsWith('.js') && file !== 'index.js') {
+            const model = require(fullPath)(sequelize, DataTypes);
+            db[model.name] = model;
+            console.log(`Imported model: ${model.name}`);
+        }
     });
+};
+
+// Read models from the models directory
+readModels(modelDir);
 
 // Associate models if needed
 Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
         db[modelName].associate(db);
+        console.log(`Associated model: ${modelName}`);
     }
 });
 

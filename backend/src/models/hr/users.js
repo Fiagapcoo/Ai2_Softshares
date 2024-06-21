@@ -7,7 +7,10 @@ module.exports = (sequelize, DataTypes) => {
         email: { type: DataTypes.STRING(100), allowNull: false },
         hashed_password: { type: DataTypes.STRING(255) },
         profile_pic: { type: DataTypes.TEXT },
-        role_id: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+        role_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
         join_date: { type: DataTypes.DATE, allowNull: false },
         last_access: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
     }, {
