@@ -1,4 +1,4 @@
-const { sequelize } = require('../database');
+const { sequelize } = require('../syncModels');
 const { QueryTypes } = require('index');
 
 async function addComment({ parentCommentID = null, contentID, contentType, userID, commentText }) {

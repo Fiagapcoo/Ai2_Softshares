@@ -1,27 +1,8 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const sequelize = require('../database/db'); // Ensure correct path
 
-const sequelize = new Sequelize({
-    host: 'localhost',
-    port: 5432, 
-    dialect: 'postgres',
-    username: 'adminpint',
-    password: 'softshares',
-    database: 'postgres',
-    logging: console.log, // Enable logging to see SQL queries
-})
-/*
-const sequelize = new Sequelize({
-    // your database config here
-    dialect: '',
-    host: 'softshares-postgresql.postgres.database.azure.com',
-    port: 5432,
-    username: 'pintsoftshares',
-    password: '--',
-    database: 'postgres',
-});
-*/
 const db = {};
 const modelDir = path.join(__dirname);
 
@@ -50,6 +31,7 @@ Object.keys(db).forEach(modelName => {
     }
 });
 
+sequelize.sync();
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

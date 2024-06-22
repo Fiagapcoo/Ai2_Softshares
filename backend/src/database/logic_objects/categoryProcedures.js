@@ -1,16 +1,16 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
+const db = require('../../models'); // Correct import
 
 async function spCreateCategory(title) {
-    const exists = await sequelize.query(
+    const exists = await db.sequelize.query(
         `SELECT 1 FROM "static_content"."area" WHERE "title" = :title`,
         { replacements: { title }, type: QueryTypes.SELECT }
     );
 
     if (exists.length === 0) {
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "static_content"."area" ("title") VALUES (:title)`,
-            { replacements: { title }, type: QueryTypes.INSERT }
+            { replacements: { title }, type: QueryTypes.RAW }
         );
     } else {
         console.log('Category already exists.');
@@ -18,13 +18,13 @@ async function spCreateCategory(title) {
 }
 
 async function spCreateSubArea(areaId, title) {
-    const exists = await sequelize.query(
+    const exists = await db.sequelize.query(
         `SELECT 1 FROM "static_content"."sub_area" WHERE "title" = :title`,
         { replacements: { title }, type: QueryTypes.SELECT }
     );
 
     if (exists.length === 0) {
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "static_content"."sub_area" ("area_id", "title") VALUES (:areaId, :title)`,
             { replacements: { areaId, title }, type: QueryTypes.INSERT }
         );
@@ -36,4 +36,4 @@ async function spCreateSubArea(areaId, title) {
 module.exports = {
     spCreateCategory,
     spCreateSubArea
-}
+};

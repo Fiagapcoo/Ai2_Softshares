@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
+const sequelize = require('../../models/index');
 
 async function logUserAction(userID, type, description) {
     try {

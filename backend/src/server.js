@@ -4,10 +4,10 @@ const app = express();
 
 
 
-const PermissionRoutes = require('./routes/PermissionsRoutes');
-const UserRoutes = require('./routes/UserRoutes');
-const RegionalOfficeRoutes = require('./routes/RegionalOfficeRoutes');
-
+//const PermissionRoutes = require('./routes/PermissionsRoutes');
+//const UserRoutes = require('./routes/UserRoutes');
+//const RegionalOfficeRoutes = require('./routes/RegionalOfficeRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 
 const port = process.env.PORT || 8000;
@@ -26,9 +26,13 @@ app.use(express.json());
 app.use(cors());
 
 
-app.use('/permission', PermissionRoutes);
-app.use('/user', UserRoutes);
-app.use('/regional_office', RegionalOfficeRoutes);
+//API
+app.use('/api/categories', categoryRoutes);
+
+
+//app.use('/permission', PermissionRoutes);
+//app.use('/user', UserRoutes);
+//app.use('/regional_office', RegionalOfficeRoutes);
 
 
 

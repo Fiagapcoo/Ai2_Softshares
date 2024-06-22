@@ -102,6 +102,7 @@ async function syncModels() {
             ALTER COLUMN "role_id" SET DEFAULT 1;
         `);
 
+        /*
         await db.sequelize.query(`
             ALTER TABLE "hr"."users"
             ADD CONSTRAINT "fk_users_role_id"
@@ -110,6 +111,7 @@ async function syncModels() {
             ON DELETE NO ACTION
             ON UPDATE CASCADE;
         `);
+        */
 
         console.log('All models were synchronized successfully.');
     } catch (error) {
