@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const db = require('../../models'); // Correct import
+const db = require('../../models'); 
 
 async function spCreateCategory(title) {
     const exists = await db.sequelize.query(
@@ -26,7 +26,7 @@ async function spCreateSubArea(areaId, title) {
     if (exists.length === 0) {
         await db.sequelize.query(
             `INSERT INTO "static_content"."sub_area" ("area_id", "title") VALUES (:areaId, :title)`,
-            { replacements: { areaId, title }, type: QueryTypes.INSERT }
+            { replacements: { areaId, title }, type: QueryTypes.RAW }
         );
     } else {
         console.log('SubArea already exists.');

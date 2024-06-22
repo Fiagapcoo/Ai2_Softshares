@@ -3,7 +3,7 @@ const { spCreateCategory } = require('../database/logic_objects/categoryProcedur
 const controllers = {};
 
 controllers.create_category = async (req, res) => {
-    const { title } = req.query; // Correct parameter extraction
+    const { title } = req.query; 
     try {
         await spCreateCategory(title);
         res.status(201).send('Category created successfully.');

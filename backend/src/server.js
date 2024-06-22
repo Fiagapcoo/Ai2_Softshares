@@ -8,6 +8,7 @@ const app = express();
 //const UserRoutes = require('./routes/UserRoutes');
 //const RegionalOfficeRoutes = require('./routes/RegionalOfficeRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const dynamic_contentRoutes = require('./routes/dynamic_contentRoutes');
 
 
 const port = process.env.PORT || 8000;
@@ -28,6 +29,7 @@ app.use(cors());
 
 //API
 app.use('/api/categories', categoryRoutes);
+app.use('/api/dynamic_content', dynamic_contentRoutes);
 
 
 //app.use('/permission', PermissionRoutes);

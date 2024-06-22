@@ -1,21 +1,23 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
+const { fnIsPublisherOfficeAdmin } = require('./generalHelpers');
+const db = require('../../models'); 
+
 
 //Procedure to Create a Forum
-async function spCreateForum(subAreaId, title, description, createdBy, adminId = null) {
-    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(createdBy);
-    const validated = isOfficeAdmin ? 1 : 0;
-    adminId = isOfficeAdmin ? createdBy : adminId;
+async function spCreateForum(officeID, subAreaId, title, description, publisher_id) {
+    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id);
+    const validated = isOfficeAdmin ? true : false;
+    let adminId = isOfficeAdmin ? publisher_id : null;
 
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "dynamic_content"."forums" 
-        ("sub_area_id", "title", "content", "creation_date", "publisher_id", "admin_id", "validated")
-        VALUES (:subAreaId, :title, :description, CURRENT_TIMESTAMP, :createdBy, :adminId, :validated)`,
+        ("office_id","sub_area_id", "title", "content", "creation_date", "publisher_id", "admin_id", "validated")
+        VALUES (:officeID, :subAreaId, :title, :description, CURRENT_TIMESTAMP, :publisher_id, :adminId, :validated)`,
             {
-                replacements: { subAreaId, title, description, createdBy, adminId, validated },
-                type: QueryTypes.INSERT,
+                replacements: { officeID, subAreaId, title, description, publisher_id, adminId, validated },
+                type: QueryTypes.RAW,
                 transaction
             }
         );
@@ -33,25 +35,25 @@ async function spCreateForumForEvent(subAreaId, title, description, createdBy, a
     const validated = isOfficeAdmin ? 1 : 0;
     adminId = isOfficeAdmin ? createdBy : adminId;
 
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const [result] = await sequelize.query(
+        const [result] = await db.sequelize.query(
             `INSERT INTO "dynamic_content"."forums" 
         ("sub_area_id", "title", "content", "creation_date", "publisher_id", "admin_id", "event_id", "validated")
         VALUES (:subAreaId, :title, :description, CURRENT_TIMESTAMP, :createdBy, :adminId, :eventId, :validated)
         RETURNING "forum_id"`,
             {
                 replacements: { subAreaId, title, description, createdBy, adminId, eventId, validated },
-                type: QueryTypes.INSERT,
+                type: QueryTypes.RAW,
                 transaction
             }
         );
 
         const forumId = result.forum_id;
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "control"."event_forum_access" ("user_id", "forum_id")
         VALUES (:createdBy, :forumId)`,
-            { replacements: { createdBy, forumId }, type: QueryTypes.INSERT, transaction }
+            { replacements: { createdBy, forumId }, type: QueryTypes.RAW, transaction }
         );
 
         await transaction.commit();
@@ -63,7 +65,7 @@ async function spCreateForumForEvent(subAreaId, title, description, createdBy, a
 
 //Function to Get Forum State
 async function fnGetForumState(forumId) {
-    const result = await sequelize.query(
+    const result = await db.sequelize.query(
         `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."forums"
       WHERE "forum_id" = :forumId`,
@@ -75,15 +77,15 @@ async function fnGetForumState(forumId) {
 
 //Procedure to Edit a Forum
 async function spEditForum(forumId, subAreaId = null, officeId = null, adminId = null, title = null, content = null, eventId = null) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const forum = await sequelize.query(
+        const forum = await db.sequelize.query(
             `SELECT "validated" FROM "dynamic_content"."forums" WHERE "forum_id" = :forumId`,
             { replacements: { forumId }, type: QueryTypes.SELECT, transaction }
         );
 
         if (forum.length && forum[0].validated === 0) {
-            await sequelize.query(
+            await db.sequelize.query(
                 `UPDATE "dynamic_content"."forums"
           SET
             "sub_area_id" = COALESCE(:subAreaId, "sub_area_id"),

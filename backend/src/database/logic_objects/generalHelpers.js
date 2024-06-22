@@ -1,11 +1,11 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
+const db = require('../../models'); 
 
 //Procedure to Validate Content
 async function spValidateContent(contentType, contentId, adminId) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        await sequelize.query(
+        await db.sequelize.query(
             `UPDATE "admin"."content_validation_status"
         SET "validator_id" = :adminId, "validation_date" = CURRENT_TIMESTAMP, "content_status" = 'Approved'
         WHERE "content_real_id" = :contentId AND "content_type" = :contentType`,
@@ -23,7 +23,7 @@ async function spValidateContent(contentType, contentId, adminId) {
             throw new Error('Invalid content type');
         }
 
-        await sequelize.query(
+        await db.sequelize.query(
             `UPDATE "dynamic_content"."${table}"
         SET "validated" = 1
         WHERE "${contentType.toLowerCase()}_id" = :contentId`,
@@ -39,14 +39,14 @@ async function spValidateContent(contentType, contentId, adminId) {
 
 //Procedure to Reject Content
 async function spRejectContent(contentType, contentId, adminId) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
         const validContentTypes = ['Post', 'Event', 'Forum'];
         if (!validContentTypes.includes(contentType)) {
             throw new Error('Invalid ContentType. Only "Post", "Event", and "Forum" are allowed.');
         }
 
-        await sequelize.query(
+        await db.sequelize.query(
             `UPDATE "admin"."content_validation_status"
         SET "validator_id" = :adminId, "validation_date" = CURRENT_TIMESTAMP, "content_status" = 'Rejected'
         WHERE "content_real_id" = :contentId AND "content_type" = :contentType`,
@@ -62,7 +62,7 @@ async function spRejectContent(contentType, contentId, adminId) {
 
 //Procedure to Insert a New Rating/Evaluation
 async function spInsertEvaluation(contentType, contentId, criticId, evaluation) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
         const validContentTypes = ['Post', 'Event'];
         if (!validContentTypes.includes(contentType)) {
@@ -71,7 +71,7 @@ async function spInsertEvaluation(contentType, contentId, criticId, evaluation) 
 
         const table = contentType === 'Post' ? 'posts' : 'events';
 
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "dynamic_content"."ratings" ("${table}_id", "critic_id", "evaluation_date", "evaluation")
         VALUES (:contentId, :criticId, CURRENT_TIMESTAMP, :evaluation)`,
             { replacements: { contentId, criticId, evaluation }, type: QueryTypes.INSERT, transaction }
@@ -94,9 +94,9 @@ async function fnReverseRating(avgRating, numOfRatings, newRating) {
 
 //Trigger to Update Average Score on Content
 async function trgUpdateAverageScore() {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const insertedRows = await sequelize.query(
+        const insertedRows = await db.sequelize.query(
             `SELECT "event_id", "post_id"
         FROM INSERTED`,
             { type: QueryTypes.SELECT, transaction }
@@ -117,7 +117,7 @@ async function trgUpdateAverageScore() {
             if (currentAvgScore) {
                 const newAvgRating = await fnReverseRating(currentAvgScore.score, currentAvgScore.num_of_evals, newRating);
 
-                await sequelize.query(
+                await db.sequelize.query(
                     `UPDATE "dynamic_content"."scores"
             SET "score" = :newAvgRating, "num_of_evals" = "num_of_evals" + 1
             WHERE "${table}" = :contentId`,
@@ -133,6 +133,17 @@ async function trgUpdateAverageScore() {
     }
 }
 
+async function fnIsPublisherOfficeAdmin(publisherID) {
+    const result = await db.sequelize.query(
+        `SELECT EXISTS (SELECT 1 FROM "centers"."office_admins" WHERE "manager_id" = :publisherID) AS "exists"`,
+        {
+            replacements: { publisherID },
+            type: QueryTypes.SELECT,
+        }
+    );
+
+    return result[0].exists ? true : false;
+}
 
 
 
@@ -142,5 +153,6 @@ module.exports = {
     spInsertEvaluation,
     fnReverseRating,
     trgUpdateAverageScore,
+    fnIsPublisherOfficeAdmin
     
 }

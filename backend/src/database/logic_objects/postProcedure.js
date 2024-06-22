@@ -1,5 +1,6 @@
 const { QueryTypes } = require('sequelize');
 const sequelize = require('../models/index');
+const { fnIsPublisherOfficeAdmin } = require('../database/logic_objects/generalHelpers');
 
 //Procedure to Create a Post
 async function spCreatePost(subAreaId, officeId, adminId, publisherId, type, title, content, pLocation, filePath, rating) {

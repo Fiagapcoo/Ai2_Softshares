@@ -1,5 +1,6 @@
 const { QueryTypes } = require('sequelize');
 const sequelize = require('../models/index');
+const { fnIsPublisherOfficeAdmin } = require('../database/logic_objects/generalHelpers');
 
 //Procedure to Create an Event
 async function spCreateEvent(officeId, subAreaId, adminId = null, name, description, eventDate, recurring, location) {
