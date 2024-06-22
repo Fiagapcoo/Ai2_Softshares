@@ -1,22 +1,22 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
-const { fnIsPublisherOfficeAdmin } = require('../database/logic_objects/generalHelpers');
+const { fnIsPublisherOfficeAdmin } = require('./generalHelpers');
+const db = require('../../models'); 
 
 //Procedure to Create an Event
-async function spCreateEvent(officeId, subAreaId, adminId = null, name, description, eventDate, recurring, location) {
-    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(createdBy);
-    const validated = isOfficeAdmin ? 1 : 0;
-    adminId = isOfficeAdmin ? createdBy : adminId;
+async function spCreateEvent(officeId, subAreaId, name, description, eventDate, recurring, recurring_pattern, max_participants, location, publisher_id) {
+    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id);
+    const validated = isOfficeAdmin ? true : false;
+    let admin_id = isOfficeAdmin ? publisher_id : null;
 
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        await sequelize.query(
+        await db.sequelize.query(
             `INSERT INTO "dynamic_content"."events" 
-        ("office_id", "subarea_id", "admin_id", "creation_date", "name", "description", "event_date", "recurring", "event_location", "validated")
-        VALUES (:officeId, :subAreaId, :adminId, CURRENT_TIMESTAMP, :name, :description, :eventDate, :recurring, :location, :validated)`,
+        ("office_id", "subarea_id", "publihser_id", "admin_id", "creation_date", "name", "description", "event_date", "recurring", "recurring_pattern", "max_participants", "event_location", "validated")
+        VALUES (:officeId, :subAreaId, :publisher_id, :admin_id, CURRENT_TIMESTAMP, :name, :description, :eventDate, :recurring, :recurring_pattern, :max_participants, :location, :validated)`,
             {
-                replacements: { officeId, subAreaId, adminId, name, description, eventDate, recurring, location, validated },
-                type: QueryTypes.INSERT,
+                replacements: { officeId, subAreaId, publisher_id, admin_id, name, description, eventDate, recurring, recurring_pattern, max_participants, location, validated },
+                type: QueryTypes.RAW,
                 transaction
             }
         );
@@ -30,9 +30,9 @@ async function spCreateEvent(officeId, subAreaId, adminId = null, name, descript
 
 //Procedure to Clean Up Event Participation
 async function spEventParticipationCleanup() {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const inactiveUsers = await sequelize.query(
+        const inactiveUsers = await db.sequelize.query(
             `SELECT ep."user_id", ep."event_id"
         FROM "control"."participation" ep
         JOIN "hr"."users" u ON ep."user_id" = u."user_id"
@@ -41,7 +41,7 @@ async function spEventParticipationCleanup() {
         );
 
         for (const user of inactiveUsers) {
-            await sequelize.query(
+            await db.sequelize.query(
                 `DELETE FROM "control"."participation"
           WHERE "user_id" = :userId AND "event_id" = :eventId`,
                 { replacements: { userId: user.user_id, eventId: user.event_id }, type: QueryTypes.DELETE, transaction }
@@ -57,9 +57,9 @@ async function spEventParticipationCleanup() {
 
 //Procedure to Unregister a User from an Event
 async function spUnregisterUserFromEvent(userId, eventId) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const forumIdResult = await sequelize.query(
+        const forumIdResult = await db.sequelize.query(
             `SELECT "forum_id"
         FROM "dynamic_content"."forums"
         WHERE "event_id" = :eventId`,
@@ -72,19 +72,19 @@ async function spUnregisterUserFromEvent(userId, eventId) {
 
         const forumId = forumIdResult[0].forum_id;
 
-        await sequelize.query(
+        await db.sequelize.query(
             `DELETE FROM "control"."participation"
         WHERE "user_id" = :userId AND "event_id" = :eventId`,
             { replacements: { userId, eventId }, type: QueryTypes.DELETE, transaction }
         );
 
-        await sequelize.query(
+        await db.sequelize.query(
             `DELETE FROM "control"."event_forum_access"
         WHERE "user_id" = :userId AND "forum_id" = :forumId`,
             { replacements: { userId, forumId }, type: QueryTypes.DELETE, transaction }
         );
 
-        await sequelize.query(
+        await db.sequelize.query(
             `UPDATE "dynamic_content"."events"
         SET "current_participants" = "current_participants" - 1
         WHERE "event_id" = :eventId`,
@@ -101,7 +101,7 @@ async function spUnregisterUserFromEvent(userId, eventId) {
 
 //Function to Get Event State
 async function fnGetEventState(eventId) {
-    const result = await sequelize.query(
+    const result = await db.sequelize.query(
         `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."events"
       WHERE "event_id" = :eventId`,
@@ -112,16 +112,18 @@ async function fnGetEventState(eventId) {
 }
 
 //Procedure to Edit an Event
-async function spEditEvent(eventId, subAreaId = null, officeId = null, adminId = null, name = null, description = null, eventDate = null, eventLocation = null, filePath = null, recurring = null, recurringPattern = null, maxParticipants = null, currentParticipants = null) {
-    const transaction = await sequelize.transaction();
+async function spEditEvent(eventId, subAreaId = null, officeId = null, adminId = null, name = null, description = null, eventDate = null, 
+                            eventLocation = null, filePath = null, recurring = null, recurringPattern = null, maxParticipants = null, currentParticipants = null) {
+    
+    const transaction = await db.sequelize.transaction();
     try {
-        const event = await sequelize.query(
+        const event = await db.sequelize.query(
             `SELECT "validated" FROM "dynamic_content"."events" WHERE "event_id" = :eventId`,
             { replacements: { eventId }, type: QueryTypes.SELECT, transaction }
         );
 
         if (event.length && event[0].validated === 0) {
-            await sequelize.query(
+            await db.sequelize.query(
                 `UPDATE "dynamic_content"."events"
           SET
             "subarea_id" = COALESCE(:subAreaId, "subarea_id"),

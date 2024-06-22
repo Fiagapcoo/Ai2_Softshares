@@ -22,6 +22,13 @@ async function spCreateForum(officeID, subAreaId, title, description, publisher_
             }
         );
 
+        const forumId = result.forum_id;
+        await db.sequelize.query(
+            `INSERT INTO "control"."event_forum_access" ("user_id", "forum_id")
+        VALUES (:publisher_id, :forumId)`,
+            { replacements: { publisher_id, forumId }, type: QueryTypes.RAW, transaction }
+        );
+
         await transaction.commit();
     } catch (error) {
         await transaction.rollback();
@@ -30,17 +37,17 @@ async function spCreateForum(officeID, subAreaId, title, description, publisher_
 }
 
 //Procedure to Create a Forum for an Event
-async function spCreateForumForEvent(subAreaId, title, description, createdBy, adminId = null, eventId) {
-    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(createdBy);
-    const validated = isOfficeAdmin ? 1 : 0;
-    adminId = isOfficeAdmin ? createdBy : adminId;
+async function spCreateForumForEvent(subAreaId, title, description, publisher_id, eventId) {
+    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id);
+    const validated = isOfficeAdmin ? true : false;
+    let adminId = isOfficeAdmin ? publisher_id : null;
 
     const transaction = await db.sequelize.transaction();
     try {
         const [result] = await db.sequelize.query(
             `INSERT INTO "dynamic_content"."forums" 
-        ("sub_area_id", "title", "content", "creation_date", "publisher_id", "admin_id", "event_id", "validated")
-        VALUES (:subAreaId, :title, :description, CURRENT_TIMESTAMP, :createdBy, :adminId, :eventId, :validated)
+        ("office_id", "sub_area_id", "title", "content", "creation_date", "publisher_id", "admin_id", "event_id", "validated")
+        VALUES (:officeID, :subAreaId, :title, :description, CURRENT_TIMESTAMP, :publisher_id, :adminId, :eventId, :validated)
         RETURNING "forum_id"`,
             {
                 replacements: { subAreaId, title, description, createdBy, adminId, eventId, validated },
@@ -52,8 +59,8 @@ async function spCreateForumForEvent(subAreaId, title, description, createdBy, a
         const forumId = result.forum_id;
         await db.sequelize.query(
             `INSERT INTO "control"."event_forum_access" ("user_id", "forum_id")
-        VALUES (:createdBy, :forumId)`,
-            { replacements: { createdBy, forumId }, type: QueryTypes.RAW, transaction }
+        VALUES (:publisher_id, :forumId)`,
+            { replacements: { publisher_id, forumId }, type: QueryTypes.RAW, transaction }
         );
 
         await transaction.commit();

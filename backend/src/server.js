@@ -8,7 +8,9 @@ const app = express();
 //const UserRoutes = require('./routes/UserRoutes');
 //const RegionalOfficeRoutes = require('./routes/RegionalOfficeRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
-const dynamic_contentRoutes = require('./routes/dynamic_contentRoutes');
+const forumRoutes = require('./routes/forumRoutes');
+const postRoutes = require('./routes/postRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 
 
 const port = process.env.PORT || 8000;
@@ -18,7 +20,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type,Accept, Access-Control-Allow-Request-Method');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     next();
 });
 
@@ -29,8 +31,9 @@ app.use(cors());
 
 //API
 app.use('/api/categories', categoryRoutes);
-app.use('/api/dynamic_content', dynamic_contentRoutes);
-
+app.use('/api/forum', forumRoutes);
+app.use('/api/post', postRoutes);
+app.use('/api/event', eventRoutes);
 
 //app.use('/permission', PermissionRoutes);
 //app.use('/user', UserRoutes);

@@ -1,34 +1,36 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
-const { fnIsPublisherOfficeAdmin } = require('../database/logic_objects/generalHelpers');
+const db = require('../../models'); 
+const { fnIsPublisherOfficeAdmin } = require('./generalHelpers');
 
 //Procedure to Create a Post
-async function spCreatePost(subAreaId, officeId, adminId, publisherId, type, title, content, pLocation, filePath, rating) {
-    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisherId);
-    const validated = isOfficeAdmin ? 1 : 0;
-    adminId = isOfficeAdmin ? publisherId : adminId;
+async function spCreatePost(subAreaId, officeId, publisher_id, title, content, pLocation, filePath, type='N', rating=null) {
+    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id);
+    const validated = isOfficeAdmin ? true : false;
+    let adminId = isOfficeAdmin ? publisher_id : null
 
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const [result] = await sequelize.query(
+        const [result] = await db.sequelize.query(
             `INSERT INTO "dynamic_content"."posts" 
         ("sub_area_id", "office_id", "admin_id", "publisher_id", "creation_date", "type", "title", "content", "p_location", "filepath", "validated")
-        VALUES (:subAreaId, :officeId, :adminId, :publisherId, CURRENT_TIMESTAMP, :type, :title, :content, :pLocation, :filePath, :validated)
+        VALUES (:subAreaId, :officeId, :adminId, :publisher_id, CURRENT_TIMESTAMP, :type, :title, :content, :pLocation, :filePath, :validated)
         RETURNING "post_id"`,
             {
-                replacements: { subAreaId, officeId, adminId, publisherId, type, title, content, pLocation, filePath, validated },
-                type: QueryTypes.INSERT,
+                replacements: { subAreaId, officeId, adminId, publisher_id, type, title, content, pLocation, filePath, validated },
+                type: QueryTypes.RAW,
                 transaction
             }
         );
-
-        const postId = result.post_id;
-        await sequelize.query(
-            `INSERT INTO "dynamic_content"."ratings" 
-        ("post_id", "event_id", "critic_id", "evaluation")
-        VALUES (:postId, NULL, :publisherId, :rating)`,
-            { replacements: { postId, publisherId, rating }, type: QueryTypes.INSERT, transaction }
-        );
+        if(type == 'P' )
+        {
+            const postId = result.post_id;
+            await db.sequelize.query(
+                `INSERT INTO "dynamic_content"."ratings" 
+            ("post_id", "event_id", "critic_id", "evaluation")
+            VALUES (:postId, NULL, :publisher_id, :rating)`,
+                { replacements: { postId, publisher_id, rating }, type: QueryTypes.RAW, transaction }
+            );
+        }
 
         await transaction.commit();
     } catch (error) {
@@ -39,7 +41,7 @@ async function spCreatePost(subAreaId, officeId, adminId, publisherId, type, tit
 
 // Function to Get Post State
 async function fnGetPostState(postId) {
-    const result = await sequelize.query(
+    const result = await db.sequelize.query(
         `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."posts"
       WHERE "post_id" = :postId`,
@@ -51,15 +53,15 @@ async function fnGetPostState(postId) {
 
 //Procedure to Edit a Post
 async function spEditPost(postId, subAreaId = null, officeId = null, adminId = null, title = null, content = null, pLocation = null, filePath = null, type = null) {
-    const transaction = await sequelize.transaction();
+    const transaction = await db.sequelize.transaction();
     try {
-        const post = await sequelize.query(
+        const post = await db.sequelize.query(
             `SELECT "validated" FROM "dynamic_content"."posts" WHERE "post_id" = :postId`,
             { replacements: { postId }, type: QueryTypes.SELECT, transaction }
         );
 
         if (post.length && post[0].validated === 0) {
-            await sequelize.query(
+            await db.sequelize.query(
                 `UPDATE "dynamic_content"."posts"
           SET
             "sub_area_id" = COALESCE(:subAreaId, "sub_area_id"),
