@@ -293,14 +293,15 @@ async function bulkInsert() {
         (10, 10, NULL, 'You have a new event: Workout competition.',CURRENT_TIMESTAMP);
     `);
     await db.sequelize.query(`
-        INSERT INTO "forms"."default_fields" ("field_name", "field_type", "field_value")
+        INSERT INTO "forms"."default_fields" ("field_id","field_name", "field_type", "field_value")
         VALUES
-        ('First Name', 'Text', ''),
-        ('Last Name', 'Text', ''),
-        ('Age', 'Int', '0'),
-        ('Date of Birth', 'Date', '1970-01-01'),
-        ('Gender', 'Check Box', 'M;F;O'),
-        ('Agree to Terms', 'Checkbox', 'Y;N');
+        (1,'First Name', 'Text', ''),
+        (2,'Last Name', 'Text', ''),
+        (3,'Age', 'Int', '0'),
+        (4,'Date of Birth', 'Date', '1970-01-01'),
+        (5,'Gender', 'Check Box', 'M;F;O'),
+        (6,'Agree to Terms', 'Checkbox', 'Y;N')
+        ON CONFLICT ("field_id") DO NOTHING; 
     `);
 
 
