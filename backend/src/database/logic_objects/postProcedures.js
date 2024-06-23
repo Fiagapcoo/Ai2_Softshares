@@ -42,7 +42,7 @@ async function spCreatePost(subAreaId, officeId, publisher_id, title, content, p
 // Function to Get Post State
 async function fnGetPostState(postId) {
     const result = await db.sequelize.query(
-        `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
+        `SELECT CASE WHEN "validated" = true THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."posts"
       WHERE "post_id" = :postId`,
         { replacements: { postId }, type: QueryTypes.SELECT }
@@ -60,7 +60,7 @@ async function spEditPost(postId, subAreaId = null, officeId = null, adminId = n
             { replacements: { postId }, type: QueryTypes.SELECT, transaction }
         );
 
-        if (post.length && post[0].validated === 0) {
+        if (post.length && post[0].validated === false) {
             await db.sequelize.query(
                 `UPDATE "dynamic_content"."posts"
           SET

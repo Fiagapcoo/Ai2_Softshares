@@ -101,7 +101,11 @@ async function syncModels() {
             ALTER TABLE "hr"."users"
             ALTER COLUMN "role_id" SET DEFAULT 1;
         `);
-
+/*
+        await db.sequelize.query(`
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        `);
+        */
         /*
         await db.sequelize.query(`
             ALTER TABLE "hr"."users"

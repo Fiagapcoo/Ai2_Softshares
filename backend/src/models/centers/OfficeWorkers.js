@@ -5,7 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         schema: 'centers',
         tableName: 'office_workers',
-        timestamps: false
+        timestamps: false,
+        indexes: [
+            {
+                unique: true,
+                fields: ['office_id', 'user_id']
+            }
+        ]
     });
 
     OfficeWorkers.associate = function(models) {

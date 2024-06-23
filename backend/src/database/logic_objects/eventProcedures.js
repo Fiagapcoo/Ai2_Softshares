@@ -102,7 +102,7 @@ async function spUnregisterUserFromEvent(userId, eventId) {
 //Function to Get Event State
 async function fnGetEventState(eventId) {
     const result = await db.sequelize.query(
-        `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
+        `SELECT CASE WHEN "validated" = true THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."events"
       WHERE "event_id" = :eventId`,
         { replacements: { eventId }, type: QueryTypes.SELECT }
@@ -122,7 +122,7 @@ async function spEditEvent(eventId, subAreaId = null, officeId = null, adminId =
             { replacements: { eventId }, type: QueryTypes.SELECT, transaction }
         );
 
-        if (event.length && event[0].validated === 0) {
+        if (event.length && event[0].validated === false) {
             await db.sequelize.query(
                 `UPDATE "dynamic_content"."events"
           SET

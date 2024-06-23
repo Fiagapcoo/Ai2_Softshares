@@ -5,7 +5,7 @@ async function logUserAction(userID, type, description) {
     try {
       await db.sequelize.transaction(async (transaction) => {
         await db.sequelize.query(
-          `INSERT INTO "USER_INTERACTIONS"."USER_ACTIONS_LOG" (USER_ID, ACTION_TYPE, ACTION_DESCRIPTION) VALUES (:userID, :type, :description)`,
+          `INSERT INTO "user_interactions"."user_actions_log" (user_id, action_type, action_description) VALUES (:userID, :type, :description)`,
           {
             replacements: { userID, type, description },
             type: QueryTypes.INSERT,
@@ -23,24 +23,24 @@ async function getUserPreferences(userID) {
     try {
       const results = await db.sequelize.query(
         `SELECT 
-            up.USER_ID, 
-            up.AREAS, 
-            up.SUB_AREAS, 
-            a.TITLE AS "AreaTitle", 
-            sa.TITLE AS "SubAreaTitle", 
-            up."ReceiveNotifications"
-          FROM "USER_INTERACTIONS"."USER_PREF" up
-          LEFT JOIN "STATIC_CONTENT"."AREA" a ON up.AREAS IS NOT NULL AND EXISTS (
+            up.user_id, 
+            up.areas, 
+            up.sub_areas, 
+            a.title AS "AreaTitle", 
+            sa.title AS "SubAreaTitle", 
+            up."receive_notifications"
+          FROM "user_interactions"."user_pref" up
+          LEFT JOIN "static_content"."area" a ON up.areas IS NOT NULL AND EXISTS (
               SELECT 1 
-              FROM OPENJSON(up.AREAS) 
-              WHERE value = CAST(a."AREA_ID" AS NVARCHAR)
+              FROM OPENJSON(up.areas) 
+              WHERE value = CAST(a."area_id" AS NVARCHAR)
           )
-          LEFT JOIN "STATIC_CONTENT"."SUB_AREA" sa ON up.SUB_AREAS IS NOT NULL AND EXISTS (
+          LEFT JOIN "static_content"."sub_area" sa ON up.sub_areas IS NOT NULL AND EXISTS (
               SELECT 1 
-              FROM OPENJSON(up.SUB_AREAS) 
-              WHERE value = CAST(sa."SUB_AREA_ID" AS NVARCHAR)
+              FROM OPENJSON(up.sub_areas) 
+              WHERE value = CAST(sa."sub_area_id" AS NVARCHAR)
           )
-          WHERE up.USER_ID = :userID`,
+          WHERE up.user_id = :userID`,
         {
           replacements: { userID },
           type: QueryTypes.SELECT
@@ -53,16 +53,16 @@ async function getUserPreferences(userID) {
     }
 }
 
-  async function updateUserPreferences(userID, preferredLanguageID, preferredAreas, preferredSubAreas, receiveNotifications) {
+  async function updateUserPreferences(userID, preferredlanguage_id, preferredAreas, preferredSubAreas, receiveNotifications) {
     try {
       await db.sequelize.transaction(async (transaction) => {
-        if (preferredLanguageID !== null) {
+        if (preferredlanguage_id !== null) {
           await db.sequelize.query(
-            `UPDATE "USER_INTERACTIONS"."USER_PREF"
-            SET "LanguageID" = :preferredLanguageID
-            WHERE "USER_ID" = :userID`,
+            `UPDATE "user_interactions"."user_pref"
+            SET "language_id" = :preferredlanguage_id
+            WHERE "user_id" = :userID`,
             {
-              replacements: { userID, preferredLanguageID },
+              replacements: { userID, preferredlanguage_id },
               type: QueryTypes.UPDATE,
               transaction
             }
@@ -71,9 +71,9 @@ async function getUserPreferences(userID) {
   
         if (preferredAreas !== null) {
           await db.sequelize.query(
-            `UPDATE "USER_INTERACTIONS"."USER_PREF"
-            SET "AREAS" = :preferredAreas
-            WHERE "USER_ID" = :userID`,
+            `UPDATE "user_interactions"."user_pref"
+            SET "areas" = :preferredAreas
+            WHERE "user_id" = :userID`,
             {
               replacements: { userID, preferredAreas },
               type: QueryTypes.UPDATE,
@@ -84,9 +84,9 @@ async function getUserPreferences(userID) {
   
         if (preferredSubAreas !== null) {
           await db.sequelize.query(
-            `UPDATE "USER_INTERACTIONS"."USER_PREF"
-            SET "SUB_AREAS" = :preferredSubAreas
-            WHERE "USER_ID" = :userID`,
+            `UPDATE "user_interactions"."user_pref"
+            SET "sub_areas" = :preferredSubAreas
+            WHERE "user_id" = :userID`,
             {
               replacements: { userID, preferredSubAreas },
               type: QueryTypes.UPDATE,
@@ -97,9 +97,9 @@ async function getUserPreferences(userID) {
   
         if (receiveNotifications !== null) {
           await db.sequelize.query(
-            `UPDATE "USER_INTERACTIONS"."USER_PREF"
-            SET "ReceiveNotifications" = :receiveNotifications
-            WHERE "USER_ID" = :userID`,
+            `UPDATE "user_interactions"."user_pref"
+            SET "receive_notifications" = :receiveNotifications
+            WHERE "user_id" = :userID`,
             {
               replacements: { userID, receiveNotifications },
               type: QueryTypes.UPDATE,
@@ -120,9 +120,9 @@ async function updateAccessOnLogin(userID) {
     try {
       await db.sequelize.transaction(async (transaction) => {
         await db.sequelize.query(
-          `UPDATE "HR"."USERS"
-          SET "LAST_ACCESS" = NOW()
-          WHERE "USER_ID" = :userID`,
+          `UPDATE "hr"."users"
+          SET "last_access" = CURRENT_TIMESTAMP
+          WHERE "user_id" = :userID`,
           {
             replacements: { userID },
             type: QueryTypes.UPDATE,
@@ -142,9 +142,9 @@ async function getUserRole(userID) {
     try {
       const result = await db.sequelize.query(
         `SELECT p."RoleName"
-        FROM "HR"."USERS" u
-        JOIN "SECURITY"."ACC_PERMISSIONS" p ON u."RoleID" = p."RoleID"
-        WHERE u."USER_ID" = :userID`,
+        FROM "hr"."users" u
+        JOIN "security"."acc_permissions" p ON u."role_id" = p."role_id"
+        WHERE u."user_id" = :userID`,
         {
           replacements: { userID },
           type: QueryTypes.SELECT
@@ -161,8 +161,8 @@ async function addBookmark(userID, contentID, contentType) {
     try {
       await db.sequelize.transaction(async (transaction) => {
         const [results] = await db.sequelize.query(
-          `SELECT 1 FROM "USER_INTERACTIONS"."BOOKMARKS"
-          WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
+          `SELECT 1 FROM "user_interactions"."bookmarks"
+          WHERE "user_id" = :userID AND "content_id" = :contentID AND "content_type" = :contentType`,
           {
             replacements: { userID, contentID, contentType },
             type: QueryTypes.SELECT,
@@ -172,8 +172,8 @@ async function addBookmark(userID, contentID, contentType) {
   
         if (!results) {
           await db.sequelize.query(
-            `INSERT INTO "USER_INTERACTIONS"."BOOKMARKS" ("USER_ID", "CONTENT_ID", "CONTENT_TYPE", "BOOKMARK_DATE")
-            VALUES (:userID, :contentID, :contentType, NOW())`,
+            `INSERT INTO "user_interactions"."bookmarks" ("user_id", "content_id", "content_type", "bookmark_date")
+            VALUES (:userID, :contentID, :contentType, CURRENT_TIMESTAMP)`,
             {
               replacements: { userID, contentID, contentType },
               type: QueryTypes.INSERT,
@@ -196,8 +196,8 @@ async function removeBookmark(userID, contentID, contentType) {
     try {
       await db.sequelize.transaction(async (transaction) => {
         const [results] = await db.sequelize.query(
-          `SELECT 1 FROM "USER_INTERACTIONS"."BOOKMARKS"
-          WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
+          `SELECT 1 FROM "user_interactions"."bookmarks"
+          WHERE "user_id" = :userID AND "content_id" = :contentID AND "content_type" = :contentType`,
           {
             replacements: { userID, contentID, contentType },
             type: QueryTypes.SELECT,
@@ -207,8 +207,8 @@ async function removeBookmark(userID, contentID, contentType) {
   
         if (results) {
           await db.sequelize.query(
-            `DELETE FROM "USER_INTERACTIONS"."BOOKMARKS"
-            WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
+            `DELETE FROM "user_interactions"."bookmarks"
+            WHERE "user_id" = :userID AND "content_id" = :contentID AND "content_type" = :contentType`,
             {
               replacements: { userID, contentID, contentType },
               type: QueryTypes.DELETE,
@@ -232,21 +232,21 @@ async function getUserBookmarks(userID) {
     try {
       const results = await db.sequelize.query(
         `SELECT 
-          ub."USER_ID",
-          ub."CONTENT_ID",
-          ub."CONTENT_TYPE",
-          ub."BOOKMARK_DATE",
-          p."TITLE" AS "PostTitle",
-          p."CONTENT" AS "PostContent",
-          e."NAME" AS "EventName",
-          e."DESCRIPTION" AS "EventDescription",
-          f."TITLE" AS "ForumTitle",
-          f."CONTENT" AS "ForumContent"
-        FROM "USER_INTERACTIONS"."BOOKMARKS" ub
-        LEFT JOIN "DYNAMIC_CONTENT"."POSTS" p ON ub."CONTENT_ID" = p."POST_ID" AND ub."CONTENT_TYPE" = 'Post'
-        LEFT JOIN "DYNAMIC_CONTENT"."EVENTS" e ON ub."CONTENT_ID" = e."EVENT_ID" AND ub."CONTENT_TYPE" = 'Event'
-        LEFT JOIN "DYNAMIC_CONTENT"."FORUMS" f ON ub."CONTENT_ID" = f."FORUM_ID" AND ub."CONTENT_TYPE" = 'Forum'
-        WHERE ub."USER_ID" = :userID`,
+          ub."user_id",
+          ub."content_id",
+          ub."content_type",
+          ub."bookmark_date",
+          p."title" AS "PostTitle",
+          p."content" AS "PostContent",
+          e."name" AS "EventName",
+          e."description" AS "EventDescription",
+          f."title" AS "ForumTitle",
+          f."content" AS "ForumContent"
+        FROM "user_interactions"."bookmarks" ub
+        LEFT JOIN "dynamic_content"."posts" p ON ub."content_id" = p."post_id" AND ub."content_type" = 'Post'
+        LEFT JOIN "dynamic_content"."events" e ON ub."content_id" = e."event_id" AND ub."content_type" = 'Event'
+        LEFT JOIN "dynamic_content"."forums" f ON ub."content_id" = f."forum_id" AND ub."content_type" = 'Forum'
+        WHERE ub."user_id" = :userID`,
         {
           replacements: { userID },
           type: QueryTypes.SELECT

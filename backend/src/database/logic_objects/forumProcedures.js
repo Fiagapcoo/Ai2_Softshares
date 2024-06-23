@@ -5,7 +5,7 @@ const db = require('../../models');
 
 //Procedure to Create a Forum
 async function spCreateForum(officeID, subAreaId, title, description, publisher_id) {
-    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id);
+    const isOfficeAdmin = await fnIsPublisherOfficeAdmin(publisher_id); //admin so pode publicar se o office que estiver a publicar for o que ele e admin -- na parte web
     const validated = isOfficeAdmin ? true : false;
     let adminId = isOfficeAdmin ? publisher_id : null;
 
@@ -73,7 +73,7 @@ async function spCreateForumForEvent(subAreaId, title, description, publisher_id
 //Function to Get Forum State
 async function fnGetForumState(forumId) {
     const result = await db.sequelize.query(
-        `SELECT CASE WHEN "validated" = 1 THEN 'Validated' ELSE 'Pending' END AS "state"
+        `SELECT CASE WHEN "validated" = true THEN 'Validated' ELSE 'Pending' END AS "state"
       FROM "dynamic_content"."forums"
       WHERE "forum_id" = :forumId`,
         { replacements: { forumId }, type: QueryTypes.SELECT }
@@ -91,7 +91,7 @@ async function spEditForum(forumId, subAreaId = null, officeId = null, adminId =
             { replacements: { forumId }, type: QueryTypes.SELECT, transaction }
         );
 
-        if (forum.length && forum[0].validated === 0) {
+        if (forum.length && forum[0].validated === false) {
             await db.sequelize.query(
                 `UPDATE "dynamic_content"."forums"
           SET

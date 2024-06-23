@@ -25,7 +25,7 @@ async function spValidateContent(contentType, contentId, adminId) {
 
         await db.sequelize.query(
             `UPDATE "dynamic_content"."${table}"
-        SET "validated" = 1
+        SET "validated" = true
         WHERE "${contentType.toLowerCase()}_id" = :contentId`,
             { replacements: { contentId }, type: QueryTypes.UPDATE, transaction }
         );

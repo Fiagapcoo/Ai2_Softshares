@@ -1,22 +1,22 @@
-const { sequelize } = require('../models/index');
+const db = require('../../models'); 
 const { QueryTypes } = require('sequelize');
 
 async function triggerNotifications({ eventID = null, postID = null, areaID = null, subAreaID = null }) {
-  const t = await sequelize.transaction();
+  const t = await db.sequelize.transaction();
   try {
     if (eventID) {
-      await sequelize.query(
-        `INSERT INTO "USER_INTERACTIONS"."NOTIFICATIONS" ("USER_ID", "EVENT_ID", "NOTIFICATION_TEXT")
-         SELECT "USER_ID", :eventID, 'New event posted in your preferred area'
-         FROM "USER_INTERACTIONS"."USER_PREF"
-         WHERE "ReceiveNotifications" = 1
+      await db.sequelize.query(
+        `INSERT INTO "user_interactions"."notifications" ("user_id", "event_id", "notification_text")
+         SELECT "user_id", :eventID, 'New event posted in your preferred area'
+         FROM "user_interactions"."user_pref"
+         WHERE "receive_notifications" = 1
            AND (
-             (ISJSON("AREAS") = 1 AND :areaID IS NOT NULL AND EXISTS (
-               SELECT 1 FROM OPENJSON("AREAS") WHERE value = :areaID
+             (ISJSON("areas") = 1 AND :areaID IS NOT NULL AND EXISTS (
+               SELECT 1 FROM OPENJSON("areas") WHERE value = :areaID
              ))
              OR
-             (ISJSON("SUB_AREAS") = 1 AND :subAreaID IS NOT NULL AND EXISTS (
-               SELECT 1 FROM OPENJSON("SUB_AREAS") WHERE value = :subAreaID
+             (ISJSON("sub_areas") = 1 AND :subAreaID IS NOT NULL AND EXISTS (
+               SELECT 1 FROM OPENJSON("sub_areas") WHERE value = :subAreaID
              ))
            )`,
         {
@@ -28,18 +28,18 @@ async function triggerNotifications({ eventID = null, postID = null, areaID = nu
     }
 
     if (postID) {
-      await sequelize.query(
-        `INSERT INTO "USER_INTERACTIONS"."NOTIFICATIONS" ("USER_ID", "POST_ID", "NOTIFICATION_TEXT")
-         SELECT "USER_ID", :postID, 'New post in your preferred area'
-         FROM "USER_INTERACTIONS"."USER_PREF"
-         WHERE "ReceiveNotifications" = 1
+      await db.sequelize.query(
+        `INSERT INTO "user_interactions"."notifications" ("user_id", "post_id", "notification_text")
+         SELECT "user_id", :postID, 'New post in your preferred area'
+         FROM "user_interactions"."user_pref"
+         WHERE "receive_notifications" = 1
            AND (
-             (ISJSON("AREAS") = 1 AND :areaID IS NOT NULL AND EXISTS (
-               SELECT 1 FROM OPENJSON("AREAS") WHERE value = :areaID
+             (ISJSON("areas") = 1 AND :areaID IS NOT NULL AND EXISTS (
+               SELECT 1 FROM OPENJSON("areas") WHERE value = :areaID
              ))
              OR
-             (ISJSON("SUB_AREAS") = 1 AND :subAreaID IS NOT NULL AND EXISTS (
-               SELECT 1 FROM OPENJSON("SUB_AREAS") WHERE value = :subAreaID
+             (ISJSON("sub_areas") = 1 AND :subAreaID IS NOT NULL AND EXISTS (
+               SELECT 1 FROM OPENJSON("sub_areas") WHERE value = :subAreaID
              ))
            )`,
         {
@@ -71,11 +71,11 @@ async function notifyEventChanges(eventID, subAreaID) {
 async function notifyEventComments(commentID, forumID) {
     const t = await sequelize.transaction();
     try {
-      const [event] = await sequelize.query(
-        `SELECT "e"."EVENT_ID", LEFT("e"."SUBAREA_ID", 3) AS "AreaID", "e"."SUBAREA_ID" AS "SubAreaID"
-         FROM "DYNAMIC_CONTENT"."FORUMS" f
-         JOIN "DYNAMIC_CONTENT"."EVENTS" e ON f."EVENT_ID" = e."EVENT_ID"
-         WHERE f."FORUM_ID" = :forumID`,
+      const [event] = await db.sequelize.query(
+        `SELECT "e"."event_id", LEFT("e"."subarea_id", 3) AS "AreaID", "e"."subarea_id" AS "SubAreaID"
+         FROM "dynamic_content"."forums" f
+         JOIN "dynamic_content"."events" e ON f."event_id" = e."event_id"
+         WHERE f."forum_id" = :forumID`,
         {
           replacements: { forumID },
           type: QueryTypes.SELECT,
@@ -84,7 +84,7 @@ async function notifyEventComments(commentID, forumID) {
       );
   
       if (event) {
-        await triggerNotifications({ eventID: event.EVENT_ID, areaID: event.AreaID, subAreaID: event.SubAreaID });
+        await triggerNotifications({ eventID: event.event_id, areaID: event.AreaID, subAreaID: event.SubAreaID });
       }
   
       await t.commit();
@@ -96,10 +96,10 @@ async function notifyEventComments(commentID, forumID) {
 }
   
 async function notifyEventCreator(eventID, interactionDescription) {
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
       const [eventCreator] = await sequelize.query(
-        `SELECT "PUBLISHER_ID" FROM "DYNAMIC_CONTENT"."EVENTS" WHERE "EVENT_ID" = :eventID`,
+        `SELECT "publisher_id" FROM "dynamic_content"."events" WHERE "event_id" = :eventID`,
         {
           replacements: { eventID },
           type: QueryTypes.SELECT,
@@ -107,12 +107,12 @@ async function notifyEventCreator(eventID, interactionDescription) {
         }
       );
   
-      if (eventCreator && eventCreator.PUBLISHER_ID) {
-        await sequelize.query(
-          `INSERT INTO "USER_INTERACTIONS"."NOTIFICATIONS" ("USER_ID", "EVENT_ID", "NOTIFICATION_TEXT")
+      if (eventCreator && eventCreator.publisher_id) {
+        await db.sequelize.query(
+          `INSERT INTO "user_interactions"."notifications" ("user_id", "event_id", "notification_text")
            VALUES (:creatorID, :eventID, :interactionDescription)`,
           {
-            replacements: { creatorID: eventCreator.PUBLISHER_ID, eventID, interactionDescription },
+            replacements: { creatorID: eventCreator.publisher_id, eventID, interactionDescription },
             type: QueryTypes.INSERT,
             transaction: t
           }

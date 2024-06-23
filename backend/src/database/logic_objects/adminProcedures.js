@@ -4,9 +4,9 @@ const db = require('../../models');
 async function getUserEngagementMetrics() {
     try {
       const results = await db.sequelize.query(
-        `SELECT ACTION_TYPE, COUNT(*) AS "ACTION_Count"
-         FROM "USER_INTERACTIONS"."USER_ACTIONS_LOG"
-         GROUP BY ACTION_TYPE`,
+        `SELECT action_type, COUNT(*) AS "action_count"
+         FROM "user_interactions"."user_actions_log"
+         GROUP BY action_type`,
         {
           type: QueryTypes.SELECT
         }
@@ -18,40 +18,40 @@ async function getUserEngagementMetrics() {
     }
 }
 
-async function getContentValidationStatusByAdmin(adminID) {
+async function getcontentValidationStatusByadmin(adminID) {
     try {
-      const centerID = await db.sequelize.query(
-        `SELECT oa."OFFICE_ID"
-         FROM "CENTERS"."OFFICE_ADMINS" oa
-         WHERE oa."MANAGER_ID" = :adminID`,
+      const center_id = await db.sequelize.query(
+        `SELECT oa."office_id"
+         FROM "centers"."office_admins" oa
+         WHERE oa."manager_id" = :adminID`,
         {
           replacements: { adminID },
           type: QueryTypes.SELECT
         }
       );
   
-      if (!centerID.length) {
-        console.log('Invalid AdminID or AdminID not associated with any Center');
+      if (!center_id.length) {
+        console.log('Invalid adminID or adminID not associated with any Center');
         return [];
       }
   
       const results = await db.sequelize.query(
-        `SELECT cvs."CONTENT_TYPE", cvs."CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         INNER JOIN "DYNAMIC_CONTENT"."POSTS" p ON cvs."CONTENT_REAL_ID" = p."POST_ID" AND cvs."CONTENT_TYPE" = 'Post' AND p."OFFICE_ID" = :centerID
-         GROUP BY cvs."CONTENT_TYPE", cvs."CONTENT_STATUS"
+        `SELECT cvs."content_type", cvs."content_status", COUNT(*) AS "content_count"
+         FROM "admin"."content_validation_status" cvs
+         INNER JOIN "dynamic_content"."posts" p ON cvs."content_real_id" = p."post_id" AND cvs."content_type" = 'Post' AND p."office_id" = :center_id
+         GROUP BY cvs."content_type", cvs."content_status"
          UNION
-         SELECT cvs."CONTENT_TYPE", cvs."CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         INNER JOIN "DYNAMIC_CONTENT"."EVENTS" e ON cvs."CONTENT_REAL_ID" = e."EVENT_ID" AND cvs."CONTENT_TYPE" = 'Event' AND e."OFFICE_ID" = :centerID
-         GROUP BY cvs."CONTENT_TYPE", cvs."CONTENT_STATUS"
+         SELECT cvs."content_type", cvs."content_status", COUNT(*) AS "content_count"
+         FROM "admin"."content_validation_status" cvs
+         INNER JOIN "dynamic_content"."events" e ON cvs."content_real_id" = e."event_id" AND cvs."content_type" = 'Event' AND e."office_id" = :center_id
+         GROUP BY cvs."content_type", cvs."content_status"
          UNION
-         SELECT cvs."CONTENT_TYPE", cvs."CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         INNER JOIN "DYNAMIC_CONTENT"."FORUMS" f ON cvs."CONTENT_REAL_ID" = f."FORUM_ID" AND cvs."CONTENT_TYPE" = 'Forum' AND f."OFFICE_ID" = :centerID
-         GROUP BY cvs."CONTENT_TYPE", cvs."CONTENT_STATUS"`,
+         SELECT cvs."content_type", cvs."content_status", COUNT(*) AS "content_count"
+         FROM "admin"."content_validation_status" cvs
+         INNER JOIN "dynamic_content"."forums" f ON cvs."content_real_id" = f."forum_id" AND cvs."content_type" = 'Forum' AND f."office_id" = :center_id
+         GROUP BY cvs."content_type", cvs."content_status"`,
         {
-          replacements: { centerID: centerID[0].OFFICE_ID },
+          replacements: { center_id: center_id[0].office_id },
           type: QueryTypes.SELECT
         }
       );
@@ -62,12 +62,12 @@ async function getContentValidationStatusByAdmin(adminID) {
     }
 }
 
-async function getContentValidationStatus() {
+async function getcontentValidationStatus() {
     try {
       const results = await db.sequelize.query(
-        `SELECT "CONTENT_TYPE", "CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS"
-         GROUP BY "CONTENT_TYPE", "CONTENT_STATUS"`,
+        `SELECT "content_type", "content_status", COUNT(*) AS "content_count"
+         FROM "admin"."content_validation_status"
+         GROUP BY "content_type", "content_status"`,
         {
           type: QueryTypes.SELECT
         }
@@ -82,10 +82,10 @@ async function getContentValidationStatus() {
 async function getActiveDiscussions() {
     try {
       const results = await db.sequelize.query(
-        `SELECT d."FORUM_ID", f."TITLE", d."LAST_ACTIVITY_DATE", d."ACTIVE_PARTICIPANTS"
-         FROM "ADMIN"."ACTIVE_DISCUSSIONS" d
-         JOIN "DYNAMIC_CONTENT"."FORUMS" f ON d."FORUM_ID" = f."FORUM_ID"
-         ORDER BY d."LAST_ACTIVITY_DATE" DESC`,
+        `SELECT d."forum_id", f."title", d."last_activity_date", d."active_participants"
+         FROM "admin"."active_discussions" d
+         JOIN "dynamic_content"."forums" f ON d."forum_id" = f."forum_id"
+         ORDER BY d."last_activity_date" DESC`,
         {
           type: QueryTypes.SELECT
         }
@@ -97,13 +97,14 @@ async function getActiveDiscussions() {
     }
 }
 
-async function validateContent(contentID, validatorID, status) {
+//needs attention
+async function validatecontent(contentID, validatorID, status) {
     try {
       await db.sequelize.transaction(async (transaction) => {
-        const officeCenterID = await sequelize.query(
-          `SELECT "OFFICE_ID"
-           FROM "CENTERS"."REGIONAL_OFFICE"
-           WHERE "MANAGER_ID" = :validatorID`,
+        const officecenter_id = await sequelize.query(
+          `SELECT "office_id"
+           FROM "centers"."office_admins"
+           WHERE "manager_id" = :validatorID`,
           {
             replacements: { validatorID },
             type: QueryTypes.SELECT,
@@ -111,18 +112,18 @@ async function validateContent(contentID, validatorID, status) {
           }
         );
   
-        if (!officeCenterID.length) {
+        if (!officecenter_id.length) {
           console.log('Unauthorized validation attempt.');
           throw new Error('Unauthorized validation attempt.');
         }
   
         const isAuthorized = await db.sequelize.query(
           `SELECT 1
-           FROM "DYNAMIC_CONTENT"."POSTS" p
-           JOIN "CENTERS"."REGIONAL_OFFICE" ro ON p."OFFICE_ID" = ro."OFFICE_ID"
-           WHERE p."POST_ID" = :contentID AND ro."OFFICE_ID" = :officeCenterID`,
+           FROM "dynamic_content"."posts" p
+           JOIN "centers"."office_admins" ro ON p."office_id" = ro."office_id"
+           WHERE p."post_id" = :contentID AND ro."office_id" = :officecenter_id`,
           {
-            replacements: { contentID, officeCenterID: officeCenterID[0].OFFICE_ID },
+            replacements: { contentID, officecenter_id: officecenter_id[0].office_id },
             type: QueryTypes.SELECT,
             transaction
           }
@@ -134,9 +135,9 @@ async function validateContent(contentID, validatorID, status) {
         }
   
         await db.sequelize.query(
-          `UPDATE "ADMIN"."CONTENT_VALIDATION_STATUS"
-           SET "CONTENT_STATUS" = :status, "VALIDATION_DATE" = NOW(), "VALIDATOR_ID" = :validatorID
-           WHERE "CONTENT_ID" = :contentID`,
+          `UPDATE "admin"."content_validation_status"
+           SET "content_status" = :status, "validation_date" = CURRENT_TIMESTAMP, "validator_id" = :validatorID
+           WHERE "content_id" = :contentID`,
           {
             replacements: { contentID, status, validatorID },
             type: QueryTypes.UPDATE,
@@ -153,9 +154,9 @@ async function validateContent(contentID, validatorID, status) {
 async function getActiveWarnings() {
     try {
       const results = await db.sequelize.query(
-        `SELECT "WARNING_ID", "WARNING_LEVEL", "DESCRIPTION", "STATE", "CREATION_DATE", "ADMIN_ID", "OFFICE_ID"
-         FROM "CONTROL"."WARNINGS"
-         WHERE "STATE" = 1`,
+        `SELECT "warning_id", "warning_level", "description", "state", "creation_date", "admin_id", "office_id"
+         FROM "control"."warnings"
+         WHERE "state" = 1`,
         {
           type: QueryTypes.SELECT
         }
@@ -167,40 +168,40 @@ async function getActiveWarnings() {
     }
 }
 
-async function getContentCenterToBeValidated(centerID) {
+async function getcontentCenterToBeValidated(center_id) {
     try {
       const results = await db.sequelize.query(
         `SELECT
-          cvs."CONTENT_TYPE",
-          cvs."CONTENT_STATUS",
-          cvs."CONTENT_REAL_ID",
-          cvs."VALIDATION_DATE",
-          cvs."VALIDATOR_ID"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         JOIN "DYNAMIC_CONTENT"."POSTS" p ON cvs."CONTENT_TYPE" = 'Post' AND cvs."CONTENT_REAL_ID" = p."POST_ID" AND p."OFFICE_ID" = :centerID
-         WHERE cvs."CONTENT_STATUS" = 'Pending'
+          cvs."content_type",
+          cvs."content_status",
+          cvs."content_real_id",
+          cvs."validation_date",
+          cvs."validator_id"
+         FROM "admin"."content_validation_status" cvs
+         JOIN "dynamic_content"."posts" p ON cvs."content_type" = 'Post' AND cvs."content_real_id" = p."post_id" AND p."office_id" = :center_id
+         WHERE cvs."content_status" = 'Pending'
          UNION ALL
          SELECT
-          cvs."CONTENT_TYPE",
-          cvs."CONTENT_STATUS",
-          cvs."CONTENT_REAL_ID",
-          cvs."VALIDATION_DATE",
-          cvs."VALIDATOR_ID"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         JOIN "DYNAMIC_CONTENT"."EVENTS" e ON cvs."CONTENT_TYPE" = 'Event' AND cvs."CONTENT_REAL_ID" = e."EVENT_ID" AND e."OFFICE_ID" = :centerID
-         WHERE cvs."CONTENT_STATUS" = 'Pending'
+          cvs."content_type",
+          cvs."content_status",
+          cvs."content_real_id",
+          cvs."validation_date",
+          cvs."validator_id"
+         FROM "admin"."content_validation_status" cvs
+         JOIN "dynamic_content"."events" e ON cvs."content_type" = 'Event' AND cvs."content_real_id" = e."event_id" AND e."office_id" = :center_id
+         WHERE cvs."content_status" = 'Pending'
          UNION ALL
          SELECT
-          cvs."CONTENT_TYPE",
-          cvs."CONTENT_STATUS",
-          cvs."CONTENT_REAL_ID",
-          cvs."VALIDATION_DATE",
-          cvs."VALIDATOR_ID"
-         FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
-         JOIN "DYNAMIC_CONTENT"."FORUMS" f ON cvs."CONTENT_TYPE" = 'Forum' AND cvs."CONTENT_REAL_ID" = f."FORUM_ID" AND f."OFFICE_ID" = :centerID
-         WHERE cvs."CONTENT_STATUS" = 'Pending'`,
+          cvs."content_type",
+          cvs."content_status",
+          cvs."content_real_id",
+          cvs."validation_date",
+          cvs."validator_id"
+         FROM "admin"."content_validation_status" cvs
+         JOIN "dynamic_content"."forums" f ON cvs."content_type" = 'Forum' AND cvs."content_real_id" = f."forum_id" AND f."office_id" = :center_id
+         WHERE cvs."content_status" = 'Pending'`,
         {
-          replacements: { centerID },
+          replacements: { center_id },
           type: QueryTypes.SELECT
         }
       );
@@ -215,7 +216,7 @@ async function getContentCenterToBeValidated(centerID) {
 async function createCenter(city) {
     try {
       await db.sequelize.query(
-        `INSERT INTO "CENTERS"."OFFICES" ("CITY")
+        `INSERT INTO "centers"."offices" ("city")
          VALUES (:city)`,
         {
           replacements: { city },
@@ -228,13 +229,13 @@ async function createCenter(city) {
     }
 }
 
-async function deleteCenter(centerID) {
+async function deleteCenter(center_id) {
     try {
       await db.sequelize.query(
-        `DELETE FROM "CENTERS"."OFFICES"
-         WHERE "OFFICE_ID" = :centerID`,
+        `DELETE FROM "centers"."offices"
+         WHERE "office_id" = :center_id`,
         {
-          replacements: { centerID },
+          replacements: { center_id },
           type: QueryTypes.DELETE
         }
       );
@@ -246,12 +247,12 @@ async function deleteCenter(centerID) {
 
 module.exports = {
     getUserEngagementMetrics,
-    getContentValidationStatusByAdmin,
-    getContentValidationStatus,
+    getcontentValidationStatusByadmin,
+    getcontentValidationStatus,
     getActiveDiscussions,
-    validateContent,
+    validatecontent,
     getActiveWarnings,
-    getContentCenterToBeValidated,
+    getcontentCenterToBeValidated,
     createCenter,
     deleteCenter
     

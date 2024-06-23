@@ -9,7 +9,7 @@ async function addCustomFieldsToEventForm(eventID, customFieldsJson) {
   try {
     // Check if the event is validated
     const event = await db.sequelize.query(
-      `SELECT 1 FROM "DYNAMIC_CONTENT"."EVENTS" WHERE "EVENT_ID" = :eventID AND "VALIDATED" = 0`,
+      `SELECT 1 FROM "dynamic_content"."events" WHERE "event_id" = :eventID AND "validated" = false`,
       {
         replacements: { eventID },
         type: QueryTypes.SELECT,
@@ -28,16 +28,16 @@ async function addCustomFieldsToEventForm(eventID, customFieldsJson) {
 
     for (const field of customFields) {
       await db.sequelize.query(
-        `INSERT INTO "FORMS"."FIELDS" ("EVENT_ID", "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE")
+        `INSERT INTO "forms"."fields" ("event_id", "field_name", "field_type", "field_value", "max_value", "min_value")
          VALUES (:eventID, :fieldName, :fieldType, :fieldValue, :maxValue, :minValue)`,
         {
           replacements: {
             eventID,
-            fieldName: field.FIELD_NAME,
-            fieldType: field.FIELD_TYPE,
-            fieldValue: field.FIELD_VALUE,
-            maxValue: field.MAX_VALUE,
-            minValue: field.MIN_VALUE
+            fieldName: field.field_name,
+            fieldType: field.field_type,
+            fieldValue: field.field_value,
+            maxValue: field.max_value,
+            minValue: field.min_value
           },
           type: QueryTypes.INSERT,
           transaction: t
@@ -50,7 +50,7 @@ async function addCustomFieldsToEventForm(eventID, customFieldsJson) {
     await t.rollback();
     console.error('Error adding custom fields:', error);
     await db.sequelize.query(
-      `EXEC "SECURITY"."LogError" :errorMessage`,
+      `EXEC "security"."log_error" :errorMessage`,
       {
         replacements: { errorMessage: error.message },
         type: QueryTypes.RAW
@@ -65,9 +65,9 @@ async function createEventForm(eventID, customFieldsJson) {
     try {
       // Copy default fields to the new event form
       await db.sequelize.query(
-        `INSERT INTO "FORMS"."FIELDS" ("EVENT_ID", "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE", "DEF_FIELD_ID")
-         SELECT :eventID, "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE", "FIELD_ID"
-         FROM "FORMS"."DEFAULT_FIELDS"`,
+        `INSERT INTO "forms"."fields" ("event_id", "field_name", "field_type", "field_value", "max_value", "min_value", "def_field_id")
+         SELECT :eventID, "field_name", "field_type", "field_value", "max_value", "min_value", "field_id"
+         FROM "forms"."default_fields"`,
         {
           replacements: { eventID },
           type: QueryTypes.INSERT,
@@ -80,16 +80,16 @@ async function createEventForm(eventID, customFieldsJson) {
   
       for (const field of customFields) {
         await db.sequelize.query(
-          `INSERT INTO "FORMS"."FIELDS" ("EVENT_ID", "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE")
+          `INSERT INTO "forms"."fields" ("event_id", "field_name", "field_type", "field_value", "max_value", "min_value")
            VALUES (:eventID, :fieldName, :fieldType, :fieldValue, :maxValue, :minValue)`,
           {
             replacements: {
               eventID,
-              fieldName: field.FIELD_NAME,
-              fieldType: field.FIELD_TYPE,
-              fieldValue: field.FIELD_VALUE,
-              maxValue: field.MAX_VALUE,
-              minValue: field.MIN_VALUE
+              fieldName: field.field_name,
+              fieldType: field.field_type,
+              fieldValue: field.field_value,
+              maxValue: field.max_value,
+              minValue: field.min_value
             },
             type: QueryTypes.INSERT,
             transaction: t
@@ -102,7 +102,7 @@ async function createEventForm(eventID, customFieldsJson) {
       await t.rollback();
       console.error('Error creating event form:', error);
       await db.sequelize.query(
-        `EXEC "SECURITY"."LogError" :errorMessage`,
+        `EXEC "security"."log_error" :errorMessage`,
         {
           replacements: { errorMessage: error.message },
           type: QueryTypes.RAW
@@ -118,7 +118,7 @@ async function editEventFormField(eventID, fieldID, { fieldName = null, fieldTyp
         try {
           // Check if the event is validated
           const event = await db.sequelize.query(
-            `SELECT 1 FROM "DYNAMIC_CONTENT"."EVENTS" WHERE "EVENT_ID" = :eventID AND "VALIDATED" = 0`,
+            `SELECT 1 FROM "dynamic_content"."events" WHERE "event_id" = :eventID AND "validated" = false`,
             {
               replacements: { eventID },
               type: QueryTypes.SELECT,
@@ -134,14 +134,14 @@ async function editEventFormField(eventID, fieldID, { fieldName = null, fieldTyp
       
           // Update the specified field for the event
           await db.sequelize.query(
-            `UPDATE "FORMS"."FIELDS"
+            `UPDATE "forms"."fields"
              SET
-                 "FIELD_NAME" = COALESCE(:fieldName, "FIELD_NAME"),
-                 "FIELD_TYPE" = COALESCE(:fieldType, "FIELD_TYPE"),
-                 "FIELD_VALUE" = COALESCE(:fieldValue, "FIELD_VALUE"),
-                 "MAX_VALUE" = COALESCE(:maxValue, "MAX_VALUE"),
-                 "MIN_VALUE" = COALESCE(:minValue, "MIN_VALUE")
-             WHERE "EVENT_ID" = :eventID AND "FIELD_ID" = :fieldID`,
+                 "field_name" = COALESCE(:fieldName, "field_name"),
+                 "field_type" = COALESCE(:fieldType, "field_type"),
+                 "field_value" = COALESCE(:fieldValue, "field_value"),
+                 "max_value" = COALESCE(:maxValue, "max_value"),
+                 "min_value" = COALESCE(:minValue, "min_value")
+             WHERE "event_id" = :eventID AND "field_id" = :fieldID`,
             {
               replacements: { eventID, fieldID, fieldName, fieldType, fieldValue, maxValue, minValue },
               type: QueryTypes.UPDATE,
@@ -154,7 +154,7 @@ async function editEventFormField(eventID, fieldID, { fieldName = null, fieldTyp
           await t.rollback();
           console.error('Error editing event form field:', error);
           await db.sequelize.query(
-            `EXEC "SECURITY"."LogError" :errorMessage`,
+            `EXEC "security"."log_error" :errorMessage`,
             {
               replacements: { errorMessage: error.message },
               type: QueryTypes.RAW
@@ -164,39 +164,39 @@ async function editEventFormField(eventID, fieldID, { fieldName = null, fieldTyp
         }
 }
   
-async function getFormSchema(eventID) {
+async function getformschema(eventID) {
     try {
-      const formSchema = await db.sequelize.query(
-        `SELECT "EVENT_ID", "FIELD_ID", "DEF_FIELD_ID", "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE"
-         FROM "FORMS"."FIELDS"
-         WHERE "EVENT_ID" = :eventID
-         ORDER BY "FIELD_ID"`,
+      const formschema = await db.sequelize.query(
+        `SELECT "event_id", "field_id", "def_field_id", "field_name", "field_type", "field_value", "max_value", "min_value"
+         FROM "forms"."fields"
+         WHERE "event_id" = :eventID
+         ORDER BY "field_id"`,
         {
           replacements: { eventID },
           type: QueryTypes.SELECT
         }
       );
-      return formSchema;
+      return formschema;
     } catch (error) {
       console.error('Error fetching form schema:', error);
       throw error;
     }  
 }
   
-async function getFormSchemaAsJson(eventID) {
+async function getformschemaAsJson(eventID) {
     try {
-      const formSchema = await db.sequelize.query(
-        `SELECT "EVENT_ID", "FIELD_ID", "DEF_FIELD_ID", "FIELD_NAME", "FIELD_TYPE", "FIELD_VALUE", "MAX_VALUE", "MIN_VALUE"
-         FROM "FORMS"."FIELDS"
-         WHERE "EVENT_ID" = :eventID
-         ORDER BY "FIELD_ID"
-         FOR JSON AUTO, ROOT('FormSchema')`,
+      const formschema = await db.sequelize.query(
+        `SELECT "event_id", "field_id", "def_field_id", "field_name", "field_type", "field_value", "max_value", "min_value"
+         FROM "forms"."fields"
+         WHERE "event_id" = :eventID
+         ORDER BY "field_id"
+         FOR JSON AUTO, ROOT('formschema')`,
         {
           replacements: { eventID },
           type: QueryTypes.RAW
         }
       );
-      return formSchema[0][''];
+      return formschema[0][''];
     } catch (error) {
       console.error('Error fetching form schema as JSON:', error);
       throw error;
@@ -207,8 +207,8 @@ async function insertFormAnswer(userID, eventID, fieldID, answer) {
     const t = await db.sequelize.transaction();
     try {
       await db.sequelize.query(
-        `INSERT INTO "FORMS"."ANSWERS" ("USER_ID", "EVENT_ID", "FIELD_ID", "ANSWER", "ENTRY_DATE")
-         VALUES (:userID, :eventID, :fieldID, :answer, NOW())`,
+        `INSERT INTO "forms"."answers" ("user_id", "event_id", "field_id", "answer", "entry_date")
+         VALUES (:userID, :eventID, :fieldID, :answer, CURRENT_TIMESTAMP)`,
         {
           replacements: { userID, eventID, fieldID, answer },
           type: QueryTypes.INSERT,
@@ -221,7 +221,7 @@ async function insertFormAnswer(userID, eventID, fieldID, answer) {
       await t.rollback();
       console.error('Error inserting form answer:', error);
       await db.sequelize.query(
-        `EXEC "SECURITY"."LogError" :errorMessage`,
+        `EXEC "security"."log_error" :errorMessage`,
         {
           replacements: { errorMessage: error.message },
           type: QueryTypes.RAW
@@ -239,13 +239,13 @@ async function insertFormAnswers(userID, eventID, answersJson) {
   
       for (const answer of answers) {
         await db.sequelize.query(
-          `INSERT INTO "FORMS"."ANSWERS" ("USER_ID", "EVENT_ID", "FIELD_ID", "ANSWER", "ENTRY_DATE")
-           VALUES (:userID, :eventID, :fieldID, :answer, NOW())`,
+          `INSERT INTO "forms"."answers" ("user_id", "event_id", "field_id", "answer", "entry_date")
+           VALUES (:userID, :eventID, :fieldID, :answer, CURRENT_TIMESTAMP)`,
           {
             replacements: {
               userID,
               eventID,
-              fieldID: answer.FIELD_ID,
+              fieldID: answer.field_id,
               answer: answer.ANSWER
             },
             type: QueryTypes.INSERT,
@@ -259,7 +259,7 @@ async function insertFormAnswers(userID, eventID, answersJson) {
       await t.rollback();
       console.error('Error inserting multiple form answers:', error);
       await db.sequelize.query(
-        `EXEC "SECURITY"."LogError" :errorMessage`,
+        `EXEC "security"."log_error" :errorMessage`,
         {
           replacements: { errorMessage: error.message },
           type: QueryTypes.RAW
@@ -275,7 +275,7 @@ async function deleteEventFormField(eventID, fieldID) {
   try {
       // Check if the event is validated
       const event = await db.sequelize.query(
-          `SELECT 1 FROM "DYNAMIC_CONTENT"."EVENTS" WHERE "EVENT_ID" = :eventID AND "VALIDATED" = 0`,
+          `SELECT 1 FROM "dynamic_content"."events" WHERE "event_id" = :eventID AND "validated" = false`,
           {
               replacements: { eventID },
               type: QueryTypes.SELECT,
@@ -291,7 +291,7 @@ async function deleteEventFormField(eventID, fieldID) {
 
       // Delete the specified field for the event
       await db.sequelize.query(
-          `DELETE FROM "FORMS"."FIELDS" WHERE "EVENT_ID" = :eventID AND "FIELD_ID" = :fieldID`,
+          `DELETE FROM "forms"."fields" WHERE "event_id" = :eventID AND "field_id" = :fieldID`,
           {
               replacements: { eventID, fieldID },
               type: QueryTypes.DELETE,
@@ -305,7 +305,7 @@ async function deleteEventFormField(eventID, fieldID) {
       await t.rollback();
       console.error('Error deleting event form field:', error);
       await db.sequelize.query(
-          `EXEC "SECURITY"."LogError" :errorMessage`,
+          `EXEC "security"."log_error" :errorMessage`,
           {
               replacements: { errorMessage: error.message },
               type: QueryTypes.RAW
@@ -319,8 +319,8 @@ module.exports = {
   addCustomFieldsToEventForm,
   createEventForm,
   editEventFormField,
-  getFormSchema,
-  getFormSchemaAsJson,
+  getformschema,
+  getformschemaAsJson,
   insertFormAnswer,
   insertFormAnswers,
   deleteEventFormField

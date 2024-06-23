@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const insertData = require('./database/logic_objects/insertData');
 
 /*
 const { 
@@ -60,11 +61,9 @@ app.use('/api/user', userRoutes);
 //app.use('/user', UserRoutes);
 //app.use('/regional_office', RegionalOfficeRoutes);
 
-
-
 app.listen(app.get('port'), () => {
-    console.log("server running on port " + app.get('port'));
-});
+            console.log("server running on port " + app.get('port'));
+        });
 
 /*
 const startServer = async () => {
@@ -84,6 +83,8 @@ const startServer = async () => {
         console.error('Failed to start the server:', error);
     }
 };
-
-startServer();
 */
+
+
+//startServer();
+
