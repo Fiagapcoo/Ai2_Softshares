@@ -122,3 +122,5 @@ async function syncModels() {
 }
 
 syncModels();
+
+//module.exports = syncModels;

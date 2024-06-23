@@ -24,6 +24,16 @@ const readModels = (dir) => {
 readModels(modelDir);
 
 // Associate models if needed
+/*
+const associateModels = () => {
+    Object.keys(db).forEach(modelName => {
+        if (db[modelName].associate) {
+            db[modelName].associate(db);
+            console.log(`Associated model: ${modelName}`);
+        }
+    });
+};
+*/
 Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
         db[modelName].associate(db);
@@ -31,8 +41,29 @@ Object.keys(db).forEach(modelName => {
     }
 });
 
+/*
+const syncDatabase = async () => {
+    try {
+        await sequelize.sync();
+        console.log('Database synchronized successfully');
+    } catch (error) {
+        console.error('Error synchronizing the database:', error);
+        throw error;
+    }
+};
+*/
+
 sequelize.sync();
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+/*
+module.exports = {
+    db,
+    syncDatabase,
+    readModels,
+    associateModels
+};
+
+*/

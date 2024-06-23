@@ -2,6 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+/*
+const { 
+        syncDatabase,
+        readModels,
+        associateModels} = require('./models/index'); 
+const db = require('./models'); 
+const syncModels = require('./syncModels');
+*/
+
 
 
 //const PermissionRoutes = require('./routes/PermissionsRoutes');
@@ -57,3 +66,24 @@ app.listen(app.get('port'), () => {
     console.log("server running on port " + app.get('port'));
 });
 
+/*
+const startServer = async () => {
+    try {
+        // Load and synchronize models
+        await syncModels();
+        readModels('./src/models');
+        associateModels();
+        await syncDatabase();
+        
+        console.log('Database synchronized successfully.');
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start the server:', error);
+    }
+};
+
+startServer();
+*/
