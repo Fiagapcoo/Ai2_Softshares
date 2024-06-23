@@ -2,7 +2,7 @@ const { spValidateContent,
         spRejectContent } = require('../database/logic_objects/generalHelpers');
 
 const { getUserEngagementMetrics,
-        getContentValidationStatusByAdmin,
+        getContentValidationStatusByadmin,
         getContentValidationStatus,
         getActiveDiscussions,
         validateContent,

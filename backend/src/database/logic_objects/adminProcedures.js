@@ -18,7 +18,7 @@ async function getUserEngagementMetrics() {
     }
 }
 
-async function getcontentValidationStatusByadmin(adminID) {
+async function getContentValidationStatusByadmin(adminID) {
     try {
       const center_id = await db.sequelize.query(
         `SELECT oa."office_id"
@@ -62,7 +62,7 @@ async function getcontentValidationStatusByadmin(adminID) {
     }
 }
 
-async function getcontentValidationStatus() {
+async function getContentValidationStatus() {
     try {
       const results = await db.sequelize.query(
         `SELECT "content_type", "content_status", COUNT(*) AS "content_count"
@@ -98,7 +98,7 @@ async function getActiveDiscussions() {
 }
 
 //needs attention
-async function validatecontent(contentID, validatorID, status) {
+async function validateContent(contentID, validatorID, status) {
     try {
       await db.sequelize.transaction(async (transaction) => {
         const officecenter_id = await sequelize.query(
@@ -168,7 +168,7 @@ async function getActiveWarnings() {
     }
 }
 
-async function getcontentCenterToBeValidated(center_id) {
+async function getContentCenterToBeValidated(center_id) {
     try {
       const results = await db.sequelize.query(
         `SELECT
@@ -247,12 +247,12 @@ async function deleteCenter(center_id) {
 
 module.exports = {
     getUserEngagementMetrics,
-    getcontentValidationStatusByadmin,
-    getcontentValidationStatus,
+    getContentValidationStatusByadmin,
+    getContentValidationStatus,
     getActiveDiscussions,
-    validatecontent,
+    validateContent,
     getActiveWarnings,
-    getcontentCenterToBeValidated,
+    getContentCenterToBeValidated,
     createCenter,
     deleteCenter
     
