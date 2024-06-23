@@ -1,9 +1,9 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../models/index');
+const db = require('../../models'); 
 
 async function getUserEngagementMetrics() {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT ACTION_TYPE, COUNT(*) AS "ACTION_Count"
          FROM "USER_INTERACTIONS"."USER_ACTIONS_LOG"
          GROUP BY ACTION_TYPE`,
@@ -20,7 +20,7 @@ async function getUserEngagementMetrics() {
 
 async function getContentValidationStatusByAdmin(adminID) {
     try {
-      const centerID = await sequelize.query(
+      const centerID = await db.sequelize.query(
         `SELECT oa."OFFICE_ID"
          FROM "CENTERS"."OFFICE_ADMINS" oa
          WHERE oa."MANAGER_ID" = :adminID`,
@@ -35,7 +35,7 @@ async function getContentValidationStatusByAdmin(adminID) {
         return [];
       }
   
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT cvs."CONTENT_TYPE", cvs."CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
          FROM "ADMIN"."CONTENT_VALIDATION_STATUS" cvs
          INNER JOIN "DYNAMIC_CONTENT"."POSTS" p ON cvs."CONTENT_REAL_ID" = p."POST_ID" AND cvs."CONTENT_TYPE" = 'Post' AND p."OFFICE_ID" = :centerID
@@ -64,7 +64,7 @@ async function getContentValidationStatusByAdmin(adminID) {
 
 async function getContentValidationStatus() {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT "CONTENT_TYPE", "CONTENT_STATUS", COUNT(*) AS "CONTENT_count"
          FROM "ADMIN"."CONTENT_VALIDATION_STATUS"
          GROUP BY "CONTENT_TYPE", "CONTENT_STATUS"`,
@@ -81,7 +81,7 @@ async function getContentValidationStatus() {
 
 async function getActiveDiscussions() {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT d."FORUM_ID", f."TITLE", d."LAST_ACTIVITY_DATE", d."ACTIVE_PARTICIPANTS"
          FROM "ADMIN"."ACTIVE_DISCUSSIONS" d
          JOIN "DYNAMIC_CONTENT"."FORUMS" f ON d."FORUM_ID" = f."FORUM_ID"
@@ -99,7 +99,7 @@ async function getActiveDiscussions() {
 
 async function validateContent(contentID, validatorID, status) {
     try {
-      await sequelize.transaction(async (transaction) => {
+      await db.sequelize.transaction(async (transaction) => {
         const officeCenterID = await sequelize.query(
           `SELECT "OFFICE_ID"
            FROM "CENTERS"."REGIONAL_OFFICE"
@@ -116,7 +116,7 @@ async function validateContent(contentID, validatorID, status) {
           throw new Error('Unauthorized validation attempt.');
         }
   
-        const isAuthorized = await sequelize.query(
+        const isAuthorized = await db.sequelize.query(
           `SELECT 1
            FROM "DYNAMIC_CONTENT"."POSTS" p
            JOIN "CENTERS"."REGIONAL_OFFICE" ro ON p."OFFICE_ID" = ro."OFFICE_ID"
@@ -133,7 +133,7 @@ async function validateContent(contentID, validatorID, status) {
           throw new Error('Unauthorized validation attempt.');
         }
   
-        await sequelize.query(
+        await db.sequelize.query(
           `UPDATE "ADMIN"."CONTENT_VALIDATION_STATUS"
            SET "CONTENT_STATUS" = :status, "VALIDATION_DATE" = NOW(), "VALIDATOR_ID" = :validatorID
            WHERE "CONTENT_ID" = :contentID`,
@@ -152,7 +152,7 @@ async function validateContent(contentID, validatorID, status) {
 
 async function getActiveWarnings() {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT "WARNING_ID", "WARNING_LEVEL", "DESCRIPTION", "STATE", "CREATION_DATE", "ADMIN_ID", "OFFICE_ID"
          FROM "CONTROL"."WARNINGS"
          WHERE "STATE" = 1`,
@@ -169,7 +169,7 @@ async function getActiveWarnings() {
 
 async function getContentCenterToBeValidated(centerID) {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT
           cvs."CONTENT_TYPE",
           cvs."CONTENT_STATUS",
@@ -214,7 +214,7 @@ async function getContentCenterToBeValidated(centerID) {
 
 async function createCenter(city) {
     try {
-      await sequelize.query(
+      await db.sequelize.query(
         `INSERT INTO "CENTERS"."OFFICES" ("CITY")
          VALUES (:city)`,
         {
@@ -230,7 +230,7 @@ async function createCenter(city) {
 
 async function deleteCenter(centerID) {
     try {
-      await sequelize.query(
+      await db.sequelize.query(
         `DELETE FROM "CENTERS"."OFFICES"
          WHERE "OFFICE_ID" = :centerID`,
         {

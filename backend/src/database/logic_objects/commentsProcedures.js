@@ -1,11 +1,11 @@
-const { sequelize } = require('../syncModels');
-const { QueryTypes } = require('index');
+const db = require('../../models'); 
+const { QueryTypes } = require('sequelize');
 
 async function addComment({ parentCommentID = null, contentID, contentType, userID, commentText }) {
-  const t = await sequelize.transaction();
+  const t = await db.sequelize.transaction();
   try {
     // Insert the new comment
-    const [newComment] = await sequelize.query(
+    const [newComment] = await db.sequelize.query(
       `INSERT INTO "COMMUNICATION"."COMMENTS" ("FORUM_ID", "POST_ID", "PUBLISHER_ID", "COMMENT_DATE", "CONTENT")
        VALUES (
          CASE WHEN :contentType = 'Forum' THEN :contentID ELSE NULL END,
@@ -22,7 +22,7 @@ async function addComment({ parentCommentID = null, contentID, contentType, user
     const newCommentID = newComment.COMMENT_ID;
 
     // Insert the path to the new comment (self-reference with depth 0)
-    await sequelize.query(
+    await db.sequelize.query(
       `INSERT INTO "COMMUNICATION"."COMMENT_PATH" ("ANCESTOR_ID", "DESCENDANT_ID", "DEPTH")
        VALUES (:newCommentID, :newCommentID, 0)`,
       {
@@ -35,7 +35,7 @@ async function addComment({ parentCommentID = null, contentID, contentType, user
     // If this is a reply to another comment, update the COMMENT_PATH table
     if (parentCommentID !== null) {
       // Insert paths for all ancestors of the parent comment to the new comment
-      await sequelize.query(
+      await db.sequelize.query(
         `INSERT INTO "COMMUNICATION"."COMMENT_PATH" ("ANCESTOR_ID", "DESCENDANT_ID", "DEPTH")
          SELECT "ANCESTOR_ID", :newCommentID, "DEPTH" + 1
          FROM "COMMUNICATION"."COMMENT_PATH"
@@ -48,7 +48,7 @@ async function addComment({ parentCommentID = null, contentID, contentType, user
       );
 
       // Insert the direct link from parent to new comment
-      await sequelize.query(
+      await db.sequelize.query(
         `INSERT INTO "COMMUNICATION"."COMMENT_PATH" ("ANCESTOR_ID", "DESCENDANT_ID", "DEPTH")
          VALUES (:parentCommentID, :newCommentID, 1)`,
         {
@@ -63,7 +63,7 @@ async function addComment({ parentCommentID = null, contentID, contentType, user
   } catch (error) {
     await t.rollback();
     console.error('Error adding comment:', error);
-    await sequelize.query(
+    await db.sequelize.query(
       `EXEC "SECURITY"."LogError" :errorMessage`,
       {
         replacements: { errorMessage: error.message },
@@ -76,7 +76,7 @@ async function addComment({ parentCommentID = null, contentID, contentType, user
 
 async function getCommentTree(contentID, contentType) {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `WITH CommentHierarchy AS (
            SELECT 
                c."COMMENT_ID",

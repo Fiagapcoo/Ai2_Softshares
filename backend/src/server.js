@@ -11,6 +11,12 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const forumRoutes = require('./routes/forumRoutes');
 const postRoutes = require('./routes/postRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const mediaRoutes = require('./routes/mediaRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const formsRoutes = require('./routes/formsRoutes');
+const commentsRoutes = require('./routes/commentsRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 
 const port = process.env.PORT || 8000;
@@ -34,6 +40,12 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/event', eventRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/rating', ratingRoutes);
+app.use('/api/administration', adminRoutes);
+app.use('/api/form', formsRoutes);
+app.use('/api/comment', commentsRoutes);
+app.use('/api/user', userRoutes);
 
 //app.use('/permission', PermissionRoutes);
 //app.use('/user', UserRoutes);

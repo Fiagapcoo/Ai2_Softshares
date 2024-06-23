@@ -1,10 +1,10 @@
 const { QueryTypes } = require('sequelize');
-const sequelize = require('../../models/index');
+const db = require('../../models'); 
 
 async function logUserAction(userID, type, description) {
     try {
-      await sequelize.transaction(async (transaction) => {
-        await sequelize.query(
+      await db.sequelize.transaction(async (transaction) => {
+        await db.sequelize.query(
           `INSERT INTO "USER_INTERACTIONS"."USER_ACTIONS_LOG" (USER_ID, ACTION_TYPE, ACTION_DESCRIPTION) VALUES (:userID, :type, :description)`,
           {
             replacements: { userID, type, description },
@@ -21,7 +21,7 @@ async function logUserAction(userID, type, description) {
 
 async function getUserPreferences(userID) {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT 
             up.USER_ID, 
             up.AREAS, 
@@ -55,9 +55,9 @@ async function getUserPreferences(userID) {
 
   async function updateUserPreferences(userID, preferredLanguageID, preferredAreas, preferredSubAreas, receiveNotifications) {
     try {
-      await sequelize.transaction(async (transaction) => {
+      await db.sequelize.transaction(async (transaction) => {
         if (preferredLanguageID !== null) {
-          await sequelize.query(
+          await db.sequelize.query(
             `UPDATE "USER_INTERACTIONS"."USER_PREF"
             SET "LanguageID" = :preferredLanguageID
             WHERE "USER_ID" = :userID`,
@@ -70,7 +70,7 @@ async function getUserPreferences(userID) {
         }
   
         if (preferredAreas !== null) {
-          await sequelize.query(
+          await db.sequelize.query(
             `UPDATE "USER_INTERACTIONS"."USER_PREF"
             SET "AREAS" = :preferredAreas
             WHERE "USER_ID" = :userID`,
@@ -83,7 +83,7 @@ async function getUserPreferences(userID) {
         }
   
         if (preferredSubAreas !== null) {
-          await sequelize.query(
+          await db.sequelize.query(
             `UPDATE "USER_INTERACTIONS"."USER_PREF"
             SET "SUB_AREAS" = :preferredSubAreas
             WHERE "USER_ID" = :userID`,
@@ -96,7 +96,7 @@ async function getUserPreferences(userID) {
         }
   
         if (receiveNotifications !== null) {
-          await sequelize.query(
+          await db.sequelize.query(
             `UPDATE "USER_INTERACTIONS"."USER_PREF"
             SET "ReceiveNotifications" = :receiveNotifications
             WHERE "USER_ID" = :userID`,
@@ -118,8 +118,8 @@ async function getUserPreferences(userID) {
 
 async function updateAccessOnLogin(userID) {
     try {
-      await sequelize.transaction(async (transaction) => {
-        await sequelize.query(
+      await db.sequelize.transaction(async (transaction) => {
+        await db.sequelize.query(
           `UPDATE "HR"."USERS"
           SET "LAST_ACCESS" = NOW()
           WHERE "USER_ID" = :userID`,
@@ -140,7 +140,7 @@ async function updateAccessOnLogin(userID) {
 
 async function getUserRole(userID) {
     try {
-      const result = await sequelize.query(
+      const result = await db.sequelize.query(
         `SELECT p."RoleName"
         FROM "HR"."USERS" u
         JOIN "SECURITY"."ACC_PERMISSIONS" p ON u."RoleID" = p."RoleID"
@@ -159,8 +159,8 @@ async function getUserRole(userID) {
 
 async function addBookmark(userID, contentID, contentType) {
     try {
-      await sequelize.transaction(async (transaction) => {
-        const [results] = await sequelize.query(
+      await db.sequelize.transaction(async (transaction) => {
+        const [results] = await db.sequelize.query(
           `SELECT 1 FROM "USER_INTERACTIONS"."BOOKMARKS"
           WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
           {
@@ -171,7 +171,7 @@ async function addBookmark(userID, contentID, contentType) {
         );
   
         if (!results) {
-          await sequelize.query(
+          await db.sequelize.query(
             `INSERT INTO "USER_INTERACTIONS"."BOOKMARKS" ("USER_ID", "CONTENT_ID", "CONTENT_TYPE", "BOOKMARK_DATE")
             VALUES (:userID, :contentID, :contentType, NOW())`,
             {
@@ -194,8 +194,8 @@ async function addBookmark(userID, contentID, contentType) {
 
 async function removeBookmark(userID, contentID, contentType) {
     try {
-      await sequelize.transaction(async (transaction) => {
-        const [results] = await sequelize.query(
+      await db.sequelize.transaction(async (transaction) => {
+        const [results] = await db.sequelize.query(
           `SELECT 1 FROM "USER_INTERACTIONS"."BOOKMARKS"
           WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
           {
@@ -206,7 +206,7 @@ async function removeBookmark(userID, contentID, contentType) {
         );
   
         if (results) {
-          await sequelize.query(
+          await db.sequelize.query(
             `DELETE FROM "USER_INTERACTIONS"."BOOKMARKS"
             WHERE "USER_ID" = :userID AND "CONTENT_ID" = :contentID AND "CONTENT_TYPE" = :contentType`,
             {
@@ -216,7 +216,7 @@ async function removeBookmark(userID, contentID, contentType) {
             }
           );
   
-          await logUserAction(userID, 'Remove Bookmark', 'User removed bookmark');
+          await logUserAction(userID, 'Bookmark', 'User removed bookmark');
           console.log('Bookmark removed successfully.');
         } else {
           console.log('Bookmark does not exist.');
@@ -230,7 +230,7 @@ async function removeBookmark(userID, contentID, contentType) {
 
 async function getUserBookmarks(userID) {
     try {
-      const results = await sequelize.query(
+      const results = await db.sequelize.query(
         `SELECT 
           ub."USER_ID",
           ub."CONTENT_ID",
