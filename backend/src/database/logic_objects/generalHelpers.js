@@ -2,9 +2,11 @@ const { QueryTypes } = require('sequelize');
 const db = require('../../models'); 
 
 //Procedure to Validate Content
+/*
 async function spValidateContent(contentType, contentId, adminId) {
     const transaction = await db.sequelize.transaction();
     try {
+        
         await db.sequelize.query(
             `UPDATE "admin"."content_validation_status"
         SET "validator_id" = :adminId, "validation_date" = CURRENT_TIMESTAMP, "content_status" = 'Approved'
@@ -36,29 +38,8 @@ async function spValidateContent(contentType, contentId, adminId) {
         throw error;
     }
 }
+*/
 
-//Procedure to Reject Content
-async function spRejectContent(contentType, contentId, adminId) {
-    const transaction = await db.sequelize.transaction();
-    try {
-        const validContentTypes = ['Post', 'Event', 'Forum'];
-        if (!validContentTypes.includes(contentType)) {
-            throw new Error('Invalid ContentType. Only "Post", "Event", and "Forum" are allowed.');
-        }
-
-        await db.sequelize.query(
-            `UPDATE "admin"."content_validation_status"
-        SET "validator_id" = :adminId, "validation_date" = CURRENT_TIMESTAMP, "content_status" = 'Rejected'
-        WHERE "content_real_id" = :contentId AND "content_type" = :contentType`,
-            { replacements: { contentId, contentType, adminId }, type: QueryTypes.UPDATE, transaction }
-        );
-
-        await transaction.commit();
-    } catch (error) {
-        await transaction.rollback();
-        throw error;
-    }
-}
 
 //Procedure to Insert a New Rating/Evaluation
 async function spInsertEvaluation(contentType, contentId, criticId, evaluation) {

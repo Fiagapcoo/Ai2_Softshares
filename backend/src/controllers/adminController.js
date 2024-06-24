@@ -1,11 +1,11 @@
-const { spValidateContent,
-        spRejectContent } = require('../database/logic_objects/generalHelpers');
+
 
 const { getUserEngagementMetrics,
         getContentValidationStatusByadmin,
         getContentValidationStatus,
         getActiveDiscussions,
         validateContent,
+        rejectContent,
         getActiveWarnings,
         getContentCenterToBeValidated,
         createCenter,
@@ -14,10 +14,10 @@ const { getUserEngagementMetrics,
 const controllers = {};
 
 controllers.validate_content = async (req, res) => { 
-    const { contentType, contentId, adminId } = req.query; 
-    console.log(req.query);
+    const { contentType, contentID, adminID } = req.param; 
+    console.log(req.param);
     try {
-        await spValidateContent(contentType, contentId, adminId);
+        await validateContent(contentType,contentID, adminID);
 
 
         res.status(201).send('Content validated successfully.');
@@ -30,7 +30,7 @@ controllers.reject_content = async (req, res) => {
     const { contentType, contentId, adminId } = req.query; 
     console.log(req.query);
     try {
-        await spRejectContent(contentType, contentId, adminId);
+        await rejectContent(contentType, contentId, adminId);
 
 
         res.status(201).send('Content rejected successfully.');

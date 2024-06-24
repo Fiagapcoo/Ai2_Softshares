@@ -22,4 +22,23 @@ controllers.create_sub_category = async (req, res) => {
     }
 };
 
+
+controllers.get_all_areas = async (req, res) => {
+    try {
+        const areas = await db.Area.findAll({ order: [['area_id']] });
+        res.status(200).json({ posts });
+    } catch (error) {
+        res.status(500).send('Error retrieving content: ' + error.message);
+    }
+};
+
+controllers.get_all_sub_areas = async (req, res) => {
+    try {
+        const sub_areas = await db.SubArea.findAll({ order: [['sub_area_id']] });
+        res.status(200).json({ posts });
+    } catch (error) {
+        res.status(500).send('Error retrieving content: ' + error.message);
+    }
+};
+
 module.exports = controllers;

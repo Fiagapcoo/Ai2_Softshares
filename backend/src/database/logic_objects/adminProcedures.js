@@ -97,16 +97,16 @@ async function getActiveDiscussions() {
     }
 }
 
-//needs attention
-async function validateContent(contentID, validatorID, status) {
-    try {
-      await db.sequelize.transaction(async (transaction) => {
+
+async function validateContent(contentType,contentID, adminID) {
+  const transaction = await db.sequelize.transaction();
+  try{
         const officecenter_id = await sequelize.query(
           `SELECT "office_id"
            FROM "centers"."office_admins"
-           WHERE "manager_id" = :validatorID`,
+           WHERE "manager_id" = :adminID`,
           {
-            replacements: { validatorID },
+            replacements: { adminID },
             type: QueryTypes.SELECT,
             transaction
           }
@@ -136,19 +136,56 @@ async function validateContent(contentID, validatorID, status) {
   
         await db.sequelize.query(
           `UPDATE "admin"."content_validation_status"
-           SET "content_status" = :status, "validation_date" = CURRENT_TIMESTAMP, "validator_id" = :validatorID
+           SET "content_status" = 'Approved', "validation_date" = CURRENT_TIMESTAMP, "validator_id" = :adminID
            WHERE "content_id" = :contentID`,
           {
-            replacements: { contentID, status, validatorID },
+            replacements: { contentID, adminID },
             type: QueryTypes.UPDATE,
             transaction
           }
-        );
-      });
+        )
+          const table = contentTables[contentType];
+          if (!table) {
+              throw new Error('Invalid content type');
+          }
+
+          await db.sequelize.query(
+              `UPDATE "dynamic_content"."${table}"
+          SET "validated" = true
+          WHERE "${contentType.toLowerCase()}_id" = :contentID`,
+              { replacements: { contentcontentIDId }, type: QueryTypes.UPDATE, transaction }
+          );
+          
+      ;
+      await transaction.commit();
     } catch (error) {
-      console.error('Error validating content:', error);
-      throw error;
+        await transaction.rollback();
+        console.error('Error validating content:', error);
+        throw error;
     }
+}
+
+
+async function rejectContent(contentType, contentID, adminID) {
+  const transaction = await db.sequelize.transaction();
+  try {
+      const validContentTypes = ['Post', 'Event', 'Forum'];
+      if (!validContentTypes.includes(contentType)) {
+          throw new Error('Invalid ContentType. Only "Post", "Event", and "Forum" are allowed.');
+      }
+
+      await db.sequelize.query(
+          `UPDATE "admin"."content_validation_status"
+      SET "validator_id" = :adminID, "validation_date" = CURRENT_TIMESTAMP, "content_status" = 'Rejected'
+      WHERE "content_real_id" = :contentID AND "content_type" = :contentType`,
+          { replacements: { contentID, contentType, adminID }, type: QueryTypes.UPDATE, transaction }
+      );
+
+      await transaction.commit();
+  } catch (error) {
+      await transaction.rollback();
+      throw error;
+  }
 }
 
 async function getActiveWarnings() {
@@ -251,6 +288,7 @@ module.exports = {
     getContentValidationStatus,
     getActiveDiscussions,
     validateContent,
+    rejectContent,
     getActiveWarnings,
     getContentCenterToBeValidated,
     createCenter,
