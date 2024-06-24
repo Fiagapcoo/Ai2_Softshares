@@ -4,7 +4,7 @@ const {
     notifyEventComments,
     notifyEventCreator,
     notifyEventInteractions
-  } = require('../database/logic_objects/notificationProcedures');
+                                } = require('../database/logic_objects/notificationsProcedures');
   
   const controllers = {};
   

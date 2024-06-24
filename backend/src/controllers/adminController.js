@@ -27,8 +27,8 @@ controllers.validate_content = async (req, res) => {
 };
 
 controllers.reject_content = async (req, res) => { 
-    const { contentType, contentId, adminId } = req.query; 
-    console.log(req.query);
+    const { contentType, contentId, adminId } = req.param; 
+    console.log(req.param);
     try {
         await rejectContent(contentType, contentId, adminId);
 
