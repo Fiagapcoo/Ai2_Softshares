@@ -129,8 +129,8 @@ async function fnIsPublisherOfficeAdmin(publisherID) {
 
 
 module.exports = {
-    spValidateContent,
-    spRejectContent,
+    //spValidateContent,
+    //spRejectContent,
     spInsertEvaluation,
     fnReverseRating,
     trgUpdateAverageScore,
