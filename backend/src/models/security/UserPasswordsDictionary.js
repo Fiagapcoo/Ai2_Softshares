@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     const UserPasswordsDictionary = sequelize.define('UserPasswordsDictionary', {
         user_id: { type: DataTypes.INTEGER, primaryKey: true },
         hashed_passwd: { type: DataTypes.STRING(255), allowNull: false },
-        salt: { type: DataTypes.STRING(255), allowNull: false },
+        //salt: { type: DataTypes.STRING(255), allowNull: false },
         valid_from: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
         valid_to: { type: DataTypes.DATE, defaultValue: '9999-12-31 23:59:59' }
     }, {
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
                 await historyModel.create({
                     user_id: userPassword.user_id,
                     hashed_passwd: userPassword.hashed_passwd,
-                    salt: userPassword.salt,
+                    //salt: userPassword.salt,
                     valid_from: userPassword.valid_from,
                     valid_to: new Date()
                 });
@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
                 await historyModel.create({
                     user_id: userPassword.user_id,
                     hashed_passwd: userPassword.hashed_passwd,
-                    salt: userPassword.salt,
+                    //salt: userPassword.salt,
                     valid_from: userPassword.valid_from,
                     valid_to: new Date()
                 });

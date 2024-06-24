@@ -28,8 +28,8 @@ controllers.create_forum_for_event = async (req, res) => {
 };
 
 controllers.get_forum_state = async (req, res) => {
-    const { forumId } = req.query; 
-    console.log(req.query);
+    const { forumId } = req.param; 
+    console.log(req.param);
     try {
         await fnGetForumState(forumId);
         res.status(201).send('Got Forum state successfully.');
@@ -39,7 +39,8 @@ controllers.get_forum_state = async (req, res) => {
 };
 
 controllers.edit_forum = async (req, res) => {
-    const { forumId, subAreaId = null, officeId = null, adminId = null, title = null, content = null, eventId = null } = req.query; 
+    const { forumId } = req.param;
+    const {  subAreaId = null, officeId = null, adminId = null, title = null, content = null, eventId = null } = req.body; 
     console.log(req.query);
     try {
         await spEditForum(forumId, subAreaId, officeId, adminId, title, content, eventId );

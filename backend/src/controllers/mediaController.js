@@ -16,7 +16,8 @@ controllers.create_album = async (req, res) => {
 };
 
 controllers.add_photograph = async (req, res) => {
-    const { albumId, publisherId, filePath } = req.query; 
+    const { albumId, publisherId } = req.param; 
+    const {filePath} = req.body;
     console.log(req.query);
     try {
         await spAddPhotograph(albumId, publisherId, filePath);

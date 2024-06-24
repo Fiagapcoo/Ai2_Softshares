@@ -5,7 +5,8 @@ const { spInsertEvaluation,
 const controllers = {};
 
 controllers.add_evaluation = async (req, res) => { //Only "Post" and "Event" for contentType
-    const { contentType, contentId, criticId, evaluation } = req.query; 
+    const { contentType, contentId } = req.param; 
+    const {criticId, evaluation } = req.body;
     console.log(req.query);
     try {
         await spInsertEvaluation(contentType, contentId, criticId, evaluation);

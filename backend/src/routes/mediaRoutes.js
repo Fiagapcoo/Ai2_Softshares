@@ -4,5 +4,5 @@ const controller = require('../controllers/mediaController.js');
 
 
 router.post('/create-album', controller.create_album);
-router.post('/add-photo', controller.add_photograph);
+router.post('/add-photo/:albumId/:publisherId', controller.add_photograph);
 module.exports = router;

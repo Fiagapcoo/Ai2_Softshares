@@ -16,7 +16,8 @@ controllers.create_post = async (req, res) => {
 };
 
 controllers.edit_post = async (req, res) => {
-    const { postId, subAreaId = null, officeId = null, adminId = null, title = null, content = null, pLocation = null, filePath = null, type = null } = req.query; 
+    const { postId } = req.param
+    const {  subAreaId = null, officeId = null, adminId = null, title = null, content = null, pLocation = null, filePath = null, type = null } = req.body; 
     console.log(req.query);
     try {
         await spEditPost(postId, subAreaId, officeId, adminId, title, content, pLocation, filePath, type);
@@ -27,8 +28,8 @@ controllers.edit_post = async (req, res) => {
 };
 
 controllers.get_post_state = async (req, res) => {
-    const { postId } = req.query; 
-    console.log(req.query);
+    const { postId } = req.param; 
+    console.log(req.param);
     try {
         await fnGetPostState(postId);
         res.status(201).send('Got post state successfully.');

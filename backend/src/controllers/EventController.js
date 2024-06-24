@@ -30,8 +30,8 @@ controllers.event_participation_cleanup = async (req, res) => {
 };
 
 controllers.unregister_user_from_event = async (req, res) => {
-    const { fuserId, eventIdorumId } = req.query; 
-    console.log(req.query);
+    const { userId, eventId } = req.param; 
+    console.log(req.param);
     try {
         await spUnregisterUserFromEvent(userId, eventId);
         res.status(201).send('Got Forum state successfully.');
@@ -41,8 +41,8 @@ controllers.unregister_user_from_event = async (req, res) => {
 };
 
 controllers.get_event_state = async (req, res) => {
-    const { eventId } = req.query; 
-    console.log(req.query);
+    const { eventId } = req.param; 
+    console.log(req.param);
     try {
         await fnGetEventState(eventId);
         res.status(201).send('Got event state successfully.');
@@ -52,8 +52,9 @@ controllers.get_event_state = async (req, res) => {
 };
 
 controllers.edit_event = async (req, res) => {
-    const { eventId, subAreaId = null, officeId = null, adminId = null, name = null, description = null, eventDate = null, eventLocation = null, 
-        filePath = null, recurring = null, recurringPattern = null, maxParticipants = null, currentParticipants = null } = req.query; 
+    const { eventId } = req.param
+    const {  subAreaId = null, officeId = null, adminId = null, name = null, description = null, eventDate = null, eventLocation = null, 
+        filePath = null, recurring = null, recurringPattern = null, maxParticipants = null, currentParticipants = null } = req.body; 
     console.log(req.query);
     try {
         await spEditEvent(eventId, subAreaId, officeId, adminId, name, description , eventDate, eventLocation, 

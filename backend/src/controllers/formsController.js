@@ -25,8 +25,8 @@ controllers.create_event_form = async (req, res) => {
 
 //to add more fields to a form while event isnt approved
 controllers.add_fields_event_form = async (req, res) => { 
-    const { eventID, customFieldsJson } = req.query; 
-    console.log(req.query);
+    const { eventID, customFieldsJson } = req.param; 
+    console.log(req.param);
     try {
         await addCustomFieldsToEventForm(eventID, customFieldsJson) ;
 
@@ -38,10 +38,11 @@ controllers.add_fields_event_form = async (req, res) => {
 
 // to edit already existing fields of a form
 controllers.edit_fields_event_form = async (req, res) => { 
-    const { fieldName = null, fieldType = null, fieldValue = null, maxValue = null, minValue = null } = req.query; 
-    console.log(req.query);
+    const { eventID, fieldID } = req.param; 
+    const { fieldName = null, fieldType = null, fieldValue = null, maxValue = null, minValue = null } = req.body; 
+    console.log(req.param);
     try {
-        await editEventFormField(eventID, fieldID, { fieldName, fieldType, fieldValue, maxValue, minValue }) ;
+        await editEventFormField(eventID, fieldID,  fieldName, fieldType, fieldValue, maxValue, minValue ) ;
 
         res.status(201).send('Form fields edited successfully.');
     } catch (error) {
@@ -51,8 +52,8 @@ controllers.edit_fields_event_form = async (req, res) => {
 
 //get raw form 
 controllers.get_event_form = async (req, res) => { 
-    const { eventID } = req.query; 
-    console.log(req.query);
+    const { eventID } = req.param; 
+    console.log(req.param);
     try {
         await getFormSchema(eventID) ;
 
@@ -64,8 +65,8 @@ controllers.get_event_form = async (req, res) => {
 
 //get form as json
 controllers.get_event_json_form = async (req, res) => { 
-    const { eventID } = req.query; 
-    console.log(req.query);
+    const { eventID } = req.param; 
+    console.log(req.param);
     try {
         await getFormSchemaAsJson(eventID) ;
 
@@ -77,7 +78,8 @@ controllers.get_event_json_form = async (req, res) => {
 
 //insert answer to field
 controllers.add_answer = async (req, res) => { 
-    const { userID, eventID, fieldID, answer } = req.query; 
+    const { userID, eventID } = req.query; 
+    const { fieldID, answer } = req.body; 
     console.log(req.query);
     try {
         await insertFormAnswer(userID, eventID, fieldID, answer) ;
@@ -89,7 +91,8 @@ controllers.add_answer = async (req, res) => {
 };
 //insert answers to form
 controllers.add_answers = async (req, res) => { 
-    const { userID, eventID, answersJson } = req.query; 
+    const { userID, eventID } = req.query; 
+    const { answersJson } = req.body; 
     console.log(req.query);
     try {
         await insertFormAnswers(userID, eventID, answersJson) ;
@@ -102,8 +105,8 @@ controllers.add_answers = async (req, res) => {
 
 //delete fields from form
 controllers.delete_field_from_form = async (req, res) => { 
-    const { eventID, fieldID } = req.query; 
-    console.log(req.query);
+    const { eventID, fieldID } = req.param; 
+    console.log(req.param);
     try {
         await deleteEventFormField(eventID, fieldID) ;
 

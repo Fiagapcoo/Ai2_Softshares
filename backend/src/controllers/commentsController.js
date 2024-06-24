@@ -15,8 +15,8 @@ controllers.add_comment = async (req, res) => {
 };
 
 controllers.get_comments_tree = async (req, res) => {
-    const { contentID, contentType } = req.query; 
-    console.log(req.query);
+    const { contentID, contentType } = req.param; 
+    console.log(req.param);
     try {
         await getCommentTree(contentID, contentType);
         res.status(201).send('Got comments tree successfully.');

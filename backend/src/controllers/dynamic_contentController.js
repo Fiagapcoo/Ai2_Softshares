@@ -1,4 +1,4 @@
-const db = require('../../models'); 
+const db = require('../models'); 
 
 const controllers = {};
 
@@ -14,7 +14,7 @@ controllers.getAllContent = async (req, res) => {
 };
 
 controllers.getPostsByCity = async (req, res) => {
-    const { city } = req.query;
+    const { city } = req.params;
     try {
         const posts = await db.Posts.findAll({
             include: [{
@@ -30,7 +30,7 @@ controllers.getPostsByCity = async (req, res) => {
 };
 
 controllers.getForumsByCity = async (req, res) => {
-    const { city } = req.query;
+    const { city } = req.params;
     try {
         const forums = await db.Forums.findAll({
             include: [{
@@ -46,7 +46,7 @@ controllers.getForumsByCity = async (req, res) => {
 };
 
 controllers.getEventsByCity = async (req, res) => {
-    const { city } = req.query;
+    const { city } = req.params;
     try {
         const events = await db.Events.findAll({
             include: [{
@@ -62,7 +62,7 @@ controllers.getEventsByCity = async (req, res) => {
 };
 
 controllers.getPostById = async (req, res) => {
-    const { post_id } = req.query;
+    const { post_id } = req.params;
     try {
         const post = await db.Post.findByPk(post_id, {
             include: [
@@ -81,7 +81,7 @@ controllers.getPostById = async (req, res) => {
 };
 
 controllers.getEventById = async (req, res) => {
-    const { event_id } = req.query;
+    const { event_id } = req.params;
     try {
         const event = await db.Event.findByPk(event_id, {
             include: [
@@ -100,7 +100,7 @@ controllers.getEventById = async (req, res) => {
 };
 
 controllers.getForumById = async (req, res) => {
-    const { forum_id } = req.query;
+    const { forum_id } = req.params;
     try {
         const forum = await db.Forum.findByPk(forum_id, {
             include: [
@@ -119,7 +119,7 @@ controllers.getForumById = async (req, res) => {
 };
 
 controllers.getUserInfo = async (req, res) => {
-    const { user_id } = req.query;
+    const { user_id } = req.params;
     try {
         const user = await db.Users.findByPk(user_id , {
             attributes: { exclude: ['hashed_password', 'join_date', 'profile_pic'] }
