@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/notificationController');
 
-// Define routes
+
 router.post('/trigger-notifications', controller.triggerNotifications);
 router.post('/notify-event-changes', controller.notifyEventChanges);
 router.post('/notify-event-comments', controller.notifyEventComments);

@@ -28,6 +28,7 @@ const formsRoutes = require('./routes/formsRoutes');
 const commentsRoutes = require('./routes/commentsRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dynamicRoutes = require('./routes/dynamic_contentRoutes');
+const notificationsRoutes = require('./routes/notificationRoutes');
 
 
 const port = process.env.PORT || 8000;
@@ -58,6 +59,8 @@ app.use('/api/form', formsRoutes);
 app.use('/api/comment', commentsRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/dynamic', dynamicRoutes);
+app.use('/api/notification', notificationsRoutes);
+
 
 //app.use('/permission', PermissionRoutes);
 //app.use('/user', UserRoutes);
