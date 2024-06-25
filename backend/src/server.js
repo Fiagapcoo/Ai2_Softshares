@@ -3,6 +3,8 @@ const cors = require('cors');
 const app = express();
 const insertData = require('./database/logic_objects/insertData');
 
+// in .env file JWT_SECRET=mysecretkey
+
 /*
 const { 
         syncDatabase,

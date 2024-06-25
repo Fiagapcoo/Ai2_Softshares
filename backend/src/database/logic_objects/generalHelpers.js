@@ -126,7 +126,23 @@ async function fnIsPublisherOfficeAdmin(publisherID) {
     return result[0].exists ? true : false;
 }
 
-
+const logError = async (errorMessage, errorSeverity, errorState) => {
+    try {
+      await db.sequelize.query(
+        `INSERT INTO "security"."error_log" ("ErrorMessage", "ErrorSeverity", "ErrorState", "ErrorTime")
+         VALUES (:errorMessage, :errorSeverity, :errorState, NOW())`,
+        {
+          replacements: { errorMessage, errorSeverity, errorState },
+          type: QueryTypes.INSERT
+        }
+      );
+  
+      throw new Error(errorMessage);
+    } catch (error) {
+      throw error;
+    }
+  };
+  
 
 module.exports = {
     //spValidateContent,
@@ -134,6 +150,7 @@ module.exports = {
     spInsertEvaluation,
     fnReverseRating,
     trgUpdateAverageScore,
-    fnIsPublisherOfficeAdmin
+    fnIsPublisherOfficeAdmin,
+    logError
     
 }
