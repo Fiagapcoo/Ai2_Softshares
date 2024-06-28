@@ -3,7 +3,6 @@ import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
-import UserComponent from '../../components/UserComponent/UserComponent';
 import ButtonWithIcon from '../../components/ButtonWithIcon/ButtonWithIcon';
 import ParentComponent from '../../components/ParentComponent/ParentComponent';
 import '../../components/ValidateItem/ValidateItemPopup'
@@ -11,8 +10,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import './Manage.css';
+import { useNavigate } from 'react-router-dom';
 
 const Manage = () => {
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = "SoftShares - Manage";
   }, []);
@@ -28,7 +29,8 @@ const Manage = () => {
             </div>
             <ButtonWithIcon 
             icon={"fas fa-plus plus_icon"}
-            text={`Create Operation Center `}
+            text={`Create Operation Center`}
+            onClick={() => {navigate('/createOC');}}
             />
             <div className="center-calendar">
               <Calendar />

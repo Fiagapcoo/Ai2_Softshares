@@ -14,6 +14,8 @@ import Homepage from './pages/HomePage/Homepage';
 import Profile from './pages/Profile/Profile';
 import PostsOrEvents from './pages/Post_Events/PostsOrEvents';
 import Manage from './pages/Manage/Manage';
+import CreateOC from './pages/CreateOC/createOC';
+import CreatePost from './pages/CreatePost/createPost';
 
 
 const App = () => {
@@ -29,12 +31,13 @@ const App = () => {
          <Route path="/selectcity" element={<SelectCity />}/>
          <Route path="/homepage" element={<Homepage />} />
          <Route path="/profile" element={<Profile />} />
-          <Route path="/posts" element={<PostsOrEvents type="Post" />} />
-          <Route path="/events" element={<PostsOrEvents type="Event" />} />
+          <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />} />
+          <Route path="/events" element={<PostsOrEvents type="Event" CreateRoute="/createEvent" />}/>
           <Route path="/manage" element={<Manage/>} ></Route>
-        {/*<Route path="/createpost/:area" element={<CreatePost />} />
-        <Route path="/createevent" element={<CreateEvent />} />
-        <Route path="/post/:area" element={<Post />} />
+          <Route path='/createOC' element={<CreateOC/>}/>
+          <Route path='/createPost' element={<CreatePost/>}/>
+        
+        {/*<Route path="/createevent" element={<CreateEvent />} />
         <Route path="/*" element={<FourOFour/>} /> */}
       </Routes>
     </Router>

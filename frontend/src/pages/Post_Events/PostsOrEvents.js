@@ -1,19 +1,26 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import ButtonWithIcon from '../../components/ButtonWithIcon/ButtonWithIcon';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './PostsOrEvents.css';
 
-const PostsOrEvents = ({ type }) => {
+const PostsOrEvents = ({ type, CreateRoute }) => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = `SoftShares - ${type}`;
   }, [type]);
+
+  const handleCreateClick = () => {
+    navigate(CreateRoute, { replace: true });
+  };
 
   return (
     <>
@@ -25,12 +32,13 @@ const PostsOrEvents = ({ type }) => {
               <CategoryCard />
             </div>
             <ButtonWithIcon 
-            icon={"fas fa-plus plus_icon"}
-            text={`Add ${type}`}
+              icon="fas fa-plus plus_icon"
+              text={`Add ${type}`}
+              onClick={handleCreateClick}
             />
             <ButtonWithIcon
-            icon={"fas fa-filter filter_icon"}
-            text={`Filter ${type}`}
+              icon="fas fa-filter filter_icon"
+              text={`Filter ${type}`}
             />
             <div className="center-calendar">
               <Calendar />
@@ -55,7 +63,7 @@ const PostsOrEvents = ({ type }) => {
               content="Some quick example text to build on the card title."
               rating={4.0}
               postedBy="Elena Fisher"
-              id='1'
+              id='2'
             />
             <PostsCard
               imagealt="Lisbon"
@@ -65,7 +73,7 @@ const PostsOrEvents = ({ type }) => {
               content="Some quick example text to build on the card title."
               rating={4.0}
               postedBy="Elena Fisher"
-              id='1'
+              id='3'
             />
             <PostsCard
               imagealt="Lisbon"
@@ -75,7 +83,7 @@ const PostsOrEvents = ({ type }) => {
               content="Some quick example text to build on the card title."
               rating={4.0}
               postedBy="Elena Fisher"
-              id='1'
+              id='4'
             />
           </Col>
         </Row>
@@ -86,6 +94,7 @@ const PostsOrEvents = ({ type }) => {
 
 PostsOrEvents.propTypes = {
   type: PropTypes.oneOf(['Event', 'Post']).isRequired,
+  CreateRoute: PropTypes.string.isRequired,
 };
 
 export default PostsOrEvents;
