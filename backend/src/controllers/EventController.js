@@ -17,8 +17,8 @@ controllers.create_event = async (req, res) => {
     }
 };
 
-//a bit confused on this one...
-controllers.event_participation_cleanup = async (req, res) => {
+//function INSIDE CONTROLLER TO BE CALLED AFTER SETTING AN USER INACTIVE
+/* controllers.event_participation_cleanup = async (req, res) => {
     const { } = req.query; 
     console.log(req.query);
     try {
@@ -28,7 +28,7 @@ controllers.event_participation_cleanup = async (req, res) => {
         res.status(500).send('Error cleaning event participation: ' + error.message);
     }
 };
-
+*/
 controllers.unregister_user_from_event = async (req, res) => {
     const { userId, eventId } = req.param; 
     console.log(req.param);

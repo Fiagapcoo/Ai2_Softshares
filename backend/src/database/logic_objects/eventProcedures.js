@@ -98,6 +98,66 @@ async function spUnregisterUserFromEvent(userId, eventId) {
     }
 }
 
+async function spRegisterUserForEvent(userId, eventId) {
+    const transaction = await db.sequelize.transaction();
+    try {
+        const forumIdResult = await db.sequelize.query(
+            `SELECT "forum_id"
+            FROM "dynamic_content"."forums"
+            WHERE "event_id" = :eventId`,
+            { replacements: { eventId }, type: QueryTypes.SELECT, transaction }
+        );
+
+        if (forumIdResult.length === 0) {
+            throw new Error('Forum not found for the event.');
+        }
+
+        const forumId = forumIdResult[0].forum_id;
+
+        const participationExists = await db.sequelize.query(
+            `SELECT 1
+            FROM "control"."participation"
+            WHERE "user_id" = :userId AND "event_id" = :eventId`,
+            { replacements: { userId, eventId }, type: QueryTypes.SELECT, transaction }
+        );
+
+        if (participationExists.length === 0) {
+            await db.sequelize.query(
+                `INSERT INTO "control"."participation" ("user_id", "event_id")
+                VALUES (:userId, :eventId)`,
+                { replacements: { userId, eventId }, type: QueryTypes.INSERT, transaction }
+            );
+        } else {
+            console.log('User is already registered for this event.');
+        }
+
+        const forumAccessExists = await db.sequelize.query(
+            `SELECT 1
+            FROM "control"."event_forum_access"
+            WHERE "user_id" = :userId AND "forum_id" = :forumId`,
+            { replacements: { userId, forumId }, type: QueryTypes.SELECT, transaction }
+        );
+
+        if (forumAccessExists.length === 0) {
+            await db.sequelize.query(
+                `INSERT INTO "control"."event_forum_access" ("user_id", "forum_id")
+                VALUES (:userId, :forumId)`,
+                { replacements: { userId, forumId }, type: QueryTypes.INSERT, transaction }
+            );
+        } else {
+            console.log('User already has forum access for this event.');
+        }
+
+        await transaction.commit();
+    } catch (error) {
+        if (transaction) await transaction.rollback();
+
+        console.error('Error registering user for event:', error.message);
+
+        throw error;
+    }
+}
+
 
 //Function to Get Event State
 async function fnGetEventState(eventId) {
@@ -160,6 +220,7 @@ module.exports = {
     spCreateEvent,
     spEventParticipationCleanup,
     spUnregisterUserFromEvent,
+    spRegisterUserForEvent,
     fnGetEventState,
     spEditEvent
 }
