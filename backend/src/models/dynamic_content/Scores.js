@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         avg_rating_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
         event_id: { type: DataTypes.INTEGER },
         post_id: { type: DataTypes.INTEGER },
-        score: { type: DataTypes.DECIMAL(2,1), allowNull: false },
+        score: { type: DataTypes.DECIMAL(2,1), allowNull: false, defaultValue: 0.0 },
         num_of_evals: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }
     }, {
         schema: 'dynamic_content',
