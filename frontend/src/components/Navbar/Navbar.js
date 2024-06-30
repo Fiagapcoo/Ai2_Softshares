@@ -73,7 +73,7 @@ const Navbar = () => {
             <li className="nav-item">
               <form className="d-flex" role="search">
                 <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                <button className="btn btn-outline-primary softinsaButton" type="submit">Search</button>
+                <button className="btn btn-outline-primary softinsaaButton" type="submit">Search</button>
               </form>
             </li>
           </ul>

@@ -16,7 +16,7 @@ import PostsOrEvents from './pages/Post_Events/PostsOrEvents';
 import Manage from './pages/Manage/Manage';
 import CreateOC from './pages/CreateOC/createOC';
 import CreatePost from './pages/CreatePost/createPost';
-
+import CreateEvent from './pages/CreateEvent/createEvent';
 
 const App = () => {
 
@@ -36,9 +36,10 @@ const App = () => {
           <Route path="/manage" element={<Manage/>} ></Route>
           <Route path='/createOC' element={<CreateOC/>}/>
           <Route path='/createPost' element={<CreatePost/>}/>
+          <Route path='/createEvent' element={<CreateEvent/>}/>
         
-        {/*<Route path="/createevent" element={<CreateEvent />} />
-        <Route path="/*" element={<FourOFour/>} /> */}
+        {/*<Route path="/*" element={<FourOFour/>} />
+        <Route path="/dashboard" element={<Dashboard/>} /> */}
       </Routes>
     </Router>
   );
