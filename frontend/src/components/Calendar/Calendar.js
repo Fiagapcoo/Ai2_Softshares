@@ -1,18 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './Calendar.css';
+import axios from 'axios';
+import ShowEventCalendar from '../ShowEventCalendar/ShowEventCalendar';
 
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentYear = new Date().getFullYear();
+  const [eventDates, setEventDates] = useState([]);
+  const [onlyDates, setOnlyDates] = useState([]);
+  const [eventsInDate, setEventsInDate] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const fetchEventDates = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`);
+        setEventDates(response.data.events);
+      } catch (error) {
+        console.error("Error fetching event dates:", error);
+      }
+    };
+
+    fetchEventDates();
+  }, []);
+
+  const seeInDate = async (date) => {
+    const selectedDate = date.toISOString().split('T')[0];
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date?date=${selectedDate}`);
+      setEventsInDate(res.data.data.map(event => event.event_id));
+      setShowModal(true);  // Show the modal
+    } catch (error) {
+      console.error("Error fetching events on date:", error);
+    }
+  };
+
+  useEffect(() => {
+    const filterDates = () => {
+      const dates = eventDates.map((event) => {
+        return new Date(event.event_date).toISOString().split('T')[0];
+      });
+      setOnlyDates(dates);
+    };
+
+    filterDates();
+  }, [eventDates]);
+
+  // Convert string dates back to Date objects for highlighting
+  const highlightDates = onlyDates.map(date => new Date(date));
 
   return (
     <div className="calendar-container">
       <DatePicker
         selected={selectedDate}
-        onChange={date => setSelectedDate(date)}
+        onChange={date => {
+          setSelectedDate(date);
+          seeInDate(date);
+        }}
         inline
+        highlightDates={highlightDates}
         renderCustomHeader={({
           date,
           changeYear,
@@ -30,20 +78,19 @@ const Calendar = () => {
               value={date.getFullYear()}
               onChange={({ target: { value } }) => changeYear(value)}
             >
-              {Array(100).fill(0).map((_, i) => (
-                <option key={i} value={currentYear - 50 + i}>
-                  {currentYear - 50 + i}
+              {Array.from({ length: 100 }, (_, i) => currentYear - 50 + i).map(year => (
+                <option key={year} value={year}>
+                  {year}
                 </option>
               ))}
             </select>
-
             <select
               value={date.getMonth()}
               onChange={({ target: { value } }) => changeMonth(value)}
             >
-              {Array(12).fill(0).map((_, i) => (
-                <option key={i} value={i}>
-                  {new Date(0, i).toLocaleString('default', { month: 'short' })}
+              {Array.from({ length: 12 }, (_, i) => i).map(month => (
+                <option key={month} value={month}>
+                  {new Date(0, month).toLocaleString('default', { month: 'short' })}
                 </option>
               ))}
             </select>
@@ -53,6 +100,7 @@ const Calendar = () => {
           </div>
         )}
       />
+      {showModal && <ShowEventCalendar show={showModal} handleClose={() => setShowModal(false)} eventIdList={eventsInDate} />}
     </div>
   );
 };

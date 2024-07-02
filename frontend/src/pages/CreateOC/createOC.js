@@ -1,15 +1,31 @@
 import Navbar from '../../components/Navbar/Navbar';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreateOC.css';
+import axios from 'axios';
 
 const CreateOC = () => {
   const [location, setLocation] = useState("");
   const [admin, setAdmin] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
-  const admins = ["Name1", "Name2", "Name3", "Name4", "Name5"];
+  const [admins, setAdmins] = useState([]);
+
+  useEffect(() => {
+    document.title = "Create OC";
+    const fetchAdmins = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/get-user-by-role/CenterAdmin`);
+        console.log(response.data.data);
+        setAdmins(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -26,7 +42,7 @@ const CreateOC = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!location || !admin || !selectedImage) {
       Swal.fire({
@@ -36,12 +52,52 @@ const CreateOC = () => {
       });
       return;
     }
-    Swal.fire({
-      icon: 'success',
-      title: 'OC Created',
-      text: `Location: ${location}, Admin: ${admin}`,
-    });
-    console.log(location, admin, selectedImage);
+    try {
+      const photoFormData = new FormData();
+      photoFormData.append('image', fileInputRef.current.files[0]);
+
+      const uploadResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
+        photoFormData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      const formData = {
+        city: location,
+        admin: admin,
+        photo: uploadResponse.data.file.filename,
+      };
+
+      const FilePath = formData.photo;
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/administration/create-center`,
+        {
+          city: formData.city,
+          admin: formData.admin,
+          officeImage: FilePath,
+        }
+      );
+
+      setLocation("");
+      setAdmin("");
+      setSelectedImage(null);
+      fileInputRef.current.value = null;
+
+      console.log(response.data);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Center Created',
+        text: `Location: ${location}, Admin: ${admin}`,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to create center',
+        text: error.message,
+      });
+    }
   };
 
   return (
@@ -51,11 +107,11 @@ const CreateOC = () => {
         <Row className="w-100 justify-content-center">
           <Col xs={12} md={8} lg={5} className="bg-light rounded p-5 shadow">
             <div className="text-center mb-4">
-              <div className="image-placeholder" onClick={handleImageClick}>
+              <div className="image-placeholder3" onClick={handleImageClick}>
                 {selectedImage ? (
-                  <img src={selectedImage} alt="Selected" className="img-fluid rounded" />
+                  <img src={selectedImage} alt="Selected" className="img-fluid rounded selected-image" />
                 ) : (
-                  <span>Add +</span>
+                  <span className="white-text">Add +</span>
                 )}
               </div>
               <input
@@ -82,9 +138,9 @@ const CreateOC = () => {
                   onChange={(e) => setAdmin(e.target.value)}
                 >
                   <option value="" disabled>Select Admin</option>
-                  {admins.map((admin, index) => (
-                    <option key={index} value={admin}>
-                      {admin}
+                  {admins.map((admin) => (
+                    <option key={admin.user_id} value={admin.user_id}>
+                      {admin.name}
                     </option>
                   ))}
                 </Form.Select>

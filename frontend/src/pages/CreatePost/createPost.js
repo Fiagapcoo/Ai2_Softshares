@@ -1,17 +1,33 @@
 import Navbar from '../../components/Navbar/Navbar';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreatePost.css';
+import axios from 'axios';
 
 const CreatePost = () => {
-  const [area, setArea] = useState("");
-  const [type, setType] = useState("");
-  const [rooms, setRooms] = useState("");
+
+  const [subArea, setSubArea] = useState([]);
+  const [selectedSubArea, setSelectedSubArea] = useState("");
   const [postTitle, setPostTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    console.log(process.env.REACT_APP_BACKEND_URL);
+    const fetchSubareas = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`);
+        console.log(response.data.data);
+        setSubArea(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchSubareas();
+  }, []);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -28,9 +44,9 @@ const CreatePost = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!area || !type || !rooms || !postTitle || !selectedImage|| !description) {
+    if (!selectedSubArea || !postTitle || !selectedImage || !description) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -38,12 +54,59 @@ const CreatePost = () => {
       });
       return;
     }
-    Swal.fire({
-      icon: 'success',
-      title: 'Post Created',
-      text: `Title: ${postTitle}, Area: ${area}`,
-    });
-    console.log(area, type, rooms, postTitle, description, selectedImage);
+
+    try {
+      const photoFormData = new FormData();
+      photoFormData.append('image', fileInputRef.current.files[0]); // Change field name to 'image'
+
+      const uploadResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
+        photoFormData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      const formData = {
+        subArea: selectedSubArea,
+        postTitle,
+        description,
+        photo: uploadResponse.data.file.filename,
+      };
+
+      // Send the formData to your server or handle it as needed
+      const FilePath = formData.photo;
+
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/post/create`, {
+        subAreaId: selectedSubArea,
+        officeId: "1",
+        publisher_id: "13",
+        title: postTitle,
+        content: description,
+        filePath: FilePath,
+        type: "P",
+        rating: 1
+      });
+
+      setPostTitle("");
+      setSelectedSubArea("");
+      setDescription("");
+      setSelectedImage(null);
+      fileInputRef.current.value = null;
+
+
+      console.log(response.data);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Post Created',
+        text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to upload image',
+        text: error.message,
+      });
+    }
   };
 
   return (
@@ -53,7 +116,13 @@ const CreatePost = () => {
         <Row className="w-100 justify-content-center">
           <Col xs={12} md={8} lg={5} className="bg-light rounded p-4 shadow">
             <div className="text-center mb-4">
-              <div className="image-placeholder" onClick={handleImageClick} style={{ background: selectedImage ? `url(${selectedImage}) no-repeat center/cover` : '#000' }}>
+              <div
+                className="image-placeholder"
+                onClick={handleImageClick}
+                style={{
+                  background: selectedImage ? `url(${selectedImage}) no-repeat center/cover` : '#000'
+                }}
+              >
                 {!selectedImage && <span className="text-white">Add +</span>}
               </div>
               <input
@@ -65,36 +134,15 @@ const CreatePost = () => {
             </div>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="formArea" className="mb-3">
-                <Form.Label>Area *</Form.Label>
+                <Form.Label>Sub Area *</Form.Label>
                 <Form.Select
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
+                  value={selectedSubArea}
+                  onChange={(e) => setSelectedSubArea(e.target.value)}
                 >
-                  <option value="" disabled>Select Area</option>
-                  <option value="Housing">Housing</option>
-                  {/* Add more options as needed */}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group controlId="formType" className="mb-3">
-                <Form.Label>Type *</Form.Label>
-                <Form.Select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  <option value="" disabled>Select Type</option>
-                  <option value="Apartment">Apartment</option>
-                  {/* Add more options as needed */}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group controlId="formRooms" className="mb-3">
-                <Form.Label>Rooms *</Form.Label>
-                <Form.Select
-                  value={rooms}
-                  onChange={(e) => setRooms(e.target.value)}
-                >
-                  <option value="" disabled>Select Rooms</option>
-                  <option value="Studio/T0">Studio/T0</option>
-                  {/* Add more options as needed */}
+                  <option value="" disabled>Select Sub Area</option>
+                  {subArea.map((subarea) => (
+                    <option key={subarea.sub_area_id} value={subarea.sub_area_id}>{subarea.title}</option>
+                  ))}
                 </Form.Select>
               </Form.Group>
               <Form.Group controlId="formPostTitle" className="mb-3">
@@ -107,7 +155,7 @@ const CreatePost = () => {
                 />
               </Form.Group>
               <Form.Group controlId="formDescription" className="mb-3">
-                <Form.Label>Description</Form.Label>
+                <Form.Label>Description *</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}

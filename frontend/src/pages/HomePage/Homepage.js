@@ -7,22 +7,40 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col } from 'react-bootstrap';
 import './Homepage.css';
+import axios from 'axios';
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB', options).split('/').join('/');
+};
 
 const Homepage = () => {
-  const [userID, setUserID] = useState('');
+
+  const [posts, setPosts] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [forum, setForum] = useState([]);
 
   useEffect(() => {
-    const userIDD = localStorage.getItem('userID');
-    setUserID(userIDD);
+
     document.title = "SoftShares - Home Page";
+
+    const fetchData = async () => {
+     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`);
+     setPosts(response.data.posts);
+     setEvents(response.data.events);
+     setForum(response.data.forums);
+    }
+
+    fetchData();
+
   }, []);
 
   return (
     <>
       <Navbar />
-      <Row className='Linha-Imagem'>
-        <img src="./assets/SofinsaRectangle.png" alt="Softinsa" className="SoftinsaBanner" />
-      </Row>
+
+        <img src="./assets/SofinsaRectangle.png" alt="Softinsa" className=" w-100" />
       <Container fluid className="Conteudo mt-5">
         <Row className="homepage-grid">
           <Col xs={12} md={3} className="category-card w-100 h-100">
@@ -34,16 +52,45 @@ const Homepage = () => {
             </div>
           </Col>
           <Col xs={12} md={9} className="posts-grid w-100 justify-content-center">
-            <PostsCard
-              imagealt="Viseu"
-              imagePlaceholderChangeIma="https://bolimg.blob.core.windows.net/producao/imagens/entidades/aderentes/ent1389.jpg?v=16"
-              title="Teatro Viriato"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Nathan Drake"
-              id='1'
-            />
+            {posts.map((post) => (
+              <PostsCard
+                imagealt={post.title}
+                imagePlaceholderChangeIma={post.filepath}
+                title={post.title}
+                description={post.description}
+                content={post.content}
+                rating={post.rating} //TODO: Change to post.rating
+                postedBy={post.publisher_id}
+                id={post.post_id}
+              />
+            ))}
+            {events.map((event) => (
+              <PostsCard
+                type='E'
+                imagealt={event.name}
+                imagePlaceholderChangeIma={event.filepath}
+                title={event.name}
+                description={event.description}
+                content={event.content}
+                rating={event.rating}
+                postedBy={event.publisher_id}
+                id={event.event_id}
+                date={formatDate(event.event_date)}
+              />
+            ))}
+            {/* {forum.map((forum) => (
+              <PostsCard
+                imagealt={forum.city}
+                imagePlaceholderChangeIma={forum.image}
+                title={forum.title}
+                description={forum.description}
+                content={forum.content}
+                rating={forum.rating}
+                postedBy={forum.postedBy}
+                id={forum.id}
+              />
+            ))} */}
+            
             
           </Col>
         </Row>
