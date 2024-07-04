@@ -17,7 +17,10 @@ import Manage from './pages/Manage/Manage';
 import CreateOC from './pages/CreateOC/createOC';
 import CreatePost from './pages/CreatePost/createPost';
 import CreateEvent from './pages/CreateEvent/createEvent';
-
+import Dashboard  from './pages/Dashboard/dashboard';
+import CreateArea from './pages/CreateArea/CreateArea';
+import CreateSubarea from './pages/CreateSubarea/CreateSubarea';
+import NotFoundPage from './pages/FourOFour/fourOfourPage';
 const App = () => {
 
 
@@ -33,13 +36,15 @@ const App = () => {
          <Route path="/profile" element={<Profile />} />
           <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />} />
           <Route path="/events" element={<PostsOrEvents type="Event" CreateRoute="/createEvent" />}/>
-          <Route path="/manage" element={<Manage/>} ></Route>
+          <Route path="/manage" element={<Manage/>}/>
           <Route path='/createOC' element={<CreateOC/>}/>
           <Route path='/createPost' element={<CreatePost/>}/>
           <Route path='/createEvent' element={<CreateEvent/>}/>
-        
-        {/*<Route path="/*" element={<FourOFour/>} />
-        <Route path="/dashboard" element={<Dashboard/>} /> */}
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="addArea" element={<CreateArea/>}/>
+          <Route path="addSubArea" element={<CreateSubarea/>}/>
+          <Route path="/*" element={<NotFoundPage/>} />
+         
       </Routes>
     </Router>
   );

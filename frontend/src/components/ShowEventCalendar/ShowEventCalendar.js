@@ -1,11 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import PostsCard from '../PostsCard/PostCard';
 import axios from 'axios';
 
-const ShowEventCalendar = ({ show, handleClose }) => {
+const ShowEventCalendar = ({ show, handleClose, eventIdList }) => {
+  console.log(eventIdList);
   const [events, setEvents] = useState([]);
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventPromises = eventIdList.map(id => axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get/${id}`));
+        const eventResponses = await Promise.all(eventPromises);
+        setEvents(eventResponses.map(response => response.data.data));
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    if (eventIdList && eventIdList.length > 0) {
+      fetchEvents();
+    }
+  }, [eventIdList]);
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
   return (
     <Modal show={show} onHide={handleClose} size="lg" centered>
@@ -14,20 +35,21 @@ const ShowEventCalendar = ({ show, handleClose }) => {
       </Modal.Header>
       <Modal.Body>
         <div className="d-flex flex-wrap">
-      
+          {events.map((post) => (
             <PostsCard
-              type='E'
-              imagealt={"Event Name"}
-              imagePlaceholderChangeIma={"https://via.placeholder.com/150"}
-              title={"Event Name"}
-              description={"Event Description"}
-              content={"Event Content"}
-              rating={"Event Rating"}
-              postedBy={1}
-              id={2}
-              date={/*formatDate(*/"2021-08-01"/*)*/}
+              key={post.event_id}
+              type="E"
+              imagealt={post.name}
+              imagePlaceholderChangeIma={post.filepath || 'https://via.placeholder.com/150'}
+              title={post.name}
+              description={post.description}
+              content={post.content}
+              rating={post.rating}
+              postedBy={post.publisher_id}
+              id={post.event_id}
+              date={formatDate(post.event_date)}
             />
-    
+          ))}
         </div>
       </Modal.Body>
     </Modal>

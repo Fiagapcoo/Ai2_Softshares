@@ -31,10 +31,11 @@ const Calendar = () => {
     try {
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date?date=${selectedDate}`);
       setEventsInDate(res.data.data.map(event => event.event_id));
-      setShowModal(true);  // Show the modal
+      setShowModal(true);
     } catch (error) {
       console.error("Error fetching events on date:", error);
     }
+    console.log(eventsInDate);
   };
 
   useEffect(() => {

@@ -59,6 +59,9 @@ const Navbar = () => {
             <li className="nav-item">
               <a className="nav-link" href="/manage">Manage</a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/dashboard">Dashboard</a>
+            </li>
           </ul>
           <h1 className="navbar-text mx-auto d-none d-lg-block">Soft<span className="text-primary">Shares</span></h1>
           <ul className="navbar-nav align-items-center">
