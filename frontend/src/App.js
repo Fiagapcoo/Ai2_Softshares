@@ -21,6 +21,7 @@ import Dashboard  from './pages/Dashboard/dashboard';
 import CreateArea from './pages/CreateArea/CreateArea';
 import CreateSubarea from './pages/CreateSubarea/CreateSubarea';
 import NotFoundPage from './pages/FourOFour/fourOfourPage';
+import SetupPassword from './config/SetupPassword/SetupPassword';
 const App = () => {
 
 
@@ -41,8 +42,9 @@ const App = () => {
           <Route path='/createPost' element={<CreatePost/>}/>
           <Route path='/createEvent' element={<CreateEvent/>}/>
           <Route path="/dashboard" element={<Dashboard/>} />
-          <Route path="addArea" element={<CreateArea/>}/>
-          <Route path="addSubArea" element={<CreateSubarea/>}/>
+          <Route path="/addArea" element={<CreateArea/>}/>
+          <Route path="/addSubArea" element={<CreateSubarea/>}/>
+          <Route path='/setup-password/:mashup' element={<SetupPassword/>}></Route>
           <Route path="/*" element={<NotFoundPage/>} />
          
       </Routes>

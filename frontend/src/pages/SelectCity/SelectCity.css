@@ -3,7 +3,7 @@
 .selectcity {
   padding: 20px;
   background-color: #f8f9fa;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -26,19 +26,11 @@
   margin-top: -10px; /* Adjusted margin to remove distance */
 }
 
-.container {
+.grid-container {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex-direction: column;
 }
 
 .advance-button {

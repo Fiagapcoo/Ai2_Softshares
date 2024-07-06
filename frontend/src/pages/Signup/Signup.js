@@ -1,19 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
-import { useEffect } from "react";
+import React,{ useState,useEffect } from "react";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./SignUp.css";
 
 const SignUp = () => {
+
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+
   useEffect(() => {
     document.title = "SoftShares - SignUp";
   }, []);
 
   const navigate = useNavigate();
 
-  const SignUpAction = () => {
-    alert("Sign Up");
-    navigate("/");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const firstName = name.split(' ')[0];
+    const lastName = name.split(' ')[1] || '';
+    
+    // Store the user data in local storage
+    localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
+    
+    navigate('/selectcity');
   };
 
   return (
@@ -26,7 +36,7 @@ const SignUp = () => {
           </span>
         </h1>
       </div>
-      <form className="rectangle-parent">
+      <div className="rectangle-parent">
         <div className="sign-up-wrapper">
           <h1 className="sign-up">Sign Up</h1>
         </div>
@@ -61,19 +71,26 @@ const SignUp = () => {
                   <div className="frame-child5" />
                 </div>
               </div>
-              <Form className="input2">
-                <Form.Control type="email" placeholder="Email" />
+              <Form className="input2" onSubmit={handleSubmit}>
+                <Form.Control
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                />
               </Form>
             </div>
           </div>
           <Form className="parent">
-            <Form.Control type="password" placeholder="Password" />
-          </Form>
-          <Form className="parent">
-            <Form.Control type="password" placeholder="Confirm Password" />
+            <Form.Control
+            type="text"
+            placeholder="FirstName LastName"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            />
           </Form>
           <div className="component-3-wrapper">
-            <a className="component-3">Already have an account?</a>
+            <a className="component-3" href="/login">Already have an account?</a>
           </div>
           <div className="frame-wrapper1">
             <div className="frame-parent3">
@@ -96,14 +113,14 @@ const SignUp = () => {
               <Button
                 className="w-100 login-button"
                 variant="primary"
-                onClick={SignUpAction}
+                onClick={handleSubmit}
               >
                 Sign Up
               </Button>
             </div>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

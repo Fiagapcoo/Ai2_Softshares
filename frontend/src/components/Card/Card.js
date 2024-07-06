@@ -3,7 +3,7 @@ import "./Card.css";
 
 const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, content }) => {
   return (
-    <div className={`card ${className}`}>
+    <div className={`card2 ${className}`}>
       <img
         className="card-img-top"
         loading="lazy"
