@@ -13,6 +13,8 @@ const UsersTable = ({ token }) => {
     const [offices, setOffices] = useState([]);
     const [selectedOffice, setSelectedOffice] = useState('');
     const [isEditingOffice, setIsEditingOffice] = useState(false);
+    const [isEditingStatus, setIsEditingStatus] = useState(false);
+    const [userStatus, setUserStatus] = useState('');
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
@@ -57,6 +59,7 @@ const UsersTable = ({ token }) => {
     const handleShowModal = (user) => {
         setSelectedUser(user);
         setSelectedOffice(user.city);
+        setUserStatus(user.is_active ? 'Activate' : 'Inactivate'); // Assuming `is_active` is the field for user status
         setShowModal(true);
     };
 
@@ -64,26 +67,58 @@ const UsersTable = ({ token }) => {
         setShowModal(false);
         setSelectedUser(null);
         setIsEditingOffice(false);
+        setIsEditingStatus(false);
+    };
+
+    const updateOffice = async () => {
+        try {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
+                user_id: selectedUser.user_id,
+                office_id: selectedOffice,
+            }, {
+                headers: {
+                    Authorization: `${token}`
+                },
+            });
+            setUsers(users.map(user => 
+                user.id === selectedUser.id ? { ...user, city: selectedOffice } : user
+            ));
+        } catch (err) {
+            console.error(err.response ? err.response.data : err.message);
+        }
+    };
+
+    const updateUser = async () => {
+        try {
+            const status = userStatus === 'Activate';
+            const res = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/user/update-acc-status`, {
+                user_id: selectedUser.user_id,
+                status: status
+            }, {
+                headers: {
+                    Authorization: `${token}`
+                },
+            });
+
+            setUsers(users.map(user => 
+                user.id === selectedUser.id ? { ...user, is_active: status } : user
+            ));
+
+            console.log(res);
+        } catch (err) {
+            console.error(err.response ? err.response.data : err.message);
+        }
     };
 
     const handleSaveChanges = async () => {
         if (selectedUser) {
-            try {
-                await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
-                    user_id: selectedUser.user_id,
-                    office_id: selectedOffice,
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                });
-                setRefresh(!refresh);
-                setUsers(users.map(user => 
-                    user.id === selectedUser.id ? { ...user, city: selectedOffice } : user
-                ));
-            } catch (err) {
-                console.error(err.response ? err.response.data : err.message);
+            if (isEditingOffice) {
+                await updateOffice();
             }
+            if (isEditingStatus) {
+                await updateUser();
+            }
+            setRefresh(!refresh);
         }
         handleCloseModal();
     };
@@ -143,12 +178,32 @@ const UsersTable = ({ token }) => {
                                 </Form.Control>
                             </Form.Group>
                         )}
+                        <Form.Check 
+                            type="checkbox"
+                            label="Activate/Inactivate User"
+                            checked={isEditingStatus}
+                            onChange={() => setIsEditingStatus(!isEditingStatus)}
+                        />
+                        {isEditingStatus && (
+                            <Form.Group controlId="formStatusSelect">
+                                <Form.Label>Select User Status</Form.Label>
+                                <Form.Control 
+                                    as="select" 
+                                    value={userStatus} 
+                                    onChange={e => setUserStatus(e.target.value)}
+                                >
+                                    <option value="" disabled>Select an option</option>
+                                    <option value="Inactivate">Inactivate</option>
+                                    <option value="Activate">Activate</option>
+                                </Form.Control>
+                            </Form.Group>
+                        )}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleCloseModal}>
                             Close
                         </Button>
-                        {isEditingOffice && (
+                        {(isEditingOffice || isEditingStatus) && (
                             <Button variant="primary" onClick={handleSaveChanges}>
                                 Save Changes
                             </Button>
