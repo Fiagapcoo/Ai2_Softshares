@@ -5,7 +5,7 @@ import './UsersTable.css';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const UsersTable = () => {
+const UsersTable = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -18,7 +18,11 @@ const UsersTable = () => {
     useEffect(() => {
         const getUsers = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`, {
+                    headers: {
+                        Authorization: `${token}`
+                    },
+                });
                 const filteredUsers = response.data.data.filter(user => user.city !== 'ALL');
                 setUsers(filteredUsers);
             } catch (err) {
@@ -28,7 +32,11 @@ const UsersTable = () => {
 
         const getOffices = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`);
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`, {
+                    headers: {
+                        Authorization: `${token}`
+                    },
+                });
                 const filteredOffices = response.data.data.filter(office => office.city !== 'ALL');
                 setOffices(filteredOffices);
             } catch (err) {
@@ -36,9 +44,11 @@ const UsersTable = () => {
             }
         };
 
-        getUsers();
-        getOffices();
-    }, [refresh]);
+        if (token) {
+            getUsers();
+            getOffices();
+        }
+    }, [refresh, token]);
 
     const filteredUsers = users.filter(user =>
         (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm.toLowerCase())
@@ -54,7 +64,6 @@ const UsersTable = () => {
         setShowModal(false);
         setSelectedUser(null);
         setIsEditingOffice(false);
-        
     };
 
     const handleSaveChanges = async () => {
@@ -63,6 +72,10 @@ const UsersTable = () => {
                 await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
                     user_id: selectedUser.user_id,
                     office_id: selectedOffice,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
                 });
                 setRefresh(!refresh);
                 setUsers(users.map(user => 

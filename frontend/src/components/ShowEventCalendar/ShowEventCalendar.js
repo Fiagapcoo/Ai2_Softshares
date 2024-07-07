@@ -4,7 +4,6 @@ import PostsCard from '../PostsCard/PostCard';
 import axios from 'axios';
 
 const ShowEventCalendar = ({ show, handleClose, eventIdList }) => {
-  console.log(eventIdList);
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -34,23 +33,27 @@ const ShowEventCalendar = ({ show, handleClose, eventIdList }) => {
         <Modal.Title>Events</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="d-flex flex-wrap">
-          {events.map((post) => (
-            <PostsCard
-              key={post.event_id}
-              type="E"
-              imagealt={post.name}
-              imagePlaceholderChangeIma={post.filepath || 'https://via.placeholder.com/150'}
-              title={post.name}
-              description={post.description}
-              content={post.content}
-              rating={post.rating}
-              postedBy={post.publisher_id}
-              id={post.event_id}
-              date={formatDate(post.event_date)}
-            />
-          ))}
-        </div>
+        {events.length === 0 ? (
+          <p>No events available.</p>
+        ) : (
+          <div className="d-flex flex-wrap">
+            {events.map((post) => (
+              <PostsCard
+                key={post.event_id}
+                type="E"
+                imagealt={post.name}
+                imagePlaceholderChangeIma={post.filepath || 'https://via.placeholder.com/150'}
+                title={post.name}
+                description={post.description}
+                content={post.content}
+                rating={post.rating}
+                postedBy={post.publisher_id}
+                id={post.event_id}
+                date={formatDate(post.event_date)}
+              />
+            ))}
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );

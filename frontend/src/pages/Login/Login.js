@@ -11,18 +11,18 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => { 
-    
+  useEffect(() => {
     document.title = "SoftShares - Login";
+    
     const checkCurrentUser = async () => {
-      const token = await Authentication.getCurrentUser(navigate);
+      const token = await Authentication.getCurrentUser("login");
       if (token) {
         navigate('/homepage');
       }
     };
 
     checkCurrentUser();
-  }, [navigate]);
+  }, []);
 
   const handleLogin = async () => {
     if (email === "" || password === "") {
@@ -37,13 +37,13 @@ const Login = () => {
     try {
       const response = await Authentication.login(email, password);
 
-      if(response.token) {
+      if(response) {  // Assuming response contains the token if successful
         navigate('/homepage');
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
-          text: response.message || 'An error occurred. Please try again.',
+          text: 'An error occurred. Please try again.',
         });
       }
     } catch (error) {

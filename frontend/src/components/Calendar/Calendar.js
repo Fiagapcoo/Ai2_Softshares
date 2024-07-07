@@ -4,8 +4,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './Calendar.css';
 import axios from 'axios';
 import ShowEventCalendar from '../ShowEventCalendar/ShowEventCalendar';
+import { useNavigate } from 'react-router-dom';
 
-const Calendar = () => {
+const Calendar = ({ token }) => {
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentYear = new Date().getFullYear();
   const [eventDates, setEventDates] = useState([]);
@@ -15,27 +17,32 @@ const Calendar = () => {
 
   useEffect(() => {
     const fetchEventDates = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`);
-        setEventDates(response.data.events);
-      } catch (error) {
-        console.error("Error fetching event dates:", error);
+      if (token) {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+          setEventDates(response.data.events);
+        } catch (error) {
+          console.error("Error fetching event dates:", error);
+        }
       }
     };
 
     fetchEventDates();
-  }, []);
+  }, [token]);
 
   const seeInDate = async (date) => {
     const selectedDate = date.toISOString().split('T')[0];
     try {
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date?date=${selectedDate}`);
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`);
       setEventsInDate(res.data.data.map(event => event.event_id));
       setShowModal(true);
     } catch (error) {
       console.error("Error fetching events on date:", error);
     }
-    console.log(eventsInDate);
   };
 
   useEffect(() => {
@@ -77,7 +84,7 @@ const Calendar = () => {
             </button>
             <select
               value={date.getFullYear()}
-              onChange={({ target: { value } }) => changeYear(value)}
+              onChange={({ target: { value } }) => changeYear(Number(value))}
             >
               {Array.from({ length: 100 }, (_, i) => currentYear - 50 + i).map(year => (
                 <option key={year} value={year}>
@@ -87,7 +94,7 @@ const Calendar = () => {
             </select>
             <select
               value={date.getMonth()}
-              onChange={({ target: { value } }) => changeMonth(value)}
+              onChange={({ target: { value } }) => changeMonth(Number(value))}
             >
               {Array.from({ length: 12 }, (_, i) => i).map(month => (
                 <option key={month} value={month}>
@@ -101,7 +108,13 @@ const Calendar = () => {
           </div>
         )}
       />
-      {showModal && <ShowEventCalendar show={showModal} handleClose={() => setShowModal(false)} eventIdList={eventsInDate} />}
+      {showModal && (
+        <ShowEventCalendar
+          show={showModal}
+          handleClose={() => setShowModal(false)}
+          eventIdList={eventsInDate}
+        />
+      )}
     </div>
   );
 };

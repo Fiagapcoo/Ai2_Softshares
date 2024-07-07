@@ -25,32 +25,39 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser(navigate);
       setToken(res);
     };
 
+    document.title = `SoftShares - ${type}`;
+    checkCurrentUser();
+  }, [navigate, type]);
+
+  useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`
-        );
-        if (type === "Post") {
-          setPostOrEvent(response.data.posts);
-        } else if (type === "Event") {
-          setPostOrEvent(response.data.events);
+      if (token) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+              headers: {
+                Authorization: `${token}`,
+              },
+            }
+          );
+          if (type === "Post") {
+            setPostOrEvent(response.data.posts);
+          } else if (type === "Event") {
+            setPostOrEvent(response.data.events);
+          }
+        } catch (error) {
+          console.error(error.message);
         }
-      } catch (error) {
-        console.error(error.message);
       }
     };
 
     fetchData();
-    checkCurrentUser();
-
-    document.title = `SoftShares - ${type}`;
-  }, [type]);
+  }, [token, type]);
 
   const handleCreateClick = () => {
     navigate(CreateRoute, { replace: true });
@@ -75,7 +82,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
               text={`Filter ${type}`}
             />
             <div className="center-calendar">
-              <Calendar />
+              <Calendar token={token} />
             </div>
           </Col>
           <Col
@@ -83,33 +90,39 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
             md={9}
             className="posts-grid w-100 justify-content-center"
           >
-            {postOrEvent.map((post) =>
-              type === "Post" ? (
-                <PostsCard
-                  key={post.post_id}
-                  imagealt={post.title}
-                  imagePlaceholderChangeIma={post.filepath}
-                  title={post.title}
-                  description={post.description}
-                  content={post.content}
-                  rating={post.rating}
-                  postedBy={post.publisher_id}
-                  id={post.post_id}
-                />
-              ) : (
-                <PostsCard
-                  key={post.event_id}
-                  type="E"
-                  imagealt={post.name}
-                  imagePlaceholderChangeIma={post.filepath}
-                  title={post.name}
-                  description={post.description}
-                  content={post.content}
-                  rating={post.rating}
-                  postedBy={post.publisher_id}
-                  id={post.event_id}
-                  date={formatDate(post.event_date)}
-                />
+            {postOrEvent.length === 0 ? (
+              <p>No {type.toLowerCase()}s available.</p>
+            ) : (
+              postOrEvent.map((post) =>
+                type === "Post" ? (
+                  <PostsCard
+                    key={post.post_id}
+                    imagealt={post.title}
+                    imagePlaceholderChangeIma={post.filepath}
+                    title={post.title}
+                    description={post.description}
+                    content={post.content}
+                    rating={post.rating}
+                    postedBy={post.publisher_id}
+                    id={post.post_id}
+                    token={token}
+                  />
+                ) : (
+                  <PostsCard
+                    key={post.event_id}
+                    type="E"
+                    imagealt={post.name}
+                    imagePlaceholderChangeIma={post.filepath}
+                    title={post.name}
+                    description={post.description}
+                    content={post.content}
+                    rating={post.rating}
+                    postedBy={post.publisher_id}
+                    id={post.event_id}
+                    date={formatDate(post.event_date)}
+                    token={token}
+                  />
+                )
               )
             )}
           </Col>

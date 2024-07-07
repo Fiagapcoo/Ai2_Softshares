@@ -6,13 +6,17 @@ import { Dropdown } from 'react-bootstrap';
 import "./PostsCard.css";
 import axios from 'axios';
 
-const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, description, content, rating, postedBy, id, type='P', date }) => {
+const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, description, content, rating, postedBy, id, type='P', date, token }) => {
   const [postedByName, setPostedByName] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-info/${postedBy}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-info/${postedBy}`,{
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
         setPostedByName(response.data.data.first_name + ' ' + response.data.data.last_name);
       } catch (error) {
         console.error("Error fetching user info:", error);

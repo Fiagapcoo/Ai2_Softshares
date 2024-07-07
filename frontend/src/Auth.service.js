@@ -20,14 +20,17 @@ class Authentication {
 
     logout() {
         localStorage.removeItem('token');
+        window.location.href = '/';
     }
 
-    async getCurrentUser(navigate) { // Accept navigate as a parameter
+    async getCurrentUser(page) {
         const token = JSON.parse(localStorage.getItem('token'));
-        
+
         if (!token) {
-            
-            navigate('/'); // Add this line
+            if(page == "login"){
+                return null;
+            }
+            window.location.href = '/login';
             return null;
         }
 
@@ -38,15 +41,15 @@ class Authentication {
             if (response.data.success) {
                 return `Bearer ${token}`;
             } else {
+                console.log(response.data.message);
                 this.logout();
-                navigate('/');
+                return null;
             }
         } catch (error) {
             console.log(error);
             this.logout();
-            navigate('/');
+            return null;
         }
-
     }
 }
 

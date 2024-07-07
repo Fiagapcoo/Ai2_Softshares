@@ -31,7 +31,7 @@ const Dashboard = () => {
         <Row className="homepage-grid w-100 h-100">
           <Col xs={12} md={3} className="category-card w-100">
             <div className='center-category'>
-              <UsersTable />
+              <UsersTable token={token} />
             </div>
             <ButtonWithIcon 
               icon={"fas fa-plus plus_icon"}

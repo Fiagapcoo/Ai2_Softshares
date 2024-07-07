@@ -32,7 +32,7 @@ const SignUp = () => {
     const lastName = name.split(' ')[1] || '';
     
     // Store the user data in local storage
-    localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
+    //localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
     
     navigate('/selectcity');
   };

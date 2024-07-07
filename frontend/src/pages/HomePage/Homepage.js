@@ -6,10 +6,11 @@ import PostsCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import './Homepage.css';
 import axios from 'axios';
 import Authentication from '../../Auth.service';
+import Swal from 'sweetalert2';
 
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -23,33 +24,78 @@ const Homepage = () => {
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [forum, setForum] = useState([]);
+  const [user, setUser] = useState(null);
+  const [firstLogin, setFirstLogin] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
+    document.title = "SoftShares - Home Page";
+
     const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
+      const res = await Authentication.getCurrentUser();
       setToken(res);
     };
 
-    const fetchData = async () => {
+    checkCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    const getUser = async () => {
       if (token) {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
             headers: {
-              Authorization: `${token}`,
-            },
+              Authorization: token,
+            }
           });
-          setPosts(response.data.posts);
-          setEvents(response.data.events);
-          setForum(response.data.forums);
+
+          setUser(res.data.user);
+          if (res.data.user.last_access === null) {
+            setFirstLogin(true);
+            setShowModal(true);
+          }
         } catch (error) {
-          console.error("Error fetching data", error);
+          console.error("Error fetching user data", error);
         }
       }
     };
 
-    document.title = "SoftShares - Home Page";
-    checkCurrentUser();
-  }, [navigate, token]);
+    getUser();
+  }, [token]);
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Passwords do not match',
+        text: 'Please make sure the passwords match.',
+      });
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/change-password`, {
+        password: newPassword
+      }, {
+        headers: {
+          Authorization: token
+        }
+      });
+      console.log(res);
+      if(res.status === 200) {
+      setShowModal(false);
+      setFirstLogin(false);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Change Failed',
+        text: error.response?.data?.message || 'An error occurred. Please try again.',
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +103,7 @@ const Homepage = () => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
             headers: {
-              Authorization: `${token}`,
+              Authorization: token,
             },
           });
           setPosts(response.data.posts);
@@ -68,6 +114,7 @@ const Homepage = () => {
         }
       }
     };
+
     fetchData();
   }, [token]);
 
@@ -82,7 +129,7 @@ const Homepage = () => {
               <CategoryCard />
             </div>
             <div className="center-calendar">
-              <Calendar />
+              <Calendar token={token} />
             </div>
           </Col>
           <Col xs={12} md={9} className="posts-grid w-100 justify-content-center">
@@ -94,9 +141,10 @@ const Homepage = () => {
                 title={post.title}
                 description={post.description}
                 content={post.content}
-                rating={post.rating} //TODO: Change to post.rating
+                rating={post.rating}
                 postedBy={post.publisher_id}
                 id={post.post_id}
+                token={token}
               />
             ))}
             {events.map((event) => (
@@ -112,6 +160,7 @@ const Homepage = () => {
                 postedBy={event.publisher_id}
                 id={event.event_id}
                 date={formatDate(event.event_date)}
+                token={token}
               />
             ))}
             {/* Uncomment and adjust if forum data is needed */}
@@ -131,6 +180,39 @@ const Homepage = () => {
           </Col>
         </Row>
       </Container>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static" keyboard={false}>
+        <Modal.Header>
+          <Modal.Title>Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formNewPassword">
+              <Form.Label>New Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="formConfirmPassword">
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handlePasswordChange}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
