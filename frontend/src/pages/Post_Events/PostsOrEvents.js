@@ -11,7 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./PostsOrEvents.css";
 import axios from "axios";
-
+import Authentication from '../../Auth.service';
 
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -22,8 +22,15 @@ const formatDate = (dateString) => {
 const PostsOrEvents = ({ type, CreateRoute }) => {
   const navigate = useNavigate();
   const [postOrEvent, setPostOrEvent] = useState([]);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
+
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -40,6 +47,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
     };
 
     fetchData();
+    checkCurrentUser();
 
     document.title = `SoftShares - ${type}`;
   }, [type]);

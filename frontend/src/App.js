@@ -1,4 +1,3 @@
-//imports
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 //bootstrap imports
@@ -29,24 +28,23 @@ const App = () => {
     <Router>
       <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+         <Route path="/login" element={<Login />} />
+         <Route path="/signup" element={<SignUp />} />
          <Route path="/SignUpKeyCode" element={<SignUpKeyCode />} />
          <Route path="/selectcity" element={<SelectCity />}/>
          <Route path="/homepage" element={<Homepage />} />
          <Route path="/profile" element={<Profile />} />
-          <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />} />
-          <Route path="/events" element={<PostsOrEvents type="Event" CreateRoute="/createEvent" />}/>
-          <Route path="/manage" element={<Manage/>}/>
-          <Route path='/createOC' element={<CreateOC/>}/>
-          <Route path='/createPost' element={<CreatePost/>}/>
-          <Route path='/createEvent' element={<CreateEvent/>}/>
-          <Route path="/dashboard" element={<Dashboard/>} />
-          <Route path="/addArea" element={<CreateArea/>}/>
-          <Route path="/addSubArea" element={<CreateSubarea/>}/>
-          <Route path='/setup-password/:mashup' element={<SetupPassword/>}></Route>
-          <Route path="/*" element={<NotFoundPage/>} />
-         
+         <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />} />
+         <Route path="/events" element={<PostsOrEvents type="Event" CreateRoute="/createEvent" />}/>
+         <Route path="/manage" element={<Manage/>}/>
+         <Route path='/createOC' element={<CreateOC/>}/>
+         <Route path='/createPost' element={<CreatePost/>}/>
+         <Route path='/createEvent' element={<CreateEvent/>}/>
+         <Route path="/dashboard" element={<Dashboard/>} />
+         <Route path="/addArea" element={<CreateArea/>}/>
+         <Route path="/addSubArea" element={<CreateSubarea/>}/>
+         <Route path='/setup-password/:mashup' element={<SetupPassword/>}></Route>
+         <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>
   );

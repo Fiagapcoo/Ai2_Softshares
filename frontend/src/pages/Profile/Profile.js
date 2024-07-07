@@ -3,10 +3,24 @@ import Navbar from "../../components/Navbar/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./Profile.css";
 import PostsCard from "../../components/PostsCard/PostCard";
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
+
 import { useEffect } from "react";
+import { set } from "date-fns";
 const Profile = () => {
+    const navigate = useNavigate();
+    const [token, setToken] = useState(null);
     useEffect(() => {
+        const checkCurrentUser = async () => {
+            const res = await Authentication.getCurrentUser(navigate);
+            setToken(res);
+
+          };
+          
+          
         document.title = "SoftShares - Profile";
+        checkCurrentUser();
       }, []);
     return (
         <>

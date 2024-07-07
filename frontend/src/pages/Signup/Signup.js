@@ -3,17 +3,28 @@ import { Form, Button } from "react-bootstrap";
 import React,{ useState,useEffect } from "react";
 import SSOButton from "../../components/SSOButton/SSOButton";
 import "./SignUp.css";
+import Authentication from '../../Auth.service';
+
 
 const SignUp = () => {
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const token = await Authentication.getCurrentUser(navigate);
+      if (token) {
+        navigate('/homepage');
+      }
+    };
     document.title = "SoftShares - SignUp";
+
+    checkCurrentUser();
   }, []);
 
-  const navigate = useNavigate();
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();

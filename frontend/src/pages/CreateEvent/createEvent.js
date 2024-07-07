@@ -6,8 +6,11 @@ import "./CreateEvent.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const CreateEvent = () => {
+  const navigate = useNavigate();
   const [selectedSubArea, setSelectedSubArea] = useState("");
   const [sub_area, setSub_area] = useState([]);
   const [event_location, setEvent_location] = useState({ lat: 0, lng: 0 });
@@ -23,9 +26,14 @@ const CreateEvent = () => {
   const [price, setPrice] = useState("");
   const [date, setDate] = useState("");
   const fileInputRef = useRef(null);
+  const [token, setToken] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
     const fetchSubArea = async () => {
       try {
         const response = await axios.get(
@@ -38,6 +46,7 @@ const CreateEvent = () => {
     };
 
     fetchSubArea();
+    checkCurrentUser();
   }, []);
 
   const handleImageClick = () => {

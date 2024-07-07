@@ -4,13 +4,23 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreateSubArea.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const CreateSubArea = () => {
+  
+  const navigate = useNavigate();
   const [areas, setAreas] = useState([]);
   const [selectedArea, setSelectedArea] = useState("");
   const [subAreaName, setSubAreaName] = useState("");
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
+    
     document.title = "Create SubArea";
 
     const fetchAreas = async () => {
@@ -23,6 +33,7 @@ const CreateSubArea = () => {
     };
 
     fetchAreas();
+    checkCurrentUser();
   }, []);
 
   const handleSubmit = async (e) => {

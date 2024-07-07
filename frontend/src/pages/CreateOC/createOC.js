@@ -4,15 +4,23 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreateOC.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const CreateOC = () => {
+  const navigate = useNavigate();
   const [location, setLocation] = useState("");
   const [admin, setAdmin] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
   const [admins, setAdmins] = useState([]);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
     document.title = "Create OC";
     const fetchAdmins = async () => {
       try {
@@ -25,6 +33,7 @@ const CreateOC = () => {
     };
 
     fetchAdmins();
+    checkCurrentUser();
   }, []);
 
   const handleImageClick = () => {

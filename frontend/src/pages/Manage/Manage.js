@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard';
@@ -11,11 +11,19 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import './Manage.css';
 import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const Manage = () => {
   const navigate = useNavigate();
+  const [token, setToken] = useState(null);
+
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
     document.title = "SoftShares - Manage";
+    checkCurrentUser();
   }, []);
 
   return (

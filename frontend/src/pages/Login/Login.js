@@ -1,22 +1,30 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import SSOButton from "../../components/SSOButton/SSOButton";
+import Authentication from '../../Auth.service';
 import "./Login.css";
-import BACKEND_URL from "../../config/config";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
+  useEffect(() => { 
+    
     document.title = "SoftShares - Login";
-  }, []);
+    const checkCurrentUser = async () => {
+      const token = await Authentication.getCurrentUser(navigate);
+      if (token) {
+        navigate('/homepage');
+      }
+    };
 
-  const handleLogin = () => {
+    checkCurrentUser();
+  }, [navigate]);
+
+  const handleLogin = async () => {
     if (email === "" || password === "") {
       Swal.fire({
         icon: 'warning',
@@ -26,39 +34,25 @@ const Login = () => {
       return;
     }
 
-    axios.post(`${BACKEND_URL}/user/login`, {
-      EMAIL: email,
-      HASHED_PASSWORD: password,
-    })
-    .then(function (response) {
-      if (response.data.admin == true) {
-        console.log(response.data);
-        localStorage.setItem('userID', response.data.user.USER_ID);
-        localStorage.setItem('Name', response.data.user.firstNAME + ' ' + response.data.user.lastNAME);
+    try {
+      const response = await Authentication.login(email, password);
+
+      if(response.token) {
         navigate('/homepage');
-      } else if (response.data.admin == false) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Login Failed',
-          text: 'You are not an admin. Please login using the admin account.',
-        });
-      
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
-          text: 'Email or Password is incorrect. Please try again.',
+          text: response.message || 'An error occurred. Please try again.',
         });
       }
-    })
-    .catch(function (error) {
-      console.log(error);
+    } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: error.response.data.message,
+        title: 'Login Failed',
+        text: error.response?.data?.message || 'An error occurred. Please try again.',
       });
-    });
+    }
   };
 
   return (
@@ -109,11 +103,7 @@ const Login = () => {
                 />
               </Form.Group>
               <div className="d-flex justify-content-between mb-3">
-                <a
-                  className="component-1"
-                  role="button"
-                  href="/signup"
-                >
+                <a className="component-1" role="button" href="/signup">
                   Don’t have an account?
                 </a>
                 <a className="password-reset" role="button" href="/forgotpassword">

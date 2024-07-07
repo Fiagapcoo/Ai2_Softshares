@@ -4,14 +4,24 @@ import { Form, Button, Container, Row, Col, OverlayTrigger, Tooltip } from 'reac
 import Swal from 'sweetalert2';
 import './CreateArea.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const CreateArea = () => {
   const [areaName, setAreaName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState(null);
   const fileInputRef = useRef(null);
+  const [token, setToken] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
     document.title = "Create Area";
+    checkCurrentUser();
   }, []);
 
   const handleFileChange = (event) => {

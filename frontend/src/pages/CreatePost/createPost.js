@@ -4,8 +4,11 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreatePost.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Authentication from '../../Auth.service';
 
 const CreatePost = () => {
+  const navigate = useNavigate();
 
   const [subArea, setSubArea] = useState([]);
   const [selectedSubArea, setSelectedSubArea] = useState("");
@@ -13,8 +16,14 @@ const CreatePost = () => {
   const [description, setDescription] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser(navigate);
+      setToken(res);
+    };
+    
     console.log(process.env.REACT_APP_BACKEND_URL);
     const fetchSubareas = async () => {
       try {
@@ -27,6 +36,7 @@ const CreatePost = () => {
     };
 
     fetchSubareas();
+    checkCurrentUser();
   }, []);
 
   const handleImageClick = () => {
