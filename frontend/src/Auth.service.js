@@ -7,8 +7,10 @@ class Authentication {
                 email: email,
                 password: password 
             });
-            if (response.data.token) {
-                localStorage.setItem('token', JSON.stringify(response.data.token));
+            
+            alert(response.data.token.encryptedData);
+            if (response.data.success) {
+                localStorage.setItem('token', JSON.stringify(response.data.token.encryptedData));
                 return response.data.token; // Ensure the correct property is returned
             } else {
                 return null;
@@ -35,12 +37,16 @@ class Authentication {
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/validate-token`, {
-                token: token
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
             });
             if (response.data.success) {
+                alert("SUCCESS")
                 return `Bearer ${token}`;
             } else {
+                alert("DENIED")
                 console.log(response.data.message);
                 this.logout();
                 return null;
