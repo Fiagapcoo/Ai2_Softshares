@@ -44,8 +44,7 @@ This document outlines the tasks to be completed for the project. Each task is c
   if(loc != 0){ // The Location with id = 0 is the server admin (can see all data)
       posts.filter(post => post.Location == loc)
   }
-
-```
+  ```
 
 ### Server Admin
 - Can see all data
