@@ -8,21 +8,43 @@ import './Dashboard.css';
 import { useNavigate } from 'react-router-dom';
 import UsersTable from '../../components/UsersTable/UsersTable';
 import Authentication from '../../Auth.service';
+import axios from 'axios';  // Added axios import
 
 const Dashboard = () => {
   const [token, setToken] = useState(null);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
+      const res = await Authentication.getCurrentUser();
       setToken(res);
     };
     
     document.title = "SoftShares - Dashboard";
 
     checkCurrentUser();
-  }, [navigate]);
+  }, []);
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (token) {
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
+            headers: {
+              Authorization: token,
+            }
+          });
+
+          setUser(res.data.user);
+        } catch (error) {
+          console.error("Error fetching user data", error);
+        }
+      }
+    };
+
+    getUser();
+  }, [token]);
 
   return (
     <>
@@ -31,7 +53,7 @@ const Dashboard = () => {
         <Row className="homepage-grid w-100 h-100">
           <Col xs={12} md={3} className="category-card w-100">
             <div className='center-category'>
-              <UsersTable token={token} />
+              {token && user && <UsersTable token={token} user={user} />}
             </div>
             <ButtonWithIcon 
               icon={"fas fa-plus plus_icon"}

@@ -14,7 +14,7 @@ const NotFoundPage = () => {
     <Container className="vh-100 d-flex flex-column align-items-center text-center justify-content-center">
       <Row>
         <Col>
-          <img src="./assets/logo-Softinsa.png" alt="Softinsa Logo" className="softinsa-logo" />
+          <img src="/assets/logo-Softinsa.png" alt="Softinsa Logo" className="softinsa-logo" />
         </Col>
       </Row>
       <Row className="flex-grow-1 d-flex flex-column justify-content-center align-items-center">

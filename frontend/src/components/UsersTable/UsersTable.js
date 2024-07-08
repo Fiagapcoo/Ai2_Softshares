@@ -5,7 +5,7 @@ import './UsersTable.css';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const UsersTable = ({ token }) => {
+const UsersTable = ({ token, user }) => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -26,7 +26,11 @@ const UsersTable = ({ token }) => {
                     },
                 });
                 const filteredUsers = response.data.data.filter(user => user.city !== 'ALL');
-                setUsers(filteredUsers);
+                if (user.office_id !== 0) {
+                    setUsers(filteredUsers.filter(user2 => user2.office_id === user.office_id));
+                } else {
+                    setUsers(filteredUsers);
+                }
             } catch (err) {
                 console.error(err.response ? err.response.data : err.message);
             }
@@ -50,7 +54,7 @@ const UsersTable = ({ token }) => {
             getUsers();
             getOffices();
         }
-    }, [refresh, token]);
+    }, [refresh, token, user.office_id]);
 
     const filteredUsers = users.filter(user =>
         (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm.toLowerCase())
@@ -58,7 +62,7 @@ const UsersTable = ({ token }) => {
 
     const handleShowModal = (user) => {
         setSelectedUser(user);
-        setSelectedOffice(user.city);
+        setSelectedOffice(user.office_id);
         setUserStatus(user.is_active ? 'Activate' : 'Inactivate'); // Assuming `is_active` is the field for user status
         setShowModal(true);
     };
@@ -80,8 +84,8 @@ const UsersTable = ({ token }) => {
                     Authorization: `${token}`
                 },
             });
-            setUsers(users.map(user => 
-                user.id === selectedUser.id ? { ...user, city: selectedOffice } : user
+            setUsers(users.map(user =>
+                user.user_id === selectedUser.user_id ? { ...user, office_id: selectedOffice } : user
             ));
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
@@ -100,11 +104,9 @@ const UsersTable = ({ token }) => {
                 },
             });
 
-            setUsers(users.map(user => 
-                user.id === selectedUser.id ? { ...user, is_active: status } : user
+            setUsers(users.map(user =>
+                user.user_id === selectedUser.user_id ? { ...user, is_active: status } : user
             ));
-
-            console.log(res);
         } catch (err) {
             console.error(err.response ? err.response.data : err.message);
         }
@@ -135,15 +137,15 @@ const UsersTable = ({ token }) => {
                 />
                 <div className="list-group list-group-flush" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {filteredUsers.map((user, index) => (
-                        <li 
-                            key={index} 
+                        <li
+                            key={index}
                             className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                             onClick={() => handleShowModal(user)}
                             style={{ cursor: 'pointer' }}
                         >
                             <span>{user.first_name + " " + user.last_name}</span>
                         </li>
-                    ))} 
+                    ))}
                 </div>
             </div>
 
@@ -156,7 +158,7 @@ const UsersTable = ({ token }) => {
                         <p><strong>Name:</strong> {selectedUser.first_name + " " + selectedUser.last_name}</p>
                         <p><strong>Email:</strong> {selectedUser.email}</p>
                         <p><strong>Office:</strong> {selectedUser.city}</p>
-                        <Form.Check 
+                        <Form.Check
                             type="checkbox"
                             label="Change Office"
                             checked={isEditingOffice}
@@ -165,9 +167,9 @@ const UsersTable = ({ token }) => {
                         {isEditingOffice && (
                             <Form.Group controlId="formOfficeSelect">
                                 <Form.Label>Select New Office</Form.Label>
-                                <Form.Control 
-                                    as="select" 
-                                    value={selectedOffice} 
+                                <Form.Control
+                                    as="select"
+                                    value={selectedOffice}
                                     onChange={e => setSelectedOffice(e.target.value)}
                                 >
                                     {offices.map((office, index) => (
@@ -178,7 +180,7 @@ const UsersTable = ({ token }) => {
                                 </Form.Control>
                             </Form.Group>
                         )}
-                        <Form.Check 
+                        <Form.Check
                             type="checkbox"
                             label="Activate/Inactivate User"
                             checked={isEditingStatus}
@@ -187,9 +189,9 @@ const UsersTable = ({ token }) => {
                         {isEditingStatus && (
                             <Form.Group controlId="formStatusSelect">
                                 <Form.Label>Select User Status</Form.Label>
-                                <Form.Control 
-                                    as="select" 
-                                    value={userStatus} 
+                                <Form.Control
+                                    as="select"
+                                    value={userStatus}
                                     onChange={e => setUserStatus(e.target.value)}
                                 >
                                     <option value="" disabled>Select an option</option>
