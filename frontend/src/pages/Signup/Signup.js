@@ -9,7 +9,8 @@ import Authentication from '../../Auth.service';
 const SignUp = () => {
 
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,10 +29,8 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const firstName = name.split(' ')[0];
-    const lastName = name.split(' ')[1] || '';
+
     
-    // Store the user data in local storage
     localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
     
     
@@ -96,9 +95,17 @@ const SignUp = () => {
           <Form className="parent">
             <Form.Control
             type="text"
-            placeholder="FirstName LastName"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="FirstName"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            />
+          </Form>
+          <Form className="parent">
+            <Form.Control
+            type="text"
+            placeholder="LastName"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             />
           </Form>
           <div className="component-3-wrapper">

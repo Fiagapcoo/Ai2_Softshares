@@ -23,6 +23,7 @@ import NotFoundPage from './pages/FourOFour/fourOfourPage';
 import SetupPassword from './pages/SetupPassword/SetupPassword';
 import PostDetail  from './pages/PostDetail/PostDetail';
 import EventDetail from './pages/EventDetail/EventDetail';
+import CreateAdmin from './pages/CreateAdmin/CreateAdmin';
 const App = () => {
 
 
@@ -48,6 +49,7 @@ const App = () => {
          <Route path='/setup-password/:mashup' element={<SetupPassword/>}></Route>
          <Route path='/posts/:post_id' element={ <PostDetail/>}></Route>
          <Route path='/event/:event_id' element={<EventDetail/>}></Route>
+         <Route path='/createAdmin' element={<CreateAdmin/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>

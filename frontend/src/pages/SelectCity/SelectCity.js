@@ -13,11 +13,13 @@ const SelectCity = () => {
     document.title = 'SoftShares - Select City';
     
     const storedUser = localStorage.getItem('user');
+    console.log('Stored user:', storedUser);
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    
 
-    localStorage.removeItem('user');
+    //localStorage.removeItem('user');
 
     const fetchCities = async () => {
       try {
