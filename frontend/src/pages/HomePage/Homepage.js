@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
-import PostsCard from '../../components/PostsCard/PostCard';
+import PostsCard from '../../components/PostsCard/PostCard'; // Corrected the import name
 import Calendar from '../../components/Calendar/Calendar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -83,10 +83,9 @@ const Homepage = () => {
           Authorization: token
         }
       });
-      console.log(res);
-      if(res.status === 200) {
-      setShowModal(false);
-      setFirstLogin(false);
+      if (res.status === 200) {
+        setShowModal(false);
+        setFirstLogin(false);
       }
     } catch (error) {
       Swal.fire({
@@ -99,16 +98,23 @@ const Homepage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (token) {
+      if (token && user) {
         try {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
             headers: {
               Authorization: token,
             },
           });
-          setPosts(response.data.posts);
-          setEvents(response.data.events);
-          setForum(response.data.forums);
+
+          if (user.office_id !== 0) {
+            setPosts(response.data.posts.filter(post => post.office_id === user.office_id));
+            setEvents(response.data.events.filter(event => event.office_id === user.office_id));
+            setForum(response.data.forums.filter(forum => forum.office_id === user.office_id));
+          } else {
+            setPosts(response.data.posts);
+            setEvents(response.data.events);
+            setForum(response.data.forums);
+          }
         } catch (error) {
           console.error("Error fetching data", error);
         }
@@ -116,7 +122,7 @@ const Homepage = () => {
     };
 
     fetchData();
-  }, [token]);
+  }, [token, user]);
 
   return (
     <>
@@ -163,20 +169,6 @@ const Homepage = () => {
                 token={token}
               />
             ))}
-            {/* Uncomment and adjust if forum data is needed */}
-            {/* {forum.map((forum) => (
-              <PostsCard
-                key={forum.id}
-                imagealt={forum.city}
-                imagePlaceholderChangeIma={forum.image}
-                title={forum.title}
-                description={forum.description}
-                content={forum.content}
-                rating={forum.rating}
-                postedBy={forum.postedBy}
-                id={forum.id}
-              />
-            ))} */}
           </Col>
         </Row>
       </Container>

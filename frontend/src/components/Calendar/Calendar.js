@@ -37,7 +37,11 @@ const Calendar = ({ token }) => {
   const seeInDate = async (date) => {
     const selectedDate = date.toISOString().split('T')[0];
     try {
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`);
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`,{
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       setEventsInDate(res.data.data.map(event => event.event_id));
       setShowModal(true);
     } catch (error) {
@@ -113,6 +117,7 @@ const Calendar = ({ token }) => {
           show={showModal}
           handleClose={() => setShowModal(false)}
           eventIdList={eventsInDate}
+          token={token}
         />
       )}
     </div>

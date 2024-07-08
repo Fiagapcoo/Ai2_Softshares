@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Navbar from "../../components/Navbar/Navbar";
 import CategoryCard from "../../components/CategoryCard/CategoryCard";
-import PostsCard from "../../components/PostsCard/PostCard";
+import PostsCard from "../../components/PostsCard/PostCard"; // Corrected the import name
 import Calendar from "../../components/Calendar/Calendar";
 import { Container, Row, Col } from "react-bootstrap";
 import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
@@ -23,20 +23,41 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
   const navigate = useNavigate();
   const [postOrEvent, setPostOrEvent] = useState([]);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
+      const res = await Authentication.getCurrentUser();
       setToken(res);
     };
 
     document.title = `SoftShares - ${type}`;
     checkCurrentUser();
-  }, [navigate, type]);
+  }, [type]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (token) {
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
+            headers: {
+              Authorization: token,
+            }
+          });
+
+          setUser(res.data.user);
+        } catch (error) {
+          console.error("Error fetching user data", error);
+        }
+      }
+    };
+
+    getUser();
+  }, [token]);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (token) {
+      if (token && user) {
         try {
           const response = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
@@ -46,9 +67,17 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
             }
           );
           if (type === "Post") {
-            setPostOrEvent(response.data.posts);
+            if (user.office_id !== 0) {
+              setPostOrEvent(response.data.posts.filter(post => post.office_id === user.office_id));
+            } else {
+              setPostOrEvent(response.data.posts);
+            }
           } else if (type === "Event") {
-            setPostOrEvent(response.data.events);
+            if (user.office_id !== 0) {
+              setPostOrEvent(response.data.events.filter(event => event.office_id === user.office_id));
+            } else {
+              setPostOrEvent(response.data.events);
+            }
           }
         } catch (error) {
           console.error(error.message);
@@ -57,7 +86,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
     };
 
     fetchData();
-  }, [token, type]);
+  }, [token, type, user]);
 
   const handleCreateClick = () => {
     navigate(CreateRoute, { replace: true });
@@ -85,11 +114,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
               <Calendar token={token} />
             </div>
           </Col>
-          <Col
-            xs={12}
-            md={9}
-            className="posts-grid w-100 justify-content-center"
-          >
+          <Col xs={12} md={9} className="posts-grid w-100 justify-content-center">
             {postOrEvent.length === 0 ? (
               <p>No {type.toLowerCase()}s available.</p>
             ) : (

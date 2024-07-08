@@ -20,7 +20,7 @@ import Dashboard  from './pages/Dashboard/dashboard';
 import CreateArea from './pages/CreateArea/CreateArea';
 import CreateSubarea from './pages/CreateSubarea/CreateSubarea';
 import NotFoundPage from './pages/FourOFour/fourOfourPage';
-import SetupPassword from './config/SetupPassword/SetupPassword';
+import SetupPassword from './pages/SetupPassword/SetupPassword';
 const App = () => {
 
 

@@ -13,15 +13,15 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const token = await Authentication.getCurrentUser(navigate);
-      if (token) {
-        navigate('/homepage');
-      }
-    };
+    // const checkCurrentUser = async () => {
+    //   const token = await Authentication.getCurrentUser(navigate);
+    //   if (token) {
+    //     navigate('/homepage');
+    //   }
+    // };
     document.title = "SoftShares - SignUp";
 
-    checkCurrentUser();
+   // checkCurrentUser();
   }, []);
 
   
@@ -32,7 +32,8 @@ const SignUp = () => {
     const lastName = name.split(' ')[1] || '';
     
     // Store the user data in local storage
-    //localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
+    localStorage.setItem('user', JSON.stringify({ email, firstName, lastName }));
+    
     
     navigate('/selectcity');
   };

@@ -3,13 +3,17 @@ import { Modal } from 'react-bootstrap';
 import PostsCard from '../PostsCard/PostCard';
 import axios from 'axios';
 
-const ShowEventCalendar = ({ show, handleClose, eventIdList }) => {
+const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const eventPromises = eventIdList.map(id => axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get/${id}`));
+        const eventPromises = eventIdList.map(id => axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get/${id}`,{
+          headers: {
+            Authorization: `${token}`,
+          },
+        }));
         const eventResponses = await Promise.all(eventPromises);
         setEvents(eventResponses.map(response => response.data.data));
       } catch (error) {

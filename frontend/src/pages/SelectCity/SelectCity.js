@@ -17,6 +17,8 @@ const SelectCity = () => {
       setUser(JSON.parse(storedUser));
     }
 
+    localStorage.removeItem('user');
+
     const fetchCities = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`);
