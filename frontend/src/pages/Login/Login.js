@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import SSOButton from "../../components/SSOButton/SSOButton";
-import Authentication from '../../Auth.service';
+import Authentication from "../../Auth.service";
 import "./Login.css";
 
 const Login = () => {
@@ -13,11 +13,11 @@ const Login = () => {
 
   useEffect(() => {
     document.title = "SoftShares - Login";
-    
+
     const checkCurrentUser = async () => {
       const token = await Authentication.getCurrentUser("login");
       if (token) {
-        navigate('/homepage');
+        navigate("/homepage");
       }
     };
 
@@ -27,30 +27,39 @@ const Login = () => {
   const handleLogin = async () => {
     if (email === "" || password === "") {
       Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill in all fields.',
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all fields.",
       });
       return;
     }
 
     try {
       const response = await Authentication.login(email, password);
+      //alert('isnide login');
+      //alert(JSON.stringify(response, null, 2));
+      const token = localStorage.getItem('token');
+      //alert('after token from local storage inside login');
+       // alert(token);
+      //alert(JSON.stringify(response.token, null, 2));
+      if (response) {
 
-      if(response) {  // Assuming response contains the token if successful
-        navigate('/homepage');
+        // Assuming response contains the token if successful
+        navigate("/homepage");
       } else {
         Swal.fire({
-          icon: 'error',
-          title: 'Login Failed',
-          text: 'An error occurred. Please try again.',
+          icon: "error",
+          title: "Login Failed",
+          text: "An error occurred. Please try again.",
         });
       }
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: error.response?.data?.message || 'An error occurred. Please try again.',
+        icon: "error",
+        title: "Login Failed",
+        text:
+          error.response?.data?.message ||
+          "An error occurred. Please try again.",
       });
     }
   };
@@ -106,7 +115,11 @@ const Login = () => {
                 <a className="component-1" role="button" href="/signup">
                   Don’t have an account?
                 </a>
-                <a className="password-reset" role="button" href="/forgotpassword">
+                <a
+                  className="password-reset"
+                  role="button"
+                  href="/forgotpassword"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -138,7 +151,7 @@ const Login = () => {
                   text="Continue with Facebook"
                   icon="/assets/facebook.svg"
                   className="mb-3 sso-button"
-                />  
+                />
                 <SSOButton
                   text="Continue with Apple"
                   icon="/assets/apple.svg"
