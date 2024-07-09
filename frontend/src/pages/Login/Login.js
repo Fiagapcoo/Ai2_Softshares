@@ -36,16 +36,13 @@ const Login = () => {
 
     try {
       const response = await Authentication.login(email, password);
-      //alert('isnide login');
-      //alert(JSON.stringify(response, null, 2));
+
       const token = localStorage.getItem('token');
-      //alert('after token from local storage inside login');
-       // alert(token);
-      //alert(JSON.stringify(response.token, null, 2));
+
       if (response) {
 
         // Assuming response contains the token if successful
-        navigate("/homepage");
+       navigate("/homepage");
       } else {
         Swal.fire({
           icon: "error",

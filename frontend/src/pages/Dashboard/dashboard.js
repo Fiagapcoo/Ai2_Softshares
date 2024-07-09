@@ -16,12 +16,15 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    document.title = "SoftShares - Dashboard";
+
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
-      setToken(res);
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
     };
-
-    document.title = "SoftShares - Dashboard";
 
     checkCurrentUser();
   }, []);
@@ -34,7 +37,7 @@ const Dashboard = () => {
             `${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`,
             {
               headers: {
-                Authorization: `${token}`, // Corrected Authorization header format
+                Authorization: `Bearer ${token}`, // Corrected Authorization header format
               },
             }
           );

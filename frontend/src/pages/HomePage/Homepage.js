@@ -35,23 +35,25 @@ const Homepage = () => {
 
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
-      setToken(res);
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
     };
 
     checkCurrentUser();
   }, []);
 
   useEffect(() => {
-    const getUser = async () => {
+    const fetchUser = async () => {
       if (token) {
         try {
           const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
             headers: {
-              Authorization: token,
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
 
-          setUser(res.data.user);
           if (res.data.user.last_access === null) {
             setFirstLogin(true);
             setShowModal(true);
@@ -62,7 +64,7 @@ const Homepage = () => {
       }
     };
 
-    getUser();
+    fetchUser();
   }, [token]);
 
   const handlePasswordChange = async () => {
@@ -80,7 +82,7 @@ const Homepage = () => {
         password: newPassword
       }, {
         headers: {
-          Authorization: token
+          Authorization: `Bearer ${token}`
         }
       });
       if (res.status === 200) {
@@ -102,10 +104,10 @@ const Homepage = () => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
             headers: {
-              Authorization: token,
+              Authorization: `Bearer ${token}`,
             },
           });
-
+          console.log(response)
           if (user.office_id !== 0) {
             setPosts(response.data.posts.filter(post => post.office_id === user.office_id));
             setEvents(response.data.events.filter(event => event.office_id === user.office_id));

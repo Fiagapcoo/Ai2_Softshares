@@ -11,7 +11,7 @@ const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
       try {
         const eventPromises = eventIdList.map(id => axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get/${id}`,{
           headers: {
-            Authorization: `${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }));
         const eventResponses = await Promise.all(eventPromises);
@@ -54,6 +54,7 @@ const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
                 postedBy={post.publisher_id}
                 id={post.event_id}
                 date={formatDate(post.event_date)}
+                token={token}
               />
             ))}
           </div>

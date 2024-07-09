@@ -26,14 +26,18 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    document.title = `SoftShares - ${type}`;
+
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
-      setToken(res);
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
     };
 
-    document.title = `SoftShares - ${type}`;
     checkCurrentUser();
-  }, [type]);
+  }, []);
 
   useEffect(() => {
     const getUser = async () => {
@@ -41,7 +45,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
         try {
           const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
             headers: {
-              Authorization: token,
+              Authorization: `Bearer ${token}`,
             }
           });
 
@@ -62,7 +66,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
           const response = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
               headers: {
-                Authorization: `${token}`,
+                Authorization: `Bearer ${token}`,
               },
             }
           );

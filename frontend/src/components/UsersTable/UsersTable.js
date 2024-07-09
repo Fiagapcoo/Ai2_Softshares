@@ -22,7 +22,7 @@ const UsersTable = ({ token, user }) => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`, {
                     headers: {
-                        Authorization: `${token}`
+                        Authorization: `Bearer ${token}`
                     },
                 });
                 const filteredUsers = response.data.data.filter(user => user.city !== 'ALL');
@@ -40,7 +40,7 @@ const UsersTable = ({ token, user }) => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`, {
                     headers: {
-                        Authorization: `${token}`
+                        Authorization: `Bearer ${token}`
                     },
                 });
                 const filteredOffices = response.data.data.filter(office => office.city !== 'ALL');
@@ -81,7 +81,7 @@ const UsersTable = ({ token, user }) => {
                 office_id: selectedOffice,
             }, {
                 headers: {
-                    Authorization: `${token}`
+                    Authorization: `Bearer ${token}`
                 },
             });
             setUsers(users.map(user =>
@@ -100,7 +100,7 @@ const UsersTable = ({ token, user }) => {
                 status: status
             }, {
                 headers: {
-                    Authorization: `${token}`
+                    Authorization: `Bearer ${token}`
                 },
             });
 

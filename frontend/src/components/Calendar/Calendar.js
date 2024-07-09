@@ -21,7 +21,7 @@ const Calendar = ({ token }) => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
             headers: {
-              Authorization: `${token}`,
+              Authorization: `Bearer ${token}`,
             },
           });
           setEventDates(response.data.events);
@@ -39,7 +39,7 @@ const Calendar = ({ token }) => {
     try {
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`,{
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setEventsInDate(res.data.data.map(event => event.event_id));

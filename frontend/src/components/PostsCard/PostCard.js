@@ -14,7 +14,7 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-info/${postedBy}`,{
           headers: {
-            Authorization: `${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setPostedByName(response.data.data.first_name + ' ' + response.data.data.last_name);
