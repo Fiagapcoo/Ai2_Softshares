@@ -18,45 +18,26 @@ const CreateAdmin = () => {
   const [selectedCenter, setSelectedCenter] = useState('');
 
   useEffect(() => {
-    document.title = "SoftShares - Add Admin";
+    document.title = "SoftShares - Create Admin";
 
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
-      setToken(res);
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
     };
 
     checkCurrentUser();
   }, []);
 
-  useEffect(() => {
-    const getUser = async () => {
-      if (token) {
-        try {
-          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
-            headers: {
-              Authorization: `${token}`,
-            }
-          });
-
-          setUser(res.data.user);
-          if (res.data.user.office_id !== 0) {
-            navigate("/createadminnotallowed");
-          }
-        } catch (error) {
-          console.error("Error fetching user data", error);
-        }
-      }
-    };
-
-    getUser();
-  }, [token]);
 
   useEffect(() => {
     const fetchCities = async () => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`,{
             headers: {
-                Authorization: `${token}`,
+                Authorization: `Bearer ${token}`,
             }
           });
           const filteredCities = response.data.data.filter(city => city.city !== 'ALL');

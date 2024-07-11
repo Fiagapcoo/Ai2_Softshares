@@ -16,18 +16,19 @@ const EventDetail = () => {
     const [subAreas, setSubAreas] = useState([]);
     const [subArea, setSubArea] = useState("");
 
+
     useEffect(() => {
         document.title = "SoftShares - Event Detail";
-    }, []);
-
-    useEffect(() => {
+    
         const checkCurrentUser = async () => {
-            const res = await Authentication.getCurrentUser();
-            setToken(res);
+          const res = await Authentication.getCurrentUser();
+          if (res) {
+            setToken(JSON.stringify(res.token));
+          }
         };
-
+    
         checkCurrentUser();
-    }, []);
+      }, []);
 
     useEffect(() => {
         const fetchEventDetail = async () => {
@@ -36,7 +37,7 @@ const EventDetail = () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event/${event_id}`, {
                     headers: {
-                        Authorization: `${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 setEvent(response.data.data.event);
@@ -57,7 +58,7 @@ const EventDetail = () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`, {
                     headers: {
-                        Authorization: `${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 setSubAreas(response.data.data);

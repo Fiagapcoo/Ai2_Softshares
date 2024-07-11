@@ -14,18 +14,20 @@ const PostDetail = () => {
     const [error, setError] = useState(null);
     const [token, setToken] = useState(null);
 
+
+
     useEffect(() => {
         document.title = "SoftShares - Post Detail";
-    }, []);
-
-    useEffect(() => {
+    
         const checkCurrentUser = async () => {
-            const res = await Authentication.getCurrentUser();
-            setToken(res);
+          const res = await Authentication.getCurrentUser();
+          if (res) {
+            setToken(JSON.stringify(res.token));
+          }
         };
-
+    
         checkCurrentUser();
-    }, []);
+      }, []);
 
     useEffect(() => {
         const fetchPostDetail = async () => {
@@ -34,7 +36,7 @@ const PostDetail = () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-post/${post_id}`, {
                     headers: {
-                        Authorization: `${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 setPost(response.data);
