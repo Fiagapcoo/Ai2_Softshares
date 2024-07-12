@@ -1,53 +1,69 @@
-import Navbar from "../../components/Navbar/Navbar";
 import React, { useState, useRef, useEffect } from "react";
 import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
-import "./CreateEvent.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import axios from "axios";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import Navbar from "../../components/Navbar/Navbar";
 import Authentication from '../../Auth.service';
+import "./CreateEvent.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
   const [selectedSubArea, setSelectedSubArea] = useState("");
-  const [sub_area, setSub_area] = useState([]);
-  const [event_location, setEvent_location] = useState({ lat: 0, lng: 0 });
+  const [subAreaList, setSubAreaList] = useState([]);
+  const [eventLocation, setEventLocation] = useState({ lat: 0, lng: 0 });
   const [recurring, setRecurring] = useState(false);
-  const [havePrice, setHavePrice] = useState(false);
   const [recurringPattern, setRecurringPattern] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showPriceModal, setShowPriceModal] = useState(false);
-  const [max_participants, setMax_participants] = useState("");
-  const [name, setName] = useState("");
+  const [maxParticipants, setMaxParticipants] = useState("");
+  const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [price, setPrice] = useState("");
-  const [date, setDate] = useState("");
+  const [eventDate, setEventDate] = useState("");
   const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
-    const fetchSubArea = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`
-        );
-        setSub_area(response.data.data);
-      } catch (error) {
-        console.error(error);
+    document.title = "SoftShares - Create Event";
+
+    const fetchCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
       }
     };
 
-    fetchSubArea();
-    checkCurrentUser();
+    fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    const fetchSubAreas = async () => {
+      if (token) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setSubAreaList(response.data.data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    fetchSubAreas();
+  }, [token]);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -65,9 +81,8 @@ const CreateEvent = () => {
   };
 
   const handleRecurringChange = (e) => {
-    const isChecked = e.target.checked;
-    setRecurring(isChecked);
-    if (isChecked) {
+    setRecurring(e.target.checked);
+    if (e.target.checked) {
       setShowModal(true);
     } else {
       setRecurringPattern("");
@@ -75,11 +90,8 @@ const CreateEvent = () => {
   };
 
   const handlePriceChange = (e) => {
-    const isChecked = e.target.checked;
-    setHavePrice(isChecked);
-    if (isChecked) {
-      setShowPriceModal(true);
-    } else {
+    setShowPriceModal(e.target.checked);
+    if (!e.target.checked) {
       setPrice("");
     }
   };
@@ -96,20 +108,14 @@ const CreateEvent = () => {
   };
 
   const handleMapClick = (event) => {
-    const newLocation = { lat: event.latLng.lat(), lng: event.latLng.lng() };
-    setEvent_location(newLocation);
+    setEventLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !name ||
-      !description ||
-      !selectedImage ||
-      !date ||
-      !event_location.lat ||
-      !event_location.lng
-    ) {
+  
+    // Check for required fields
+    if (!eventName || !description || !selectedImage || !eventDate || !eventLocation.lat || !eventLocation.lng) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -117,32 +123,35 @@ const CreateEvent = () => {
       });
       return;
     }
+  
     try {
+      // Upload the image
       const photoFormData = new FormData();
       photoFormData.append("image", fileInputRef.current.files[0]);
-
+  
       const uploadResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
         photoFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-
+  
+      // Prepare the event data
       const formData = {
         sub_area_id: selectedSubArea,
-        name: name,
+        name: eventName,
         description: description,
-        event_date: date,
-        event_location: event_location.lat + "," + event_location.lng,
-        max_participants: max_participants,
+        event_date: eventDate,
+        event_location: `${eventLocation.lat},${eventLocation.lng}`,
+        max_participants: maxParticipants,
         photo: uploadResponse.data.file.filename,
       };
-
-      console.log(formData);
-
-      const FilePath = formData.photo;
-
-      console.log(FilePath);
-
+  
+      // Create the event
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/event/create`,
         {
@@ -154,21 +163,23 @@ const CreateEvent = () => {
           maxParticipants: formData.max_participants,
           location: formData.event_location,
           publisher_id: "13",
-          filePath: FilePath,
+          filePath: formData.photo,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-
-      console.log(response);
-
-      console.log("Recurrence: ", recurring);
-
+  
       Swal.fire({
         icon: "success",
         title: "Event Created",
-        text: `Name: ${name}, Sub Area: ${selectedSubArea}`,
+        text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
       });
+  
+      // Navigate to another page or reset the form as needed
     } catch (error) {
-      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
       console.error(error.message);
       Swal.fire({
         icon: "error",
@@ -177,6 +188,7 @@ const CreateEvent = () => {
       });
     }
   };
+  
 
   return (
     <>
@@ -213,7 +225,7 @@ const CreateEvent = () => {
                   <option value="" disabled>
                     Select Sub Area
                   </option>
-                  {sub_area.map((subarea) => (
+                  {subAreaList.map((subarea) => (
                     <option
                       key={subarea.sub_area_id}
                       value={subarea.sub_area_id}
@@ -228,8 +240,8 @@ const CreateEvent = () => {
                 <Form.Control
                   type="text"
                   placeholder="Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={eventName}
+                  onChange={(e) => setEventName(e.target.value)}
                 />
               </Form.Group>
               <Form.Group controlId="formDescription" className="mb-3">
@@ -246,9 +258,9 @@ const CreateEvent = () => {
                 <Form.Label>Date *</Form.Label>
                 <Form.Control
                   type="date"
-                  value={date}
+                  value={eventDate}
                   min={today}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => setEventDate(e.target.value)}
                 />
               </Form.Group>
               <Form.Group controlId="recurring" className="mb-3">
@@ -263,34 +275,30 @@ const CreateEvent = () => {
                 <Form.Check
                   type="checkbox"
                   label="Price"
-                  checked={havePrice}
+                  checked={showPriceModal}
                   onChange={handlePriceChange}
                 />
               </Form.Group>
-              <Form.Group controlId="max_participants" className="mb-3">
+              <Form.Group controlId="maxParticipants" className="mb-3">
                 <Form.Label>Max Participants *</Form.Label>
                 <Form.Control
                   type="number"
-                  value={max_participants}
-                  onChange={(e) => setMax_participants(e.target.value)}
+                  value={maxParticipants}
+                  onChange={(e) => setMaxParticipants(e.target.value)}
                   min={1}
                 />
               </Form.Group>
               <Form.Group controlId="eventLocation" className="mb-3">
                 <Form.Label>Event Location *</Form.Label>
                 <div style={{ height: "400px", width: "100%" }}>
-                  <LoadScript googleMapsApiKey={"AIzaSyC52_M68kHm5SfamSKhvujRxyWgl8cSyFU"}>
+                  <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
                     <GoogleMap
                       mapContainerStyle={{ height: "100%", width: "100%" }}
-                      center={
-                        event_location.lat ? event_location : { lat: 0, lng: 0 }
-                      }
+                      center={eventLocation.lat ? eventLocation : { lat: 0, lng: 0 }}
                       zoom={10}
                       onClick={handleMapClick}
                     >
-                      {event_location.lat && (
-                        <Marker position={event_location} />
-                      )}
+                      {eventLocation.lat && <Marker position={eventLocation} />}
                     </GoogleMap>
                   </LoadScript>
                 </div>
