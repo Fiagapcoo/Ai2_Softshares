@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
-import PostsCard from '../../components/PostsCard/PostCard';
+import PostsCard from '../../components/PostsCard/PostCard'; // Corrected the import name
 import Calendar from '../../components/Calendar/Calendar';
 import ButtonWithIcon from '../../components/ButtonWithIcon/ButtonWithIcon';
 import ParentComponent from '../../components/ParentComponent/ParentComponent';
@@ -10,21 +11,52 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import './Manage.css';
-import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
+import axios from 'axios';
 
 const Manage = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
     document.title = "SoftShares - Manage";
+
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
+    };
+
     checkCurrentUser();
   }, []);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (user.office_id !== 0) {
+            setPosts(response.data.posts.filter(post => post.office_id === user.office_id));
+          } else {
+            setPosts(response.data.posts);
+          }
+        } catch (error) {
+          console.error("Error fetching posts", error);
+        }
+      }
+    };
+
+    fetchPosts();
+  }, [token, user]);
 
   return (
     <>
@@ -36,9 +68,9 @@ const Manage = () => {
               <CategoryCard />
             </div>
             <ButtonWithIcon 
-            icon={"fas fa-plus plus_icon"}
-            text={`Create Operation Center`}
-            onClick={() => {navigate('/createOC');}}
+              icon={"fas fa-plus plus_icon"}
+              text={`Create Operation Center`}
+              onClick={() => {navigate('/createOC');}}
             />
             <div className="center-calendar">
               <Calendar />
@@ -46,59 +78,33 @@ const Manage = () => {
           </Col>
           
           <Col xs={12} md={9} className="posts-manage-grid w-100">
-          <Row>
-            <h1 className="title" >Validate of Posts</h1>
-            <div className="d-flex flex-wrap justify-content-start">
-            <PostsCard
-              imagealt="Viseu"
-              imagePlaceholderChangeIma="https://bolimg.blob.core.windows.net/producao/imagens/entidades/aderentes/ent1389.jpg?v=16"
-              title="Teatro Viriato"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Nathan Drake"
-              id='1'
-            />
-             <PostsCard
-              imagealt="Viseu"
-              imagePlaceholderChangeIma="https://bolimg.blob.core.windows.net/producao/imagens/entidades/aderentes/ent1389.jpg?v=16"
-              title="Teatro Viriato"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Nathan Drake"
-              id='1'
-            />
-             <PostsCard
-              imagealt="Viseu"
-              imagePlaceholderChangeIma="https://bolimg.blob.core.windows.net/producao/imagens/entidades/aderentes/ent1389.jpg?v=16"
-              title="Teatro Viriato"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Nathan Drake"
-              id='1'
-            />
-             <PostsCard
-              imagealt="Viseu"
-              imagePlaceholderChangeIma="https://bolimg.blob.core.windows.net/producao/imagens/entidades/aderentes/ent1389.jpg?v=16"
-              title="Teatro Viriato"
-              description="POI"
-              content="Some quick example text to build on the card title."
-              rating={4.5}
-              postedBy="Nathan Drake"
-              id='1'
-            />
-            </div>
-            <Button className='w-100 ShowAllButton'>Show All</Button>
+            <Row>
+              <h1 className="title">Validate Posts</h1>
+              <div className="d-flex flex-wrap justify-content-start">
+                {posts.map(post => (
+                  <PostsCard
+                    key={post.post_id}
+                    imagealt={post.title}
+                    imagePlaceholderChangeIma={post.filepath}
+                    title={post.title}
+                    description={post.description}
+                    content={post.content}
+                    rating={post.rating}
+                    postedBy={post.publisher_id}
+                    id={post.post_id}
+                    token={token}
+                  />
+                ))}
+              </div>
+              <Button className='w-100 ShowAllButton'>Show All</Button>
             </Row>
             <Row>
-            <h1 className="title my-4">Validate Users</h1>
-            <div className="d-flex flex-wrap justify-content-start">
-            <ParentComponent name="User1" />
-            <ParentComponent name="User2" />
-            <ParentComponent name="User3" />
-            </div>
+              <h1 className="title my-4">Validate Users</h1>
+              <div className="d-flex flex-wrap justify-content-start">
+                <ParentComponent name="User1" />
+                <ParentComponent name="User2" />
+                <ParentComponent name="User3" />
+              </div>
             </Row>
           </Col>
         </Row>
