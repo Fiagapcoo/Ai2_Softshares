@@ -46,7 +46,7 @@ const EventDetail = () => {
           },
         });
         setEvent(response.data.data.event);
-        console.log(response.data.data.event)
+        console.log(response.data.data.event);
 
       } catch (error) {
         setError(error.message);
@@ -99,7 +99,11 @@ const EventDetail = () => {
     };
 
     fetchForumComments();
-  }, [event, token, event_id]);
+
+    const intervalId = setInterval(fetchForumComments, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [token, event, event_id]);
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -120,32 +124,6 @@ const EventDetail = () => {
 
     fetchAllUsers();
   }, [token]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const fetchForumComments = async () => {
-        if (!token || !event) return;
-
-        try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/comment/get-comment-tree/content/forum/id/${event_id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          setForumComments(response.data.data);
-        } catch (error) {
-          setError(error.message);
-        }
-      };
-
-      fetchForumComments();
-    }, 3000);
-
-    return () => clearInterval(intervalId);
-  }, [token, event, event_id]);
 
   const handleSendComment = async () => {
     if (!newComment.trim()) return;
