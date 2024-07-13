@@ -8,9 +8,17 @@ import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import UsersTable from "../../components/UsersTable/UsersTable";
 import Authentication from "../../Auth.service";
-import axios from "axios"; // Added axios import
+import axios from "axios";
+import TextCard from "../../components/TextCard/TextCard";
+import BarChart from "../../components/BarChart/BarChart";
+import PieChart from "../../components/PieChart/PieChart";
 
 const Dashboard = () => {
+  const [toValidate, setToValidate] = useState("");
+  const [validated, setValidated] = useState(0);
+  const [postsbycity, setPostsByCity] = useState([]);
+  const [eventsbycity, setEventsByCity] = useState([]);
+  const [commentsbycity, setCommentsByCity] = useState([]);
   const [token, setToken] = useState(null);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -37,7 +45,7 @@ const Dashboard = () => {
             `${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`,
             {
               headers: {
-                Authorization: `Bearer ${token}`, // Corrected Authorization header format
+                Authorization: `Bearer ${token}`,
               },
             }
           );
@@ -51,6 +59,104 @@ const Dashboard = () => {
 
     getUser();
   }, [token]);
+
+  useEffect(() => {
+    const fetchToValidate = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/toValidate`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setToValidate(response.data);
+        } catch (error) {
+          console.error("Error fetching to validate", error);
+        }
+      }
+    };
+
+    const fetchValidated = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/validated`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setValidated(response.data);
+        } catch (error) {
+          console.error("Error fetching validated", error);
+        }
+      }
+    };
+
+    const fetchPostsByCity = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/postsByCity`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setPostsByCity(response.data);
+        } catch (error) {
+          console.error("Error fetching posts by city", error);
+        }
+      }
+    };
+
+    const fetchEventsByCity = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/eventsbycity`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setEventsByCity(response.data);
+        } catch (error) {
+          console.error("Error fetching events by city", error);
+        }
+      }
+    };
+
+    const fetchCommentsByCity = async () => {
+      if (token && user) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/comments_by_city`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setCommentsByCity(response.data);
+        } catch (error) {
+          console.error("Error fetching comments by city", error);
+        }
+      }
+    };
+
+    fetchToValidate();
+    fetchValidated();
+    fetchPostsByCity();
+    fetchEventsByCity();
+    fetchCommentsByCity();
+  }, [user, token]);
 
   return (
     <>
@@ -75,7 +181,7 @@ const Dashboard = () => {
                 navigate("/addSubArea");
               }}
             />
-            {user && user.office_id === 0 && ( // Added null check for user
+            {user && user.office_id === 0 && (
               <ButtonWithIcon
                 icon={"fas fa-plus plus_icon"}
                 text={`Create Office/ Company`}
@@ -86,7 +192,53 @@ const Dashboard = () => {
             )}
           </Col>
           <Col xs={12} md={9} className="posts-manage-grid w-100">
-            {/* Add content here for the posts management */}
+            <Row>
+              <Col xs={12} sm={6} md={3}>
+                <TextCard
+                  topText={"Number of Events to be Validated"}
+                  bottomText={toValidate.events}
+                />
+              </Col>
+              <Col xs={12} sm={6} md={3}>
+                <TextCard
+                  topText={"Number of Posts to be Validated"}
+                  bottomText={toValidate.posts}
+                />
+              </Col>
+              <Col xs={12} sm={6} md={3}>
+                <TextCard
+                  topText={"Number of Events Validated"}
+                  bottomText={validated.events}
+                />
+              </Col>
+              <Col xs={12} sm={6} md={3}>
+                <TextCard
+                  topText={"Number of Posts Validated"}
+                  bottomText={validated.posts}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12} md={6}>
+                <BarChart
+                  data={postsbycity}
+                  title="Number of Posts by City"
+                  dataKey="post_count"
+                />
+              </Col>
+              <Col xs={12} md={6}>
+                <BarChart
+                  data={eventsbycity}
+                  title="Number of Events by City"
+                  dataKey="event_count"
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <PieChart data={commentsbycity} title="Number of Comments by City" />
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>
