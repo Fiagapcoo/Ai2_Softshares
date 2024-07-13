@@ -15,16 +15,32 @@ const CreateOC = () => {
   const fileInputRef = useRef(null);
   const [admins, setAdmins] = useState([]);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
     document.title = "Create OC";
+
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
+    };
+
+    checkCurrentUser();
+  }, []);
+
+
+  useEffect(() => {
+  
     const fetchAdmins = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/get-user-by-role/CenterAdmin`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/get-user-by-role/CenterAdmin`,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log(response.data.data);
         setAdmins(response.data.data);
       } catch (error) {
@@ -33,7 +49,6 @@ const CreateOC = () => {
     };
 
     fetchAdmins();
-    checkCurrentUser();
   }, []);
 
   const handleImageClick = () => {
@@ -68,7 +83,9 @@ const CreateOC = () => {
       const uploadResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
         photoFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`
+         } }
       );
 
       const formData = {
@@ -85,6 +102,11 @@ const CreateOC = () => {
           city: formData.city,
           admin: formData.admin,
           officeImage: FilePath,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 

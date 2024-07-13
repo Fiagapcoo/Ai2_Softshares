@@ -51,37 +51,11 @@ const SignUp = () => {
         <div className="sign-up-wrapper">
           <h1 className="sign-up">Sign Up</h1>
         </div>
-        <div className="frame-wrapper">
-          <div className="frame-group">
-            <SSOButton
-              text="Sign in with Google"
-              icon="/assets/google.svg"
-              className="mb-3 sso-button"
-            />
-            <SSOButton
-              text="Sign in with Facebook"
-              icon="/assets/facebook.svg"
-              className="mb-3 sso-button"
-            />
-            <SSOButton
-              text="Sign in with Apple"
-              icon="/assets/apple.svg"
-              className="mb-3 sso-button"
-            />
-          </div>
-        </div>
+
         <div className="frame-container">
           <div className="frame-div">
             <div className="frame-parent1">
-              <div className="frame-parent2">
-                <div className="rectangle-frame">
-                  <div className="frame-child4" />
-                </div>
-                <div className="or1">OR</div>
-                <div className="rectangle-wrapper1">
-                  <div className="frame-child5" />
-                </div>
-              </div>
+
               <Form className="input2" onSubmit={handleSubmit}>
                 <Form.Control
                 type="email"

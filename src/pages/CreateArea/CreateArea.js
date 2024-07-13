@@ -12,15 +12,21 @@ const CreateArea = () => {
   const [selectedIcon, setSelectedIcon] = useState(null);
   const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
     document.title = "Create Area";
+
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
+    };
+
     checkCurrentUser();
   }, []);
 
@@ -56,7 +62,9 @@ const CreateArea = () => {
       const uploadResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
         photoFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+         } }
       );
 
       console.log('Upload Response:', uploadResponse);
@@ -70,7 +78,8 @@ const CreateArea = () => {
 
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-category`,
-        formData
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       console.log('Create Area Response:', response);

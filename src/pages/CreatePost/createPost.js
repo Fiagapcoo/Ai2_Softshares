@@ -17,27 +17,40 @@ const CreatePost = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    document.title = "SoftShares - Create Post";
+
     const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
-    
-    console.log(process.env.REACT_APP_BACKEND_URL);
-    const fetchSubareas = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`);
-        console.log(response.data.data);
-        setSubArea(response.data.data);
-      } catch (error) {
-        console.error(error);
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
       }
     };
 
-    fetchSubareas();
     checkCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      const fetchSubareas = async () => {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setSubArea(response.data.data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchSubareas();
+    }
+  }, [token]);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -67,12 +80,17 @@ const CreatePost = () => {
 
     try {
       const photoFormData = new FormData();
-      photoFormData.append('image', fileInputRef.current.files[0]); // Change field name to 'image'
+      photoFormData.append('image', fileInputRef.current.files[0]);
 
       const uploadResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
         photoFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const formData = {
@@ -82,18 +100,19 @@ const CreatePost = () => {
         photo: uploadResponse.data.file.filename,
       };
 
-      // Send the formData to your server or handle it as needed
-      const FilePath = formData.photo;
-
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/post/create`, {
         subAreaId: selectedSubArea,
         officeId: "1",
-        publisher_id: "13",
+        publisher_id: user.user_id,
         title: postTitle,
         content: description,
-        filePath: FilePath,
+        filePath: formData.photo,
         type: "P",
         rating: 1
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setPostTitle("");
@@ -102,14 +121,12 @@ const CreatePost = () => {
       setSelectedImage(null);
       fileInputRef.current.value = null;
 
-
-      console.log(response.data);
-
       Swal.fire({
         icon: 'success',
         title: 'Post Created',
         text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
       });
+
     } catch (error) {
       Swal.fire({
         icon: 'error',

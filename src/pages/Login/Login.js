@@ -129,42 +129,9 @@ const Login = () => {
                   Login
                 </Button>
               </div>
-              <div className="separator my-4 d-flex align-items-center">
-                <div className="flex-grow-1">
-                  <hr />
-                </div>
-                <div className="px-3">OR</div>
-                <div className="flex-grow-1">
-                  <hr />
-                </div>
-              </div>
-              <div className="d-flex flex-column align-items-center">
-                <SSOButton
-                  text="Continue with Google"
-                  icon="/assets/google.svg"
-                  className="mb-3 sso-button"
-                />
-                <SSOButton
-                  text="Continue with Facebook"
-                  icon="/assets/facebook.svg"
-                  className="mb-3 sso-button"
-                />
-                <SSOButton
-                  text="Continue with Apple"
-                  icon="/assets/apple.svg"
-                  className="mb-3 sso-button"
-                />
-              </div>
+              
             </div>
-            <div className="text-center mt-3">
-              <a href="#" className="privacy-policies">
-                Privacy Policies
-              </a>
-              <span className="mx-2 vertical-bar"></span>
-              <a href="#" className="terms-of-service">
-                Terms of Service
-              </a>
-            </div>
+            
           </Form>
         </Col>
       </Row>

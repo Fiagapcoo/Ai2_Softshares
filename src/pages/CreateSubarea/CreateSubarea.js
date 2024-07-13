@@ -14,18 +14,31 @@ const CreateSubArea = () => {
   const [selectedArea, setSelectedArea] = useState("");
   const [subAreaName, setSubAreaName] = useState("");
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkCurrentUser = async () => {
-      const res = await Authentication.getCurrentUser(navigate);
-      setToken(res);
-    };
-    
     document.title = "Create SubArea";
 
+    const checkCurrentUser = async () => {
+      const res = await Authentication.getCurrentUser();
+      if (res) {
+        setToken(JSON.stringify(res.token));
+        setUser(res.user);
+      }
+    };
+
+    checkCurrentUser();
+  }, []);
+
+
+  useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setAreas(response.data.data);
       } catch (error) {
         console.error('Error fetching areas:', error);
@@ -33,7 +46,6 @@ const CreateSubArea = () => {
     };
 
     fetchAreas();
-    checkCurrentUser();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -57,7 +69,11 @@ const CreateSubArea = () => {
       
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-sub-category`,
-        formData
+        formData,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       console.log('Create SubArea Response:', response);
