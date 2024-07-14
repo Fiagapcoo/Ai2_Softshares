@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar/Navbar";
-import Authentication from '../../Auth.service';
+import Authentication from "../../Auth.service";
 import "./CreateEvent.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -113,9 +113,16 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Check for required fields
-    if (!eventName || !description || !selectedImage || !eventDate || !eventLocation.lat || !eventLocation.lng) {
+    if (
+      !eventName ||
+      !description ||
+      !selectedImage ||
+      !eventDate ||
+      !eventLocation.lat ||
+      !eventLocation.lng
+    ) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -123,12 +130,12 @@ const CreateEvent = () => {
       });
       return;
     }
-  
+
     try {
       // Upload the image
       const photoFormData = new FormData();
       photoFormData.append("image", fileInputRef.current.files[0]);
-  
+
       const uploadResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
         photoFormData,
@@ -139,18 +146,18 @@ const CreateEvent = () => {
           },
         }
       );
-  
+
       // Prepare the event data
       const formData = {
         sub_area_id: selectedSubArea,
         name: eventName,
         description: description,
         event_date: eventDate,
-        event_location: `${eventLocation.lat},${eventLocation.lng}`,
+        event_location: `${eventLocation.lat} ${eventLocation.lng}`, // Updated format
         max_participants: maxParticipants,
         photo: uploadResponse.data.file.filename,
       };
-  
+
       // Create the event
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/event/create`,
@@ -171,13 +178,13 @@ const CreateEvent = () => {
           },
         }
       );
-  
+
       Swal.fire({
         icon: "success",
         title: "Event Created",
         text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
       });
-  
+
       // Navigate to another page or reset the form as needed
     } catch (error) {
       console.error(error.message);
@@ -188,7 +195,6 @@ const CreateEvent = () => {
       });
     }
   };
-  
 
   return (
     <>
@@ -291,10 +297,16 @@ const CreateEvent = () => {
               <Form.Group controlId="eventLocation" className="mb-3">
                 <Form.Label>Event Location *</Form.Label>
                 <div style={{ height: "400px", width: "100%" }}>
-                  <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                  <LoadScript
+                    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                  >
                     <GoogleMap
                       mapContainerStyle={{ height: "100%", width: "100%" }}
-                      center={eventLocation.lat ? eventLocation : { lat: 0, lng: 0 }}
+                      center={
+                        eventLocation.lat
+                          ? eventLocation
+                          : { lat: 39.5, lng: -8.0 }
+                      } // Center in Portugal
                       zoom={10}
                       onClick={handleMapClick}
                     >
@@ -303,6 +315,7 @@ const CreateEvent = () => {
                   </LoadScript>
                 </div>
               </Form.Group>
+
               <div className="text-center">
                 <Button
                   variant="primary"
