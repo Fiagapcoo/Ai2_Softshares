@@ -109,14 +109,15 @@ const Homepage = () => {
           });
           console.log(response)
           if (user.office_id !== 0) {
-            setPosts(response.data.posts.filter(post => post.office_id === user.office_id));
-            setEvents(response.data.events.filter(event => event.office_id === user.office_id));
-            setForum(response.data.forums.filter(forum => forum.office_id === user.office_id));
+            setPosts(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true));
+            setEvents(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
+            setForum(response.data.forums.filter(forum => forum.office_id === user.office_id && forum.validated === true));
           } else {
-            setPosts(response.data.posts);
-            setEvents(response.data.events);
-            setForum(response.data.forums);
+            setPosts(response.data.posts.filter(post => post.validated === true));
+            setEvents(response.data.events.filter(event => event.validated === true));
+            setForum(response.data.forums.filter(forum => forum.validated === true));
           }
+          
         } catch (error) {
           console.error("Error fetching data", error);
         }
@@ -124,6 +125,7 @@ const Homepage = () => {
     };
 
     fetchData();
+    console.log(posts)
   }, [token, user]);
 
   return (

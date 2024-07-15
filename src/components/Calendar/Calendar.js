@@ -24,7 +24,7 @@ const Calendar = ({ token }) => {
               Authorization: `Bearer ${token}`,
             },
           });
-          setEventDates(response.data.events);
+          setEventDates(response.data.events.filter(event => event.validated === true));
         } catch (error) {
           console.error("Error fetching event dates:", error);
         }
@@ -36,6 +36,7 @@ const Calendar = ({ token }) => {
 
   const seeInDate = async (date) => {
     const selectedDate = date.toISOString().split('T')[0];
+    console.log(selectedDate);
     try {
       const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`,{
         headers: {

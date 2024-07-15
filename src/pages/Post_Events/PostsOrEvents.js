@@ -72,15 +72,15 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
           );
           if (type === "Post") {
             if (user.office_id !== 0) {
-              setPostOrEvent(response.data.posts.filter(post => post.office_id === user.office_id));
+              setPostOrEvent(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true));
             } else {
-              setPostOrEvent(response.data.posts);
+              setPostOrEvent(response.data.posts.filter(post => post.validated === true));
             }
           } else if (type === "Event") {
             if (user.office_id !== 0) {
-              setPostOrEvent(response.data.events.filter(event => event.office_id === user.office_id));
+              setPostOrEvent(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
             } else {
-              setPostOrEvent(response.data.events);
+              setPostOrEvent(response.data.events.filter(event => event.validated === true));
             }
           }
         } catch (error) {
