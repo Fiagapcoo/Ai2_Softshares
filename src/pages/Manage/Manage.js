@@ -45,9 +45,9 @@ const Manage = () => {
           });
 
           if (user.office_id !== 0) {
-            setPosts(response.data.posts.filter(post => post.office_id === user.office_id));
+            setPosts(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === false));
           } else {
-            setPosts(response.data.posts);
+            setPosts(response.data.posts.filter(post => post.validated === false));
           }
         } catch (error) {
           console.error("Error fetching posts", error);
@@ -73,7 +73,7 @@ const Manage = () => {
               onClick={() => {navigate('/createOC');}}
             />
             <div className="center-calendar">
-              <Calendar />
+              <Calendar token={token} />
             </div>
           </Col>
           

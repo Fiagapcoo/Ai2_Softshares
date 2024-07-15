@@ -134,6 +134,7 @@ const CreatePost = () => {
         text: error.message,
       });
     }
+    navigate("/posts");
   };
 
   return (

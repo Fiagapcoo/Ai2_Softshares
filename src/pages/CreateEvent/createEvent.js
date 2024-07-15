@@ -194,6 +194,7 @@ const CreateEvent = () => {
         text: error.message,
       });
     }
+    navigate("/events");
   };
 
   return (
