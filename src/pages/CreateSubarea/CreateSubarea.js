@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 
 const CreateSubArea = () => {
-  
   const navigate = useNavigate();
   const [areas, setAreas] = useState([]);
   const [selectedArea, setSelectedArea] = useState("");
@@ -30,11 +29,11 @@ const CreateSubArea = () => {
     checkCurrentUser();
   }, []);
 
-
   useEffect(() => {
     const fetchAreas = async () => {
+      if (!token) return;
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`,{
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -46,7 +45,7 @@ const CreateSubArea = () => {
     };
 
     fetchAreas();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,18 +64,16 @@ const CreateSubArea = () => {
         title: subAreaName,
       };
 
-      console.log('Create SubArea Data:', formData);
-      
+
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-sub-category`,
-        formData,{
+        formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      console.log('Create SubArea Response:', response);
 
       setSelectedArea("");
       setSubAreaName("");
@@ -87,11 +84,10 @@ const CreateSubArea = () => {
         text: `SubArea Name: ${subAreaName}`,
       });
     } catch (error) {
-      console.error('Error creating subarea:', error);
       Swal.fire({
         icon: 'error',
         title: 'Failed to create subarea',
-        text: error.message,
+        text: error.response?.data?.message || error.message,
       });
     }
   };
@@ -131,7 +127,7 @@ const CreateSubArea = () => {
                 <Button
                   variant="primary"
                   type="submit"
-                  className="w-50 softinsaButtonn"
+                  className="w-50 softinsaButton"
                   disabled={!selectedArea || !subAreaName}
                 >
                   Create SubArea

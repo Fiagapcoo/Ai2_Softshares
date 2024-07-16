@@ -6,7 +6,7 @@ import axios from 'axios';
 import ShowEventCalendar from '../ShowEventCalendar/ShowEventCalendar';
 import { useNavigate } from 'react-router-dom';
 
-const Calendar = ({ token }) => {
+const Calendar = ({ token, user }) => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const currentYear = new Date().getFullYear();
@@ -24,7 +24,11 @@ const Calendar = ({ token }) => {
               Authorization: `Bearer ${token}`,
             },
           });
-          setEventDates(response.data.events.filter(event => event.validated === true));
+          if (user.office_id !== 0) {
+          setEventDates(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
+          }else{
+            setEventDates(response.data.events.filter(event => event.validated === true));
+          }
         } catch (error) {
           console.error("Error fetching event dates:", error);
         }

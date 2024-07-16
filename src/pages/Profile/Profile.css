@@ -103,4 +103,7 @@
     background-color: #00c2ff;
     border-color: #00c2ff;
   }
-  
+  .bigger{
+    font-size: 30px;
+    position: absolute;
+  }

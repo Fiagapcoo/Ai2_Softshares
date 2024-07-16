@@ -139,7 +139,7 @@ const Homepage = () => {
               <CategoryCard />
             </div>
             <div className="center-calendar">
-              <Calendar token={token} />
+              <Calendar token={token} user={user} />
             </div>
           </Col>
           <Col xs={12} md={9} className="posts-grid w-100 justify-content-center">

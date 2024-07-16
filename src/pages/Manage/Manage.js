@@ -73,7 +73,7 @@ const Manage = () => {
               onClick={() => {navigate('/createOC');}}
             />
             <div className="center-calendar">
-              <Calendar token={token} />
+              <Calendar token={token} user={user} />
             </div>
           </Col>
           

@@ -6,6 +6,7 @@ import PostsCard from "../../components/PostsCard/PostCard";
 import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -27,15 +28,31 @@ const Profile = () => {
         checkCurrentUser();
     }, []);
 
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Are you sure you want to logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Authentication.logout();
+                navigate("/login");
+            }
+        });
+    };
+
     useEffect(() => {
         const fetchUserPosts = async () => {
             if (token && user) {
                 try {
-                    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-posts`, {
+                    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     });
+                    console.log(user.user_id)
                     setPosts(response.data.posts.filter(post => post.publisher_id === user.user_id));
                 } catch (error) {
                     console.error("Error fetching user posts", error);
@@ -66,6 +83,8 @@ const Profile = () => {
                         <h4>{user.role}</h4>
                         <div className="contact-info">
                             <p><i className="fas fa-envelope"></i> {user.email}</p>
+                            <p><a onClick={handleLogout} className="bigger"><i class="fa-solid fa-right-from-bracket"></i></a></p>
+                           
                         </div>
                     </div>
                     <div className="col-md-9 profile-content">
@@ -82,8 +101,9 @@ const Profile = () => {
                                             description={post.description}
                                             content={post.content}
                                             rating={post.rating}
-                                            postedBy={`${user.first_name} ${user.last_name}`}
+                                            postedBy={`${user.user_id}`}
                                             id={post.post_id}
+                                            token={token}
                                         />
                                     </div>
                                 ))

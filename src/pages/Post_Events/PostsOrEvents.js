@@ -115,7 +115,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
               text={`Filter ${type}`}
             />
             <div className="center-calendar">
-              <Calendar token={token} />
+              <Calendar token={token} user={user} />
             </div>
           </Col>
           <Col xs={12} md={9} className="posts-grid w-100 justify-content-center">
