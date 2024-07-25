@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./EventDetail.css"; // You can create a CSS file to style the EventDetail page
+import "./EventDetail.css";
 import Authentication from "../../Auth.service";
 import Navbar from "../../components/Navbar/Navbar";
 import MapComponent from "../../components/MapComponent/MapComponent";
@@ -225,6 +225,12 @@ const EventDetail = () => {
     return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendComment();
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -313,6 +319,7 @@ const EventDetail = () => {
                   placeholder="Type a message..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 />
                 <button type="button" onClick={handleSendComment}>
                   Send
