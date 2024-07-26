@@ -6,7 +6,7 @@ import { Dropdown } from 'react-bootstrap';
 import "./PostsCard.css";
 import axios from 'axios';
 
-const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, description, content, rating, postedBy, id, type='P', date, token }) => {
+const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, description, content, rating, postedBy, id, type='P', date, token, onValidate = false, showOptions = false }) => {
   const [postedByName, setPostedByName] = useState('');
 
   useEffect(() => {
@@ -66,22 +66,25 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
             <p className="card-text">{description}</p>
             <p className="card-text">{content}</p>
             <a href={`/posts/${id}`} className="btn2">Go To →</a>
+            {onValidate && <button className="btn btn-primary softinsaBackColor" onClick={() => onValidate(id)}>Validate</button>}
           </div>
           <div className="card-footer d-flex justify-content-between align-items-center">
             <span className="poster">Posted by: {postedByName}</span>
-            <Dropdown>
-              <Dropdown.Toggle variant="link" className="dropdown-toggle-no-caret">
-                <i className="fas fa-ellipsis-v"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="dropdown-menu">
-                <Dropdown.Item className='EditDropdownItem' href="#/edit">
-                  <i className="fas fa-pencil-alt"></i> Edit
-                </Dropdown.Item>
-                <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
-                  <i className="fas fa-trash-alt"></i> Delete
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            {showOptions && (
+              <Dropdown>
+                <Dropdown.Toggle variant="link" className="dropdown-toggle-no-caret">
+                  <i className="fas fa-ellipsis-v"></i>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="dropdown-menu">
+                  <Dropdown.Item className='EditDropdownItem' href="#/edit">
+                    <i className="fas fa-pencil-alt"></i> Edit
+                  </Dropdown.Item>
+                  <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
+                    <i className="fas fa-trash-alt"></i> Delete
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
           </div>
         </div>
       ) : (
@@ -99,22 +102,25 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
             <p className="card-text">{description}</p>
             <p className="card-text">{content}</p>
             <a href={`/event/${id}`} className="btn2">Go To →</a>
+            {onValidate && <button className="btn btn-primary softinsaBackColor" onClick={() => onValidate(id)}>Validate</button>}
           </div>
           <div className="card-footer d-flex justify-content-between align-items-center">
             <span className="poster">{date}</span>
-            <Dropdown>
-              <Dropdown.Toggle variant="link" className="dropdown-toggle-no-caret">
-                <i className="fas fa-ellipsis-v"></i>
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="dropdown-menu">
-              <Dropdown.Item className='EditDropdownItem' href="#/edit">
-                  <i className="fas fa-pencil-alt"></i> Edit
-                </Dropdown.Item>
-               <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
-                  <i className="fas fa-trash-alt"></i> Delete
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            {showOptions && (
+              <Dropdown>
+                <Dropdown.Toggle variant="link" className="dropdown-toggle-no-caret">
+                  <i className="fas fa-ellipsis-v"></i>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="dropdown-menu">
+                  <Dropdown.Item className='EditDropdownItem' href="#/edit">
+                    <i className="fas fa-pencil-alt"></i> Edit
+                  </Dropdown.Item>
+                  <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
+                    <i className="fas fa-trash-alt"></i> Delete
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
           </div>
         </div>
       )}
@@ -132,7 +138,16 @@ Card.propTypes = {
   rating: PropTypes.number.isRequired,
   postedBy: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
-  type: PropTypes.string
+  type: PropTypes.string,
+  date: PropTypes.string,
+  token: PropTypes.string.isRequired,
+  onValidate: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  showOptions: PropTypes.bool,
+};
+
+Card.defaultProps = {
+  onValidate: false,
+  showOptions: false,
 };
 
 export default Card;

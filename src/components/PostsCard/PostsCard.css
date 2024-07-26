@@ -115,3 +115,8 @@
 .softinsa-color{
   color: #00c2ff;
 }
+
+.softinsaBackColor{
+  background-color: #00c2ff;
+  border: none;
+}

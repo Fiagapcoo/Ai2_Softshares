@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
-import PostsCard from '../../components/PostsCard/PostCard'; // Corrected the import name
+import PostCard from '../../components/PostsCard/PostCard';
 import Calendar from '../../components/Calendar/Calendar';
 import ButtonWithIcon from '../../components/ButtonWithIcon/ButtonWithIcon';
 import ParentComponent from '../../components/ParentComponent/ParentComponent';
-import '../../components/ValidateItem/ValidateItemPopup'
+import ValidateItemPopup from '../../components/ValidatePostEventPopup/ValidatePostEventPopup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Button } from 'react-bootstrap';
@@ -19,6 +19,8 @@ const Manage = () => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   useEffect(() => {
     document.title = "SoftShares - Manage";
@@ -56,7 +58,26 @@ const Manage = () => {
     };
 
     fetchPosts();
-  }, [token, user]);
+  }, [token, user]);  
+
+  const handleValidatePosts = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/administration/validate-content/post/${selectedPostId}/${user.user_id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPosts(posts.filter(post => post.post_id !== selectedPostId));
+      setShowPopup(false);
+    } catch (error) {
+      console.error("Error validating post", error);
+    }
+  };
+
+  const handleValidateClick = (postId) => {
+    setSelectedPostId(postId);
+    setShowPopup(true);
+  };
 
   return (
     <>
@@ -82,7 +103,7 @@ const Manage = () => {
               <h1 className="title">Validate Posts</h1>
               <div className="d-flex flex-wrap justify-content-start">
                 {posts.map(post => (
-                  <PostsCard
+                  <PostCard
                     key={post.post_id}
                     imagealt={post.title}
                     imagePlaceholderChangeIma={post.filepath}
@@ -93,10 +114,10 @@ const Manage = () => {
                     postedBy={post.publisher_id}
                     id={post.post_id}
                     token={token}
+                    onValidate={() => handleValidateClick(post.post_id)} // Pass the onValidate function
                   />
                 ))}
               </div>
-              <Button className='w-100 ShowAllButton'>Show All</Button>
             </Row>
             <Row>
               <h1 className="title my-4">Validate Users</h1>
@@ -109,6 +130,11 @@ const Manage = () => {
           </Col>
         </Row>
       </Container>
+      <ValidateItemPopup 
+        show={showPopup} 
+        handleClose={() => setShowPopup(false)} 
+        handleValidate={handleValidatePosts} 
+      />
     </>
   );
 };
