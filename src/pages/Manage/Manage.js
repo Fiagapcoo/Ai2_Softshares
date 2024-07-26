@@ -62,11 +62,12 @@ const Manage = () => {
 
   const handleValidatePosts = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/administration/validate-content/post/${selectedPostId}/${user.user_id}`, {}, {
+      var res = await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/api/administration/validate-content/post/${selectedPostId}/${user.user_id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log ("response" + res);
       setPosts(posts.filter(post => post.post_id !== selectedPostId));
       setShowPopup(false);
     } catch (error) {
