@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Navbar from "../../components/Navbar/Navbar";
 import CategoryCard from "../../components/CategoryCard/CategoryCard";
@@ -21,9 +21,11 @@ const formatDate = (dateString) => {
 
 const PostsOrEvents = ({ type, CreateRoute }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [postOrEvent, setPostOrEvent] = useState([]);
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [filteredArea, setFilteredArea] = useState("");
 
   useEffect(() => {
     document.title = `SoftShares - ${type}`;
@@ -38,6 +40,14 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
 
     checkCurrentUser();
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const area = params.get("area");
+    if (area) {
+      setFilteredArea(area);
+    }
+  }, [location]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -70,19 +80,26 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
               },
             }
           );
+          let filteredData;
           if (type === "Post") {
-            if (user.office_id !== 0) {
-              setPostOrEvent(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true));
-            } else {
-              setPostOrEvent(response.data.posts.filter(post => post.validated === true));
-            }
+            filteredData = user.office_id !== 0 ? 
+              response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true) :
+              response.data.posts.filter(post => post.validated === true);
           } else if (type === "Event") {
-            if (user.office_id !== 0) {
-              setPostOrEvent(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
-            } else {
-              setPostOrEvent(response.data.events.filter(event => event.validated === true));
-            }
+            filteredData = user.office_id !== 0 ? 
+              response.data.events.filter(event => event.office_id === user.office_id && event.validated === true) :
+              response.data.events.filter(event => event.validated === true);
           }
+          
+          if (filteredArea) {
+            const areaNumber = Number(filteredArea);
+            console.log(filteredData);
+            filteredData = filteredData.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
+            console.log(filteredData);
+          }
+          
+
+          setPostOrEvent(filteredData);
         } catch (error) {
           console.error(error.message);
         }
@@ -90,7 +107,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
     };
 
     fetchData();
-  }, [token, type, user]);
+  }, [token, type, user, filteredArea]);
 
   const handleCreateClick = () => {
     navigate(CreateRoute, { replace: true });
@@ -103,7 +120,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
         <Row className="homepage-grid">
           <Col xs={12} md={3} className="category-card w-100 h-100">
             <div className="center-category">
-              <CategoryCard />
+              <CategoryCard token={token} />
             </div>
             <ButtonWithIcon
               icon="fas fa-plus plus_icon"

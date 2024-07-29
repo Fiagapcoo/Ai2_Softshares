@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostsCard from '../../components/PostsCard/PostCard'; // Corrected the import name
@@ -20,6 +20,7 @@ const formatDate = (dateString) => {
 
 const Homepage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [token, setToken] = useState(null);
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
@@ -29,6 +30,7 @@ const Homepage = () => {
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [filteredArea, setFilteredArea] = useState("");
 
   useEffect(() => {
     document.title = "SoftShares - Home Page";
@@ -43,6 +45,14 @@ const Homepage = () => {
 
     checkCurrentUser();
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const area = params.get("area");
+    if (area) {
+      setFilteredArea(area);
+    }
+  }, [location]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -108,15 +118,27 @@ const Homepage = () => {
             },
           });
           console.log(response)
-          if (user.office_id !== 0) {
-            setPosts(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true));
-            setEvents(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
-            setForum(response.data.forums.filter(forum => forum.office_id === user.office_id && forum.validated === true));
-          } else {
-            setPosts(response.data.posts.filter(post => post.validated === true));
-            setEvents(response.data.events.filter(event => event.validated === true));
-            setForum(response.data.forums.filter(forum => forum.validated === true));
+          let filteredPosts = user.office_id !== 0 ? 
+            response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true) :
+            response.data.posts.filter(post => post.validated === true);
+          let filteredEvents = user.office_id !== 0 ? 
+            response.data.events.filter(event => event.office_id === user.office_id && event.validated === true) :
+            response.data.events.filter(event => event.validated === true);
+          let filteredForum = user.office_id !== 0 ? 
+            response.data.forums.filter(forum => forum.office_id === user.office_id && forum.validated === true) :
+            response.data.forums.filter(forum => forum.validated === true);
+
+          if (filteredArea) {
+            //filteredData = filteredData.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
+            const areaNumber = Number(filteredArea);
+            filteredPosts = filteredPosts.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
+            filteredEvents = filteredEvents.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
+            filteredForum = filteredForum.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
           }
+          
+          setPosts(filteredPosts);
+          setEvents(filteredEvents);
+          setForum(filteredForum);
           
         } catch (error) {
           console.error("Error fetching data", error);
@@ -126,7 +148,7 @@ const Homepage = () => {
 
     fetchData();
     console.log(posts)
-  }, [token, user]);
+  }, [token, user, filteredArea]);
 
   return (
     <>
@@ -136,7 +158,7 @@ const Homepage = () => {
         <Row className="homepage-grid">
           <Col xs={12} md={3} className="category-card w-100 h-100">
             <div className='center-category'>
-              <CategoryCard />
+              <CategoryCard token={token}/>
             </div>
             <div className="center-calendar">
               <Calendar token={token} user={user} />

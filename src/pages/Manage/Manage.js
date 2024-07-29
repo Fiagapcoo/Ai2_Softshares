@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import CategoryCard from '../../components/CategoryCard/CategoryCard';
 import PostCard from '../../components/PostsCard/PostCard';
@@ -16,11 +16,13 @@ import axios from 'axios';
 
 const Manage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [filteredArea, setFilteredArea] = useState("");
 
   useEffect(() => {
     document.title = "SoftShares - Manage";
@@ -37,6 +39,14 @@ const Manage = () => {
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const area = params.get("area");
+    if (area) {
+      setFilteredArea(area);
+    }
+  }, [location]);
+
+  useEffect(() => {
     const fetchPosts = async () => {
       if (token && user) {
         try {
@@ -46,11 +56,16 @@ const Manage = () => {
             },
           });
 
-          if (user.office_id !== 0) {
-            setPosts(response.data.posts.filter(post => post.office_id === user.office_id && post.validated === false));
-          } else {
-            setPosts(response.data.posts.filter(post => post.validated === false));
+          let filteredPosts = user.office_id !== 0 ? 
+            response.data.posts.filter(post => post.office_id === user.office_id && post.validated === false) :
+            response.data.posts.filter(post => post.validated === false);
+
+          if (filteredArea) {
+            const areaNumber = Number(filteredArea);
+            filteredPosts = filteredPosts.filter(item => parseInt(item.sub_area_id.toString().slice(0, 3), 10) === areaNumber || item.area === areaNumber);
           }
+
+          setPosts(filteredPosts);
         } catch (error) {
           console.error("Error fetching posts", error);
         }
@@ -58,7 +73,7 @@ const Manage = () => {
     };
 
     fetchPosts();
-  }, [token, user]);  
+  }, [token, user, filteredArea]);
 
   const handleValidatePosts = async () => {
     try {
@@ -67,7 +82,7 @@ const Manage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log ("response" + res);
+      console.log("response" + res);
       setPosts(posts.filter(post => post.post_id !== selectedPostId));
       setShowPopup(false);
     } catch (error) {
@@ -87,7 +102,7 @@ const Manage = () => {
         <Row className="homepage-grid w-100 h-100">
           <Col xs={12} md={3} className="category-card w-100">
             <div className='center-category'>
-              <CategoryCard />
+              <CategoryCard token={token}/>
             </div>
             <ButtonWithIcon 
               icon={"fas fa-plus plus_icon"}
