@@ -130,6 +130,7 @@ const Manage = () => {
                     postedBy={post.publisher_id}
                     id={post.post_id}
                     token={token}
+                    showOptions
                     onValidate={() => handleValidateClick(post.post_id)} // Pass the onValidate function
                   />
                 ))}

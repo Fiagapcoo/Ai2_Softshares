@@ -37,7 +37,7 @@ const CategoryCard = ({ token }) => {
   }));
 
   return (
-    <div className="card" style={{ width: '22rem', borderColor: '#00BFFF', borderWidth: '1px' }}>
+    <div className="card" style={{ width: '22rem', height: 'auto', borderColor: '#00BFFF', borderWidth: '1px' }}>
       <ul className="list-group list-group-flush">
         {categories.map((category, index) => (
           <a key={index} href={category.link} className="list-group-item list-group-item-action d-flex justify-content-between align-items-center area-item">
@@ -45,7 +45,7 @@ const CategoryCard = ({ token }) => {
             {category.icon.startsWith('/') ? (
               <img src={category.icon} alt={category.name} style={{ width: '20px', height: '20px' }} />
             ) : (
-              <i className={category.icon}></i>
+              <img src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${category.icon}`} alt={category.name} style={{ width: '20px', height: '20px' }} />
             )}
           </a>
         ))}

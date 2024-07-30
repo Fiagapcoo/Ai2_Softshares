@@ -7,6 +7,7 @@ import "./EventDetail.css";
 import Authentication from "../../Auth.service";
 import Navbar from "../../components/Navbar/Navbar";
 import MapComponent from "../../components/MapComponent/MapComponent";
+import EventParticipantComponent from "../../components/EventParticipants/EventParticipants";
 
 const EventDetail = () => {
   const { event_id } = useParams();
@@ -328,6 +329,7 @@ const EventDetail = () => {
             </div>
           </div>
         )}
+        <EventParticipantComponent EventID={event_id} token={token}/>
       </div>
     </>
   );
