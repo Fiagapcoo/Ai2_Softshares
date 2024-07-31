@@ -24,6 +24,7 @@ import SetupPassword from './pages/SetupPassword/SetupPassword';
 import PostDetail  from './pages/PostDetail/PostDetail';
 import EventDetail from './pages/EventDetail/EventDetail';
 import CreateAdmin from './pages/CreateAdmin/CreateAdmin';
+import Albums from './pages/Albums/Albums';
 const App = () => {
 
 
@@ -50,6 +51,7 @@ const App = () => {
          <Route path='/posts/:post_id' element={ <PostDetail/>}></Route>
          <Route path='/event/:event_id' element={<EventDetail/>}></Route>
          <Route path='/createAdmin' element={<CreateAdmin/>}></Route>
+         <Route path='/albums' element={<Albums/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>

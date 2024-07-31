@@ -27,6 +27,9 @@ const Navbar = () => {
               <a className="nav-link" href="/events">Events</a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/albums">Albums</a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="#">
                 <div 
                   className={`language ${selectedLanguage === 'pt' ? 'selected' : ''}`} 

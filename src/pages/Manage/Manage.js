@@ -116,7 +116,7 @@ const Manage = () => {
           
           <Col xs={12} md={9} className="posts-manage-grid w-100">
             <Row>
-              <h1 className="title">Validate Posts</h1>
+              <h1 className="title">Validate Publications</h1>
               <div className="d-flex flex-wrap justify-content-start">
                 {posts.map(post => (
                   <PostCard
