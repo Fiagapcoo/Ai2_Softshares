@@ -6,6 +6,8 @@ import axios from 'axios';
 import ShowEventCalendar from '../ShowEventCalendar/ShowEventCalendar';
 import { useNavigate } from 'react-router-dom';
 
+import api from '../../api';
+
 const Calendar = ({ token, user }) => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -19,11 +21,12 @@ const Calendar = ({ token, user }) => {
     const fetchEventDates = async () => {
       if (token) {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // });
+          const response = await api.get('/dynamic/all-content');
           if (user.office_id !== 0) {
           setEventDates(response.data.events.filter(event => event.office_id === user.office_id && event.validated === true));
           }else{
@@ -42,11 +45,12 @@ const Calendar = ({ token, user }) => {
     const selectedDate = date.toISOString().split('T')[0];
     console.log(selectedDate);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`,{
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event-by-date/${selectedDate}`,{
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+      const res = await api.get(`/dynamic/get-event-by-date/${selectedDate}`);
       setEventsInDate(res.data.data.map(event => event.event_id));
       setShowModal(true);
     } catch (error) {

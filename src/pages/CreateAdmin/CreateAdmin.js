@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api';
 import Authentication from '../../Auth.service';
 import Swal from 'sweetalert2';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -35,11 +35,12 @@ const CreateAdmin = () => {
   useEffect(() => {
     const fetchCities = async () => {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`,{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-          });
+          // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`,{
+          //   headers: {
+          //       Authorization: `Bearer ${token}`,
+          //   }
+          // });
+          const response = await api.get('/administration/get-all-centers');
           const filteredCities = response.data.data.filter(city => city.city !== 'ALL');
           setCenters(filteredCities);
         } catch (error) {

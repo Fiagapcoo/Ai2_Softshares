@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './UsersTable.css';
-import axios from 'axios';
+import api from '../../api';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 const UsersTable = ({ token, user }) => {
@@ -20,11 +20,12 @@ const UsersTable = ({ token, user }) => {
     useEffect(() => {
         const getUsers = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                });
+                // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`
+                //     },
+                // });
+                const response = await api.get('/dynamic/get-users');
                 const filteredUsers = response.data.data.filter(user => user.city !== 'ALL');
                 if (user.office_id !== 0) {
                     setUsers(filteredUsers.filter(user2 => user2.office_id === user.office_id));
@@ -38,11 +39,12 @@ const UsersTable = ({ token, user }) => {
 
         const getOffices = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                });
+                // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`
+                //     },
+                // });
+                const response = await api.get('/administration/get-all-centers');
                 const filteredOffices = response.data.data.filter(office => office.city !== 'ALL');
                 setOffices(filteredOffices);
             } catch (err) {
@@ -76,14 +78,18 @@ const UsersTable = ({ token, user }) => {
 
     const updateOffice = async () => {
         try {
-            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
+            // await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
+            //     user_id: selectedUser.user_id,
+            //     office_id: selectedOffice,
+            // }, {
+            //     headers: {
+            //         Authorization: `Bearer ${token}`
+            //     },
+            // });
+            await api.post('/dynamic/update-user-office', {
                 user_id: selectedUser.user_id,
                 office_id: selectedOffice,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            });
+              });
             setUsers(users.map(user =>
                 user.user_id === selectedUser.user_id ? { ...user, office_id: selectedOffice } : user
             ));
@@ -91,18 +97,23 @@ const UsersTable = ({ token, user }) => {
             console.error(err.response ? err.response.data : err.message);
         }
     };
-
+    // TODO 
     const updateUser = async () => {
         try {
             const status = userStatus === 'Activate';
-            const res = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/user/update-acc-status`, {
+            // const res = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/user/update-acc-status`, {
+            //     user_id: selectedUser.user_id,
+            //     status: status
+            // }, {
+            //     headers: {
+            //         Authorization: `Bearer ${token}`
+            //     },
+            // });
+
+            await api.put('/user/update-acc-status', {
                 user_id: selectedUser.user_id,
                 status: status
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            });
+              });
 
             setUsers(users.map(user =>
                 user.user_id === selectedUser.user_id ? { ...user, is_active: status } : user

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./PostDetail.css";
@@ -33,14 +33,15 @@ const PostDetail = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-post/${post_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get(`/dynamic/get-post/${post_id}`);
+        // const response = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-post/${post_id}`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
         setPost(response.data);
       } catch (error) {
         setError(error.message);
@@ -82,7 +83,7 @@ const PostDetail = () => {
                   className="post-image"
                   loading="lazy"
                   alt={post.title}
-                  src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${post.filepath}`}
+                  src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${post.filepath}`}
                 />
               )}
             </div>

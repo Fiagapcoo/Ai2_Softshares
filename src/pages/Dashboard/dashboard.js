@@ -8,7 +8,7 @@ import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import UsersTable from "../../components/UsersTable/UsersTable";
 import Authentication from "../../Auth.service";
-import axios from "axios";
+import api from "../../api";
 import TextCard from "../../components/TextCard/TextCard";
 import BarChart from "../../components/BarChart/BarChart";
 import PieChart from "../../components/PieChart/PieChart";
@@ -64,14 +64,15 @@ const Dashboard = () => {
     const fetchToValidate = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/toValidate`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get("/dashboard/toValidate");
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/toValidate`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+
           setToValidate(response.data);
         } catch (error) {
           console.error("Error fetching to validate", error);
@@ -82,14 +83,15 @@ const Dashboard = () => {
     const fetchValidated = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/validated`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get("/dashboard/validated");
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/validated`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
           setValidated(response.data);
         } catch (error) {
           console.error("Error fetching validated", error);
@@ -100,14 +102,15 @@ const Dashboard = () => {
     const fetchPostsByCity = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/postsByCity`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get("/dashboard/postsByCity");
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/postsByCity`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
           setPostsByCity(response.data);
         } catch (error) {
           console.error("Error fetching posts by city", error);
@@ -118,14 +121,15 @@ const Dashboard = () => {
     const fetchEventsByCity = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/eventsbycity`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get("/dashboard/eventsbycity");
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/eventsbycity`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
           setEventsByCity(response.data);
         } catch (error) {
           console.error("Error fetching events by city", error);
@@ -136,14 +140,15 @@ const Dashboard = () => {
     const fetchCommentsByCity = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/comments_by_city`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get("/dashboard/comments_by_city");
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dashboard/comments_by_city`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
           setCommentsByCity(response.data);
         } catch (error) {
           console.error("Error fetching comments by city", error);
@@ -236,7 +241,10 @@ const Dashboard = () => {
             </Row>
             <Row>
               <Col xs={12}>
-                <PieChart data={commentsbycity} title="Number of Comments by City" />
+                <PieChart
+                  data={commentsbycity}
+                  title="Number of Comments by City"
+                />
               </Col>
             </Row>
           </Col>

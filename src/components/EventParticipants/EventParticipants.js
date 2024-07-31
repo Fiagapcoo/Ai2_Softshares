@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './EventParticipant.css';
 
+import api from '../../api';
 const EventParticipantComponent = ({ EventID, token }) => {
     const [participants, setParticipants] = useState([]);
     const [filteredParticipants, setFilteredParticipants] = useState([]);
@@ -10,11 +11,12 @@ const EventParticipantComponent = ({ EventID, token }) => {
     useEffect(() => {
         const fetchParticipants = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get-participants/${EventID}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get-participants/${EventID}`, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //     },
+                // });
+                const response = await api.get(`/event/get-participants/${EventID}`);
                 console.log(response.data);
                 setParticipants(response.data.data);
                 setFilteredParticipants(response.data.data);
@@ -53,7 +55,7 @@ const EventParticipantComponent = ({ EventID, token }) => {
                         <li key={participant.user_id} className="list-group-item participant-item d-flex justify-content-between align-items-center area-item">
                             <span>{participant.first_name} {participant.last_name}</span>
                             <img
-                                src={participant.profile_pic ? `${process.env.REACT_APP_BACKEND_URL}/uploads/${participant.profile_pic}` : '/assets/user.png'}
+                                src={participant.profile_pic ? `${process.env.REACT_APP_BACKEND_URL}/api/uploads/${participant.profile_pic}` : '/assets/user.png'}
                                 alt={`${participant.first_name} ${participant.last_name}`}
                                 className="participant-pic"
                                 style={{ width: '40px', height: '40px' }}

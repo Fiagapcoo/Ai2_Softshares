@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 import PostsCard from '../PostsCard/PostCard';
-import axios from 'axios';
+import api from '../../api';
 
 const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
   const [events, setEvents] = useState([]);
@@ -9,11 +9,7 @@ const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const eventPromises = eventIdList.map(id => axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/event/get/${id}`,{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }));
+        const eventPromises = eventIdList.map(id => api.get(`/event/get/${id}`));
         const eventResponses = await Promise.all(eventPromises);
         setEvents(eventResponses.map(response => response.data.data));
       } catch (error) {

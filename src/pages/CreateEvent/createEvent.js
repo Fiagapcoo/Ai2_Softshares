@@ -3,7 +3,7 @@ import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import Navbar from "../../components/Navbar/Navbar";
 import Authentication from "../../Auth.service";
 import "./CreateEvent.css";
@@ -47,14 +47,16 @@ const CreateEvent = () => {
     const fetchSubAreas = async () => {
       if (token) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`,
+          //   {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
+
+          const response = await api.get('/categories/get-sub-areas');
           setSubAreaList(response.data.data);
         } catch (error) {
           console.error(error);
@@ -136,16 +138,17 @@ const CreateEvent = () => {
       const photoFormData = new FormData();
       photoFormData.append("image", fileInputRef.current.files[0]);
 
-      const uploadResponse = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
-        photoFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const uploadResponse = await api.post('/upload', photoFormData);
+      // axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/upload`,
+      //   photoFormData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
 
       // Prepare the event data
       const formData = {
@@ -159,25 +162,36 @@ const CreateEvent = () => {
       };
 
       // Create the event
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/event/create`,
-        {
-          officeId: "1",
-          subAreaId: formData.sub_area_id,
-          name: formData.name,
-          description: formData.description,
-          eventDate: formData.event_date,
-          maxParticipants: formData.max_participants,
-          location: formData.event_location,
-          publisher_id: "13",
-          filePath: formData.photo,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post('/event/create', {
+        officeId: "1",
+        subAreaId: formData.sub_area_id,
+        name: formData.name,
+        description: formData.description,
+        eventDate: formData.event_date,
+        maxParticipants: formData.max_participants,
+        location: formData.event_location,
+        publisher_id: "13",
+        filePath: formData.photo,
+      },);
+      // const response = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/event/create`,
+      //   {
+      //     officeId: "1",
+      //     subAreaId: formData.sub_area_id,
+      //     name: formData.name,
+      //     description: formData.description,
+      //     eventDate: formData.event_date,
+      //     maxParticipants: formData.max_participants,
+      //     location: formData.event_location,
+      //     publisher_id: "13",
+      //     filePath: formData.photo,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
 
       Swal.fire({
         icon: "success",

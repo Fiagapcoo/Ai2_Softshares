@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './CategoryCard.css';
 
+import api from '../../api';
 const CategoryCard = ({ token }) => {
   const [areas, setAreas] = useState([]);
 
@@ -12,11 +13,12 @@ const CategoryCard = ({ token }) => {
 
     const fetchAreas = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`, {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+        const response = await api.get('/categories/get-areas');
         setAreas(response.data.data);
       } catch (error) {
         console.error('Error fetching areas', error);
@@ -45,7 +47,7 @@ const CategoryCard = ({ token }) => {
             {category.icon.startsWith('/') ? (
               <img src={category.icon} alt={category.name} style={{ width: '20px', height: '20px' }} />
             ) : (
-              <img src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${category.icon}`} alt={category.name} style={{ width: '20px', height: '20px' }} />
+              <img src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${category.icon}`} alt={category.name} style={{ width: '20px', height: '20px' }} />
             )}
           </a>
         ))}

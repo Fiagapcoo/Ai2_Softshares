@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, Container, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreateArea.css';
-import axios from 'axios';
+import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 
@@ -59,14 +59,14 @@ const CreateArea = () => {
       const photoFormData = new FormData();
       photoFormData.append('image', fileInputRef.current.files[0]);
 
-      const uploadResponse = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
-        photoFormData,
-        { headers: { "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-         } }
-      );
-
+      // const uploadResponse = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/upload`,
+      //   photoFormData,
+      //   { headers: { "Content-Type": "multipart/form-data",
+      //     Authorization: `Bearer ${token}`
+      //    } }
+      // );
+      const uploadResponse = await api.post('/upload', photoFormData);
       console.log('Upload Response:', uploadResponse);
 
       const formData = {
@@ -76,11 +76,12 @@ const CreateArea = () => {
 
       console.log('Create Area Data:', formData);
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-category`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // const response = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-category`,
+      //   formData,
+      //   { headers: { Authorization: `Bearer ${token}` } }
+      // );
+      const response = await api.post('/categories/create-category', formData );
 
       console.log('Create Area Response:', response);
 

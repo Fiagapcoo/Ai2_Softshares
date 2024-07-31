@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import './Homepage.css';
-import axios from 'axios';
+import api from '../../api';
 import Authentication from '../../Auth.service';
 import Swal from 'sweetalert2';
 
@@ -38,7 +38,8 @@ const Homepage = () => {
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
       if (res) {
-        setToken(JSON.stringify(res.token));
+       // setToken(JSON.stringify(res.token));
+        setToken(res.token);
         setUser(res.user);
       }
     };
@@ -58,11 +59,12 @@ const Homepage = () => {
     const fetchUser = async () => {
       if (token) {
         try {
-          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const res = await api.get('/auth/get-user-by-token');
+          // const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // });
 
           if (res.data.user.last_access === null) {
             setFirstLogin(true);
@@ -88,13 +90,14 @@ const Homepage = () => {
     }
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/change-password`, {
-        password: newPassword
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const res = await api.post('/auth/change-password', {password: newPassword})
+      // const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/change-password`, {
+      //   password: newPassword
+      // }, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // });
       if (res.status === 200) {
         setShowModal(false);
         setFirstLogin(false);
@@ -112,11 +115,12 @@ const Homepage = () => {
     const fetchData = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const response = await api.get('/dynamic/all-content');
+          // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // });
           console.log(response)
           let filteredPosts = user.office_id !== 0 ? 
             response.data.posts.filter(post => post.office_id === user.office_id && post.validated === true) :

@@ -10,8 +10,10 @@ class Authentication {
 
             console.log(response);
             
+
             if (response.data.success) {
                 localStorage.setItem('token', JSON.stringify(response.data.token));
+                localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
                 return response.data;
             } else {
                 return null;
@@ -23,6 +25,7 @@ class Authentication {
 
     logout() {
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         window.location.href = '/';
     }
 
@@ -59,6 +62,29 @@ class Authentication {
             console.log(error);
             this.logout();
             return null;
+        }
+    }
+
+    async refreshAccessToken() {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            throw new Error('Failed to retrieve refresh token');
+        }
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/refresh-token`, {
+                refreshToken: JSON.parse(refreshToken)
+            });
+
+            if (response.data.success) {
+                localStorage.setItem('token', JSON.stringify(response.data.token));
+                return response.data.token;
+            } else {
+                throw new Error('Failed to refresh token');
+            }
+        } catch (error) {
+            this.logout();
+            throw error;
         }
     }
     

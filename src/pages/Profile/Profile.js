@@ -5,7 +5,7 @@ import "./Profile.css";
 import PostsCard from "../../components/PostsCard/PostCard";
 import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
-import axios from 'axios';
+import api from '../../api';
 import Swal from 'sweetalert2';
 
 const Profile = () => {
@@ -47,11 +47,12 @@ const Profile = () => {
         const fetchUserPosts = async () => {
             if (token && user) {
                 try {
-                    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
+                    const response = await api.ge('/dynamic/all-content');
+                    // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+                    //     headers: {
+                    //         Authorization: `Bearer ${token}`,
+                    //     },
+                    // });
                     console.log(user.user_id)
                     setPosts(response.data.posts.filter(post => post.publisher_id === user.user_id));
                 } catch (error) {

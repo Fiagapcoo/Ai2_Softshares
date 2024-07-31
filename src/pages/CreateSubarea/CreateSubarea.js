@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import './CreateSubArea.css';
-import axios from 'axios';
+import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 
@@ -33,11 +33,12 @@ const CreateSubArea = () => {
     const fetchAreas = async () => {
       if (!token) return;
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-areas`, {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+        const response = await api.get('/categories/get-areas');
         setAreas(response.data.data);
       } catch (error) {
         console.error('Error fetching areas:', error);
@@ -65,14 +66,15 @@ const CreateSubArea = () => {
       };
 
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-sub-category`,
-        formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // const response = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/categories/create-sub-category`,
+      //   formData, {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+      const response = await api.post('/categories/create-sub-category',formData);
 
 
       setSelectedArea("");

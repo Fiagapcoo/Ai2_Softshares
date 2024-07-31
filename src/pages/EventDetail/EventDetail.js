@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./EventDetail.css";
@@ -44,14 +44,15 @@ const EventDetail = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event/${event_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // const response = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-event/${event_id}`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
+        const response = await api.get(`/dynamic/get-event/${event_id}`);
         setEvent(response.data.data.event);
       } catch (error) {
         setError(error.message);
@@ -64,14 +65,15 @@ const EventDetail = () => {
       if (!token) return;
 
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await api.get(`/dynamic/all-content`);
+        // const res = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
         console.log(res.data.forums);
         setForums(res.data.forums);
       } catch (err) {
@@ -110,14 +112,15 @@ const EventDetail = () => {
       if (!token || !event) return;
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // const response = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
+        const response = await api.get("/categories/get-sub-areas");
         setSubAreas(response.data.data);
         const matchedSubArea = response.data.data.find(
           (subArea) => subArea.sub_area_id === event.sub_area_id
@@ -136,14 +139,17 @@ const EventDetail = () => {
       if (!token || !event) return;
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/comment/get-comment-tree/content/forum/id/${event_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response = await api.get(
+          `/comment/get-comment-tree/content/forum/id/${event_id}`
         );
+        // const response = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/comment/get-comment-tree/content/forum/id/${event_id}`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
         setForumComments(response.data.data);
       } catch (error) {
         setError(error.message);
@@ -162,14 +168,15 @@ const EventDetail = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get('/dynamic/get-users');
+        // const response = await axios.get(
+        //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-users`,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
         setAllUsers(response.data.data);
       } catch (error) {
         setError(error.message);
@@ -183,30 +190,37 @@ const EventDetail = () => {
     if (!newComment.trim()) return;
 
     try {
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/comment/add-comment`,
-        {
-          contentID: event_id, // TODO: Replace with forum ID if needed
-          contentType: "Forum",
-          userID: user.user_id,
-          commentText: newComment,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.post("/comment/add-comment", {
+        contentID: event_id, // TODO: Replace with forum ID if needed
+        contentType: "Forum",
+        userID: user.user_id,
+        commentText: newComment,
+      });
+      // await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/comment/add-comment`,
+      //   {
+      //     contentID: event_id, // TODO: Replace with forum ID if needed
+      //     contentType: "Forum",
+      //     userID: user.user_id,
+      //     commentText: newComment,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
       setNewComment("");
       // Refresh comments
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/comment/get-comment-tree/content/forum/id/${event_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/comment/get-comment-tree/content/forum/id/${event_id}`);
+      // const response = await axios.get(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/comment/get-comment-tree/content/forum/id/${event_id}`,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
       setForumComments(response.data.data);
     } catch (error) {
       setError(error.message);
@@ -273,7 +287,7 @@ const EventDetail = () => {
                   className="event-image"
                   loading="lazy"
                   alt={event.name}
-                  src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${event.filepath}`}
+                  src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${event.filepath}`}
                 />
               )}
             </div>
@@ -329,7 +343,7 @@ const EventDetail = () => {
             </div>
           </div>
         )}
-        <EventParticipantComponent EventID={event_id} token={token}/>
+        <EventParticipantComponent EventID={event_id} token={token} />
       </div>
     </>
   );

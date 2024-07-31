@@ -10,7 +10,7 @@ import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./PostsOrEvents.css";
-import axios from "axios";
+import api from "../../api";
 import Authentication from '../../Auth.service';
 
 const formatDate = (dateString) => {
@@ -53,11 +53,12 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
     const getUser = async () => {
       if (token) {
         try {
-          const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          });
+          const res = await api.get('/auth/get-user-by-token');
+          // const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/get-user-by-token`, {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   }
+          // });
 
           setUser(res.data.user);
         } catch (error) {
@@ -73,13 +74,14 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
     const fetchData = async () => {
       if (token && user) {
         try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get('/dynamic/all-content');
+          // const response = await axios.get(
+          //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
+          //     headers: {
+          //       Authorization: `Bearer ${token}`,
+          //     },
+          //   }
+          // );
           let filteredData;
           if (type === "Post") {
             filteredData = user.office_id !== 0 ? 

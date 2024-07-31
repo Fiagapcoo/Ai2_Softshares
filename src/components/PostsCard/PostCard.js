@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Dropdown } from 'react-bootstrap';
 import "./PostsCard.css";
-import axios from 'axios';
+import api from '../../api';
 
 const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, description, content, rating, postedBy, id, type='P', date, token, onValidate = false, showOptions = false }) => {
   const [postedByName, setPostedByName] = useState('');
@@ -13,11 +13,12 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
     const fetchData = async () => {
       try {
         console.log(postedBy);
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-info/${postedBy}`,{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/user-info/${postedBy}`,{
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+        const response = await api.get(`/dynamic/user-info/${postedBy}`);
         console.log(response);
         setPostedByName(response.data.data.first_name + ' ' + response.data.data.last_name);
       } catch (error) {
@@ -54,7 +55,7 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
             className="card-img-top"
             loading="lazy"
             alt={imagealt}
-            src={`${process.env.REACT_APP_BACKEND_URL}/uploads/`+imagePlaceholderChangeIma}
+            src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/`+imagePlaceholderChangeIma}
           />
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center">

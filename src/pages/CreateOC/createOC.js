@@ -1,11 +1,11 @@
-import Navbar from '../../components/Navbar/Navbar';
-import React, { useState, useRef, useEffect } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import Swal from 'sweetalert2';
-import './CreateOC.css';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Authentication from '../../Auth.service';
+import Navbar from "../../components/Navbar/Navbar";
+import React, { useState, useRef, useEffect } from "react";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import Swal from "sweetalert2";
+import "./CreateOC.css";
+import api from "../../api";
+import { useNavigate } from "react-router-dom";
+import Authentication from "../../Auth.service";
 
 const CreateOC = () => {
   const navigate = useNavigate();
@@ -31,16 +31,15 @@ const CreateOC = () => {
     checkCurrentUser();
   }, []);
 
-
   useEffect(() => {
-  
     const fetchAdmins = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/get-user-by-role/CenterAdmin`,{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/get-user-by-role/CenterAdmin`,{
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+        const response = await api.get("/user/get-user-by-role/CenterAdmin");
         console.log(response.data.data);
         setAdmins(response.data.data);
       } catch (error) {
@@ -70,23 +69,27 @@ const CreateOC = () => {
     e.preventDefault();
     if (!location || !admin || !selectedImage) {
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'All fields are required!',
+        icon: "error",
+        title: "Oops...",
+        text: "All fields are required!",
       });
       return;
     }
     try {
       const photoFormData = new FormData();
-      photoFormData.append('image', fileInputRef.current.files[0]);
+      photoFormData.append("image", fileInputRef.current.files[0]);
 
-      const uploadResponse = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/upload/upload`,
-        photoFormData,
-        { headers: { "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`
-         } }
-      );
+      const uploadResponse = await api.post("/upload", photoFormData);
+      // await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/upload`,
+      //   photoFormData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
 
       const formData = {
         city: location,
@@ -95,20 +98,24 @@ const CreateOC = () => {
       };
 
       const FilePath = formData.photo;
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/administration/create-center`,
-        {
-          city: formData.city,
-          admin: formData.admin,
-          officeImage: FilePath,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post("/administration/create-center", {
+        city: formData.city,
+        admin: formData.admin,
+        officeImage: FilePath,
+      });
+      // const response = await axios.post(
+      //   `${process.env.REACT_APP_BACKEND_URL}/api/administration/create-center`,
+      //   {
+      //     city: formData.city,
+      //     admin: formData.admin,
+      //     officeImage: FilePath,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
 
       setLocation("");
       setAdmin("");
@@ -118,14 +125,14 @@ const CreateOC = () => {
       console.log(response.data);
 
       Swal.fire({
-        icon: 'success',
-        title: 'Center Created',
+        icon: "success",
+        title: "Center Created",
         text: `Location: ${location}, Admin: ${admin}`,
       });
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Failed to create center',
+        icon: "error",
+        title: "Failed to create center",
         text: error.message,
       });
     }
@@ -140,7 +147,11 @@ const CreateOC = () => {
             <div className="text-center mb-4">
               <div className="image-placeholder3" onClick={handleImageClick}>
                 {selectedImage ? (
-                  <img src={selectedImage} alt="Selected" className="img-fluid rounded selected-image" />
+                  <img
+                    src={selectedImage}
+                    alt="Selected"
+                    className="img-fluid rounded selected-image"
+                  />
                 ) : (
                   <span className="white-text">Add +</span>
                 )}
@@ -168,7 +179,9 @@ const CreateOC = () => {
                   value={admin}
                   onChange={(e) => setAdmin(e.target.value)}
                 >
-                  <option value="" disabled>Select Admin</option>
+                  <option value="" disabled>
+                    Select Admin
+                  </option>
                   {admins.map((admin) => (
                     <option key={admin.user_id} value={admin.user_id}>
                       {admin.name}
@@ -177,7 +190,11 @@ const CreateOC = () => {
                 </Form.Select>
               </Form.Group>
               <div className="text-center">
-                <Button variant="primary" type="submit" className="w-50 softinsaButtonn">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-50 softinsaButtonn"
+                >
                   Create OC
                 </Button>
               </div>
