@@ -66,7 +66,11 @@ const CreateArea = () => {
       //     Authorization: `Bearer ${token}`
       //    } }
       // );
-      const uploadResponse = await api.post('/upload', photoFormData);
+      const uploadResponse = await api.post('/upload/upload', photoFormData,{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+      });
       console.log('Upload Response:', uploadResponse);
 
       const formData = {

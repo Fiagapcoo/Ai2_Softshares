@@ -94,7 +94,7 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
             className="card-img-top"
             loading="lazy"
             alt={imagealt}
-            src={`${process.env.REACT_APP_BACKEND_URL}/uploads/`+imagePlaceholderChangeIma}
+            src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/`+imagePlaceholderChangeIma}
           />
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center">

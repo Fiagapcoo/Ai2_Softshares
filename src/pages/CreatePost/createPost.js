@@ -83,11 +83,11 @@ const CreatePost = () => {
       const photoFormData = new FormData();
       photoFormData.append('image', fileInputRef.current.files[0]);
 
-      const uploadResponse = await api.post(
-        '/upload',
-        photoFormData
-       
-      );
+      const uploadResponse = await api.post('/upload/upload', photoFormData,{
+        headers: {
+          'Content-Type': 'multipart/form-data'
+      }
+      });
       // const uploadResponse = await axios.post(
       //   `${process.env.REACT_APP_BACKEND_URL}/upload`,
       //   photoFormData,
