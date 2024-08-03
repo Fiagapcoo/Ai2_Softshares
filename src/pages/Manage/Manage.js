@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
 import Navbar from "../../components/Navbar/Navbar";
 import CategoryCard from "../../components/CategoryCard/CategoryCard";
 import PostCard from "../../components/PostsCard/PostCard";
@@ -7,12 +11,25 @@ import Calendar from "../../components/Calendar/Calendar";
 import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
 import ParentComponent from "../../components/ParentComponent/ParentComponent";
 import ValidateItemPopup from "../../components/ValidatePostEventPopup/ValidatePostEventPopup";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import "./Manage.css";
+
 import Authentication from "../../Auth.service";
 import api from "../../api";
+import "./Manage.css";
+
+const isInFuture = (eventDate) => {
+  return new Date(eventDate) > new Date();
+};
+
+const formatDate = (dateString) => {
+  return new Date(dateString)
+    .toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .split("/")
+    .join("/");
+};
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -20,6 +37,9 @@ const Manage = () => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [usersToValidate, setUsersToValidate] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [filteredArea, setFilteredArea] = useState("");
@@ -51,31 +71,41 @@ const Manage = () => {
       if (token && user) {
         try {
           const response = await api.get("/dynamic/all-content");
-          // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // });
+          let eventsData = response.data.events;
+          let postsData = response.data.posts;
 
-          let filteredPosts =
-            user.office_id !== 0
-              ? response.data.posts.filter(
-                  (post) =>
-                    post.office_id === user.office_id &&
-                    post.validated === false
-                )
-              : response.data.posts.filter((post) => post.validated === false);
+          if (user.office_id !== 0) {
+            eventsData = eventsData.filter(
+              (event) => event.office_id === user.office_id && !event.validated
+            );
+            postsData = postsData.filter(
+              (post) => post.office_id === user.office_id && !post.validated
+            );
+          } else {
+            eventsData = eventsData.filter((event) => !event.validated);
+            postsData = postsData.filter((post) => !post.validated);
+          }
+          eventsData = eventsData.filter(
+            (event) => isInFuture(event.event_date)
+          );
 
           if (filteredArea) {
             const areaNumber = Number(filteredArea);
-            filteredPosts = filteredPosts.filter(
-              (item) =>
-                parseInt(item.sub_area_id.toString().slice(0, 3), 10) ===
-                  areaNumber || item.area === areaNumber
+            eventsData = eventsData.filter(
+              (event) =>
+                parseInt(event.sub_area_id.toString().slice(0, 3), 10) ===
+                  areaNumber || event.area === areaNumber
+            );
+            postsData = postsData.filter(
+              (post) =>
+                parseInt(post.sub_area_id.toString().slice(0, 3), 10) ===
+                  areaNumber || post.area === areaNumber
             );
           }
 
-          setPosts(filteredPosts);
+          setPosts(postsData);
+          setFilteredEvents(eventsData);
+          setEvents(eventsData);
         } catch (error) {
           console.error("Error fetching posts", error);
         }
@@ -85,18 +115,29 @@ const Manage = () => {
     fetchPosts();
   }, [token, user, filteredArea]);
 
+  useEffect(() => {
+    console.log("TESTE");
+    const fetchUsersToValidate = async () => {
+        try {
+          const response = await api.get("/user/get-users-to-validate");
+          console.log("Response", response.data.data);
+          setUsersToValidate(response.data.data);
+        } catch (error) {
+          console.log("Error fetching users to validate", error);
+        }
+      
+    };
+
+    fetchUsersToValidate();
+    
+  }, [token, user]);
+
   const handleValidatePosts = async () => {
     try {
-      // var res = await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/api/administration/validate-content/post/${selectedPostId}/${user.user_id}`, {}, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
-      var res = await api.patch(
+      await api.patch(
         `/administration/validate-content/post/${selectedPostId}/${user.user_id}`,
         {}
       );
-      console.log("response" + res);
       setPosts(posts.filter((post) => post.post_id !== selectedPostId));
       setShowPopup(false);
     } catch (error) {
@@ -147,17 +188,48 @@ const Manage = () => {
                     id={post.post_id}
                     token={token}
                     showOptions
-                    onValidate={() => handleValidateClick(post.post_id)} // Pass the onValidate function
+                    onValidate={() => handleValidateClick(post.post_id)}
                   />
+                ))}
+              </div>
+            </Row>
+            <Row>
+              <h1 className="title my-4">Validate Event</h1>
+              <div className="d-flex flex-wrap justify-content-start">
+                {filteredEvents.map((event) => (
+                  <Col
+                    xs={12}
+                    md={4}
+                    lg={3}
+                    key={event.event_id}
+                    className="mb-4"
+                  >
+                    <PostCard
+                      key={event.event_id}
+                      type="E"
+                      imagealt={event.name}
+                      imagePlaceholderChangeIma={event.filepath}
+                      title={event.name}
+                      description={event.description}
+                      content={event.content}
+                      rating={event.rating}
+                      postedBy={event.publisher_id}
+                      id={event.event_id}
+                      date={formatDate(event.event_date)}
+                      token={token}
+                      showOptions
+                      onValidate={() => handleValidateClick(event.event_id)}
+                    />
+                  </Col>
                 ))}
               </div>
             </Row>
             <Row>
               <h1 className="title my-4">Validate Users</h1>
               <div className="d-flex flex-wrap justify-content-start">
-                <ParentComponent name="User1" />
-                <ParentComponent name="User2" />
-                <ParentComponent name="User3" />
+                {usersToValidate.map((user) => (
+                  <ParentComponent key={user.id} name={`${user.first_name} ${user.last_name}`} />
+                ))}
               </div>
             </Row>
           </Col>
