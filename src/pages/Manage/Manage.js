@@ -260,4 +260,3 @@ const Manage = () => {
 };
 
 export default Manage;
-git s
