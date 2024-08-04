@@ -174,58 +174,62 @@ const Manage = () => {
           </Col>
 
           <Col xs={12} md={9} className="posts-manage-grid w-100">
-            <Row>
-              <h1 className="title">Validate Publications</h1>
-              <div className="d-flex flex-wrap justify-content-start">
-                {posts.map((post) => (
-                  <PostCard
-                    key={post.post_id}
-                    imagealt={post.title}
-                    imagePlaceholderChangeIma={post.filepath}
-                    title={post.title}
-                    description={post.description}
-                    content={post.content}
-                    rating={post.rating}
-                    postedBy={post.publisher_id}
-                    id={post.post_id}
-                    token={token}
-                    showOptions
-                    onValidate={() => handleValidateClick(post, 'post')}
-                  />
-                ))}
-              </div>
-            </Row>
-            <Row>
-              <h1 className="title my-4">Validate Event</h1>
-              <div className="d-flex flex-wrap justify-content-start">
-                {filteredEvents.map((event) => (
-                  <Col
-                    xs={12}
-                    md={4}
-                    lg={3}
-                    key={event.event_id}
-                    className="mb-4"
-                  >
+            {posts.length > 0 && (
+              <Row>
+                <h1 className="title">Validate Publications</h1>
+                <div className="d-flex flex-wrap justify-content-start">
+                  {posts.map((post) => (
                     <PostCard
-                      key={event.event_id}
-                      type="E"
-                      imagealt={event.name}
-                      imagePlaceholderChangeIma={event.filepath}
-                      title={event.name}
-                      description={event.description}
-                      content={event.content}
-                      rating={event.rating}
-                      postedBy={event.publisher_id}
-                      id={event.event_id}
-                      date={formatDate(event.event_date)}
+                      key={post.post_id}
+                      imagealt={post.title}
+                      imagePlaceholderChangeIma={post.filepath}
+                      title={post.title}
+                      description={post.description}
+                      content={post.content}
+                      rating={post.rating}
+                      postedBy={post.publisher_id}
+                      id={post.post_id}
                       token={token}
                       showOptions
-                      onValidate={() => handleValidateClick(event, 'event')}
+                      onValidate={() => handleValidateClick(post, 'post')}
                     />
-                  </Col>
-                ))}
-              </div>
-            </Row>
+                  ))}
+                </div>
+              </Row>
+            )}
+            {filteredEvents.length > 0 && (
+              <Row>
+                <h1 className="title my-4">Validate Events</h1>
+                <div className="d-flex flex-wrap justify-content-start">
+                  {filteredEvents.map((event) => (
+                    <Col
+                      xs={12}
+                      md={4}
+                      lg={3}
+                      key={event.event_id}
+                      className="mb-4"
+                    >
+                      <PostCard
+                        key={event.event_id}
+                        type="E"
+                        imagealt={event.name}
+                        imagePlaceholderChangeIma={event.filepath}
+                        title={event.name}
+                        description={event.description}
+                        content={event.content}
+                        rating={event.rating}
+                        postedBy={event.publisher_id}
+                        id={event.event_id}
+                        date={formatDate(event.event_date)}
+                        token={token}
+                        showOptions
+                        onValidate={() => handleValidateClick(event, 'event')}
+                      />
+                    </Col>
+                  ))}
+                </div>
+              </Row>
+            )}
             <Row>
               <h1 className="title my-4">Validate Users</h1>
               <div className="d-flex flex-wrap justify-content-start">
@@ -256,3 +260,4 @@ const Manage = () => {
 };
 
 export default Manage;
+git s
