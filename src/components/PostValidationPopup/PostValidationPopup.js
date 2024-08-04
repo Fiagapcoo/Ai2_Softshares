@@ -5,7 +5,7 @@ import "./PostValidationPopup.css";
 import MapComponent from "../../components/MapComponent/MapComponent";
 import api from "../../api";
 
-const PostValidationPopup = ({ show, handleClose, post, user, onValidate }) => {
+const PostValidationPopup = ({ show, handleClose, post, user, onValidate, onReject }) => {
   const [actualPost, setActualPost] = useState(null);
 
   useEffect(() => {
@@ -28,10 +28,23 @@ const PostValidationPopup = ({ show, handleClose, post, user, onValidate }) => {
         `/administration/validate-content/post/${actualPost.post_id}/${user.user_id}`,
         {}
       );
-      onValidate(actualPost.post_id);  // Call the passed validation function
+      onValidate(actualPost.post_id); // Call the passed validation function
       handleClose();
     } catch (error) {
       console.error("Error validating post", error);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await api.patch(
+        `/administration/reject-content/post/${actualPost.post_id}/${user.user_id}`,
+        {}
+      );
+      onReject(actualPost.post_id); // Call the passed reject function
+      handleClose();
+    } catch (error) {
+      console.error("Error rejecting post", error);
     }
   };
 
@@ -85,6 +98,9 @@ const PostValidationPopup = ({ show, handleClose, post, user, onValidate }) => {
       <Modal.Footer className="custom-modal-content">
         <Button variant="secondary" onClick={handleClose}>
           Close
+        </Button>
+        <Button variant="danger" onClick={handleReject}>
+          Reject
         </Button>
         <Button variant="primary" onClick={handleValidate}>
           Validate

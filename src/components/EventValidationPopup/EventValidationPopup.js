@@ -5,19 +5,17 @@ import "./EventValidationPopup.css";
 import MapComponent from "../../components/MapComponent/MapComponent";
 import api from "../../api";
 
-const EventValidationPopup = ({ show, handleClose, event, user, onValidate }) => {
+const EventValidationPopup = ({ show, handleClose, event, user, onValidate, onReject }) => {
   const [actualEvent, setActualEvent] = useState(null);
 
   useEffect(() => {
     if (event) {
-        console.log(event);
       const fetchEventDetail = async () => {
         try {
           const response = await api.get(`/dynamic/get-event/${event.event_id}`);
-          console.log(response.data.data);
           setActualEvent(response.data.data.event);
         } catch (error) {
-          console.error("Error fetching post detail", error);
+          console.error("Error fetching event detail", error);
         }
       };
       fetchEventDetail();
@@ -37,8 +35,21 @@ const EventValidationPopup = ({ show, handleClose, event, user, onValidate }) =>
     }
   };
 
+  const handleReject = async () => {
+    try {
+      await api.patch(
+        `/administration/reject-content/event/${actualEvent.event_id}/${user.user_id}`,
+        {}
+      );
+      onReject(actualEvent.event_id); // Call the passed reject function
+      handleClose();
+    } catch (error) {
+      console.error("Error rejecting event", error);
+    }
+  };
+
   if (!actualEvent) {
-    return null; // If post details are not fetched yet, don't render the popup
+    return null; // If event details are not fetched yet, don't render the popup
   }
 
   return (
@@ -87,6 +98,9 @@ const EventValidationPopup = ({ show, handleClose, event, user, onValidate }) =>
       <Modal.Footer className="custom-modal-content">
         <Button variant="secondary" onClick={handleClose}>
           Close
+        </Button>
+        <Button variant="danger" onClick={handleReject}>
+          Reject
         </Button>
         <Button variant="primary" onClick={handleValidate}>
           Validate

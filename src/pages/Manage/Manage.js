@@ -134,7 +134,15 @@ const Manage = () => {
     setPosts(posts.filter((post) => post.post_id !== postId));
   };
 
+  const handleRejectPosts = (postId) => {
+    setPosts(posts.filter((post) => post.post_id !== postId));
+  };
+
   const handleValidateEvents = (eventId) => {
+    setEvents(events.filter((event) => event.event_id !== eventId));
+  };
+
+  const handleRejectEvents = (eventId) => {
     setEvents(events.filter((event) => event.event_id !== eventId));
   };
 
@@ -234,7 +242,7 @@ const Manage = () => {
               <h1 className="title my-4">Validate Users</h1>
               <div className="d-flex flex-wrap justify-content-start">
                 {usersToValidate.map((user) => (
-                  <ParentComponent key={user.id} name={`${user.first_name} ${user.last_name}`} />
+                  <ParentComponent key={user.id} name={`${user.first_name} ${user.last_name}`} picture={user.profile_pic} email={user.email} />
                 ))}
               </div>
             </Row>
@@ -246,6 +254,7 @@ const Manage = () => {
         handleClose={handleClose}
         user={user}
         onValidate={handleValidatePosts}
+        onReject={handleRejectPosts}
         post={selectedPost}
       />
       <EventValidationPopup
@@ -253,6 +262,7 @@ const Manage = () => {
         handleClose={handleClose}
         user={user}
         onValidate={handleValidateEvents}
+        onReject={handleRejectEvents}
         event={selectedEvent}
       />
     </>

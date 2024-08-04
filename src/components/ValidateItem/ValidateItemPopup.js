@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./ValidateItemPopup.css"; // Importing the CSS file for styling
 
-const ValidateItemPopup = ({ item, onClose }) => {
+const ValidateItemPopup = ({ onClose, name, picture = null, email }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
@@ -26,6 +26,17 @@ const ValidateItemPopup = ({ item, onClose }) => {
                     </button>
                 </div>
                 <h2>Validate Item?</h2>
+                <div className="user-info">
+                    {picture ? (
+                        <img src={picture} alt={name} className="user-picture" />
+                    ) : (
+                        <i className="fas fa-user-circle user-icon"></i>
+                    )}
+                    <div className="user-details">
+                        <p>{name}</p>
+                        <p>{email}</p>
+                    </div>
+                </div>
                 {error && <p className="error">{error}</p>}
                 <div className="popup-buttons">
                     <button className="popup-button cancel" onClick={onClose}>
