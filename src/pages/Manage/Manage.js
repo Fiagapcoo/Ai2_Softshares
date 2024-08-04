@@ -10,8 +10,8 @@ import PostCard from "../../components/PostsCard/PostCard";
 import Calendar from "../../components/Calendar/Calendar";
 import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
 import ParentComponent from "../../components/ParentComponent/ParentComponent";
-import ValidateItemPopup from "../../components/ValidatePostEventPopup/ValidatePostEventPopup";
-
+import PostValidationPopup from "../../components/PostValidationPopup/PostValidationPopup";
+import EventValidationPopup from "../../components/EventValidationPopup/EventValidationPopup";
 import Authentication from "../../Auth.service";
 import api from "../../api";
 import "./Manage.css";
@@ -40,8 +40,10 @@ const Manage = () => {
   const [events, setEvents] = useState([]);
   const [usersToValidate, setUsersToValidate] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [showPostPopup, setShowPostPopup] = useState(false);
+  const [showEventPopup, setShowEventPopup] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [filteredArea, setFilteredArea] = useState("");
 
   useEffect(() => {
@@ -116,38 +118,38 @@ const Manage = () => {
   }, [token, user, filteredArea]);
 
   useEffect(() => {
-    console.log("TESTE");
     const fetchUsersToValidate = async () => {
-        try {
-          const response = await api.get("/user/get-users-to-validate");
-          console.log("Response", response.data.data);
-          setUsersToValidate(response.data.data);
-        } catch (error) {
-          console.log("Error fetching users to validate", error);
-        }
-      
+      try {
+        const response = await api.get("/user/get-users-to-validate");
+        setUsersToValidate(response.data.data);
+      } catch (error) {
+        console.log("Error fetching users to validate", error);
+      }
     };
 
     fetchUsersToValidate();
-    
   }, [token, user]);
 
-  const handleValidatePosts = async () => {
-    try {
-      await api.patch(
-        `/administration/validate-content/post/${selectedPostId}/${user.user_id}`,
-        {}
-      );
-      setPosts(posts.filter((post) => post.post_id !== selectedPostId));
-      setShowPopup(false);
-    } catch (error) {
-      console.error("Error validating post", error);
+  const handleValidatePosts = (postId) => {
+    setPosts(posts.filter((post) => post.post_id !== postId));
+  };
+
+  const handleValidateEvents = (eventId) => {
+    setEvents(events.filter((event) => event.event_id !== eventId));
+  };
+
+  const handleValidateClick = (item, type) => {
+    if (type === "post") {
+      setSelectedPost(item);
+      setShowPostPopup(true);
+    } else if (type === "event") {
+      setSelectedEvent(item);
+      setShowEventPopup(true);
     }
   };
 
-  const handleValidateClick = (postId) => {
-    setSelectedPostId(postId);
-    setShowPopup(true);
+  const handleClose = () => {
+    window.location.reload();
   };
 
   return (
@@ -188,7 +190,7 @@ const Manage = () => {
                     id={post.post_id}
                     token={token}
                     showOptions
-                    onValidate={() => handleValidateClick(post.post_id)}
+                    onValidate={() => handleValidateClick(post, 'post')}
                   />
                 ))}
               </div>
@@ -218,7 +220,7 @@ const Manage = () => {
                       date={formatDate(event.event_date)}
                       token={token}
                       showOptions
-                      onValidate={() => handleValidateClick(event.event_id)}
+                      onValidate={() => handleValidateClick(event, 'event')}
                     />
                   </Col>
                 ))}
@@ -235,10 +237,19 @@ const Manage = () => {
           </Col>
         </Row>
       </Container>
-      <ValidateItemPopup
-        show={showPopup}
-        handleClose={() => setShowPopup(false)}
-        handleValidate={handleValidatePosts}
+      <PostValidationPopup
+        show={showPostPopup}
+        handleClose={handleClose}
+        user={user}
+        onValidate={handleValidatePosts}
+        post={selectedPost}
+      />
+      <EventValidationPopup
+        show={showEventPopup}
+        handleClose={handleClose}
+        user={user}
+        onValidate={handleValidateEvents}
+        event={selectedEvent}
       />
     </>
   );
