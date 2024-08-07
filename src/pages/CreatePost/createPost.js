@@ -1,14 +1,15 @@
-import Navbar from '../../components/Navbar/Navbar';
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import './CreatePost.css';
+import Navbar from '../../components/Navbar/Navbar';
 import api from '../../api';
-import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
+import './CreatePost.css';
 
-const CreatePost = () => {
+const CreatePost = ({ edit = false }) => {
   const navigate = useNavigate();
+  const { post_id } = useParams();
 
   const [subArea, setSubArea] = useState([]);
   const [selectedSubArea, setSelectedSubArea] = useState("");
@@ -18,6 +19,8 @@ const CreatePost = () => {
   const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     document.title = "SoftShares - Create Post";
@@ -38,11 +41,6 @@ const CreatePost = () => {
       const fetchSubareas = async () => {
         try {
           const response = await api.get('/categories/get-sub-areas');
-          // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories/get-sub-areas`, {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // });
           setSubArea(response.data.data);
         } catch (error) {
           console.error(error);
@@ -52,6 +50,37 @@ const CreatePost = () => {
       fetchSubareas();
     }
   }, [token]);
+
+  useEffect(() => {
+    if (edit && post_id) {
+      const fetchPostData = async () => {
+        try {
+          const response = await api.get(`/dynamic/get-post/${post_id}`);
+          const post = response.data;
+          setSelectedSubArea(post.SubArea.sub_area_id);
+          setPostTitle(post.title);
+          setDescription(post.content);
+          setSelectedImage(post.filepath);
+          setVerified(post.validated);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchPostData();
+    }
+  }, [edit, post_id]);
+
+  useEffect(() => {
+    if (edit && verified) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'You cannot edit a validated post!',
+      });
+      navigate("/posts");
+    }
+  }, [edit, verified, navigate]);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -83,21 +112,11 @@ const CreatePost = () => {
       const photoFormData = new FormData();
       photoFormData.append('image', fileInputRef.current.files[0]);
 
-      const uploadResponse = await api.post('/upload/upload', photoFormData,{
+      const uploadResponse = await api.post('/upload/upload', photoFormData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-      }
+        }
       });
-      // const uploadResponse = await axios.post(
-      //   `${process.env.REACT_APP_BACKEND_URL}/upload`,
-      //   photoFormData,
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
 
       const formData = {
         subArea: selectedSubArea,
@@ -106,43 +125,46 @@ const CreatePost = () => {
         photo: uploadResponse.data.file.filename,
       };
 
-
-      const response = await api.post('/post/create', {
-        subAreaId: selectedSubArea,
-        officeId: "1",
-        publisher_id: user.user_id,
-        title: postTitle,
-        content: description,
-        filePath: formData.photo,
-        type: "P",
-        rating: 1
-      });
-      // const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/post/create`, {
-      //   subAreaId: selectedSubArea,
-      //   officeId: "1",
-      //   publisher_id: user.user_id,
-      //   title: postTitle,
-      //   content: description,
-      //   filePath: formData.photo,
-      //   type: "P",
-      //   rating: 1
-      // }, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
+      if (edit) {
+        await api.patch(`/post/edit/${post_id}`, {
+          subAreaId: selectedSubArea,
+          officeId: "1",
+          publisher_id: user.user_id,
+          title: postTitle,
+          content: description,
+          filePath: formData.photo,
+          type: "P",
+          rating: 1
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Post Updated',
+          text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
+        });
+      } else {
+        await api.post('/post/create', {
+          subAreaId: selectedSubArea,
+          officeId: "1",
+          publisher_id: user.user_id,
+          title: postTitle,
+          content: description,
+          filePath: formData.photo,
+          type: "P",
+          rating: 1
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Post Created',
+          text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
+        });
+      }
 
       setPostTitle("");
       setSelectedSubArea("");
       setDescription("");
       setSelectedImage(null);
       fileInputRef.current.value = null;
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Post Created',
-        text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
-      });
+      navigate("/posts");
 
     } catch (error) {
       Swal.fire({
@@ -151,8 +173,15 @@ const CreatePost = () => {
         text: error.message,
       });
     }
-    navigate("/posts");
   };
+
+  useEffect(() => {
+    if (selectedImage && !selectedImage.startsWith('data:')) {
+      setImageUrl(`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${selectedImage}`);
+    } else {
+      setImageUrl(selectedImage);
+    }
+  }, [selectedImage]);
 
   return (
     <>
@@ -165,7 +194,8 @@ const CreatePost = () => {
                 className="image-placeholder"
                 onClick={handleImageClick}
                 style={{
-                  background: selectedImage ? `url(${selectedImage}) no-repeat center/cover` : '#000'
+                  background: imageUrl ? `url(${imageUrl}) no-repeat center/cover` : '#000',
+                  position: 'relative'
                 }}
               >
                 {!selectedImage && <span className="text-white">Add +</span>}
@@ -211,7 +241,7 @@ const CreatePost = () => {
               </Form.Group>
               <div className="text-center">
                 <Button variant="primary" type="submit" className="w-25 softinsaButtonn">
-                  Create Post
+                  {edit ? 'Update Post' : 'Create Post'}
                 </Button>
               </div>
             </Form>

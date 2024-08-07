@@ -14,6 +14,11 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [activeTab, setActiveTab] = useState("post");
 
   useEffect(() => {
     document.title = "SoftShares - Post Detail";
@@ -22,6 +27,7 @@ const PostDetail = () => {
       const res = await Authentication.getCurrentUser();
       if (res) {
         setToken(JSON.stringify(res.token));
+        setUser(res.user);
       }
     };
 
@@ -34,14 +40,6 @@ const PostDetail = () => {
 
       try {
         const response = await api.get(`/dynamic/get-post/${post_id}`);
-        // const response = await axios.get(
-        //   `${process.env.REACT_APP_BACKEND_URL}/api/dynamic/get-post/${post_id}`,
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${token}`,
-        //     },
-        //   }
-        // );
         setPost(response.data);
       } catch (error) {
         setError(error.message);
@@ -50,8 +48,54 @@ const PostDetail = () => {
       }
     };
 
+    const fetchComments = async () => {
+      if (!token) return;
+
+      try {
+        const response = await api.get(`/comment/get-comment-tree/content/post/id/${post_id}`);
+        setComments(response.data.data);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
     fetchPostDetail();
+    fetchComments();
   }, [post_id, token]);
+
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      if (!token) return;
+
+      try {
+        const response = await api.get("/dynamic/get-users");
+        setAllUsers(response.data.data);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchAllUsers();
+  }, [token]);
+
+  const handleSendComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      await api.post("/comment/add-comment", {
+        contentID: post_id,
+        contentType: "Post",
+        userID: user.user_id,
+        commentText: newComment,
+      });
+      setNewComment("");
+      // Refresh comments
+      const response = await api.get(`/comment/get-comment-tree/content/post/id/${post_id}`);
+      setComments(response.data.data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -61,12 +105,43 @@ const PostDetail = () => {
     return <div className="error">{error}</div>;
   }
 
+  const findUserById = (userId) => {
+    const user = allUsers.find((user) => user.user_id === userId);
+    return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendComment();
+    }
+  };
+
   return (
     <>
       <Navbar />
       <div className="container mt-5">
-        <h1 className="mb-4">Post Detail</h1>
-        {post && (
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <a
+              className={`nav-link ${activeTab === "post" ? "active" : ""}`}
+              href="#"
+              onClick={() => setActiveTab("post")}
+            >
+              Post
+            </a>
+          </li>
+          <li className="nav-item">
+            <a
+              className={`nav-link ${activeTab === "comments" ? "active" : ""}`}
+              href="#"
+              onClick={() => setActiveTab("comments")}
+            >
+              Comments
+            </a>
+          </li>
+        </ul>
+
+        {activeTab === "post" && post && (
           <div className="post-detail">
             <div className="post-header">
               <h2>{post.title}</h2>
@@ -104,6 +179,36 @@ const PostDetail = () => {
                   <MapComponent location={post.p_location} />
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "comments" && (
+          <div className="forum">
+            <h2>Comments</h2>
+            <div className="chat-container">
+              <div className="messages">
+                {comments.map((comment) => (
+                  <div key={comment.comment_id} className="message">
+                    <p>
+                      <strong>{findUserById(comment.publisher_id)}:</strong>{" "}
+                      {comment.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="message-input">
+                <input
+                  type="text"
+                  placeholder="Type a message..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                />
+                <button type="button" onClick={handleSendComment}>
+                  Send
+                </button>
+              </div>
             </div>
           </div>
         )}
