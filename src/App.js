@@ -53,6 +53,7 @@ const App = () => {
          <Route path='/createAdmin' element={<CreateAdmin/>}></Route>
          <Route path='/albums' element={<Albums/>}></Route>
          <Route path='/editPost/:post_id' element={<CreatePost edit={true}/>}></Route>
+         <Route path='/editEvent/:event_id' element={<CreateEvent edit={true}/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>

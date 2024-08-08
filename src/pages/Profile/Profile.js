@@ -7,12 +7,16 @@ import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 import api from '../../api';
 import Swal from 'sweetalert2';
+import EditPreferencesModal from '../../components/EditPreferencesModal/EditPreferencesModal';
 
 const Profile = () => {
     const navigate = useNavigate();
     const [token, setToken] = useState(null);
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [Areas, setAreas] = useState([]);
+    const [Subtopics, setSubtopics] = useState([]);
 
     useEffect(() => {
         document.title = "SoftShares - Profile";
@@ -44,16 +48,38 @@ const Profile = () => {
     };
 
     useEffect(() => {
+        const fetchAreas = async () => {
+            try {
+                const response = await api.get('/categories/get-areas');
+                console.log(response.data.data);
+                setAreas(response.data.data);
+            } catch (error) {
+                console.error("Error fetching areas", error);
+            }
+        };
+
+        const fetchSubtopics = async () => {
+            try {
+                const response = await api.get('/categories/get-sub-areas');
+                console.log(response.data.data);
+                setSubtopics(response.data.data);
+            } catch (error) {
+                console.error("Error fetching subtopics", error);
+            }
+        };
+
+        fetchAreas();
+        fetchSubtopics();
+    }, []);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    useEffect(() => {
         const fetchUserPosts = async () => {
             if (token && user) {
                 try {
-                    const response = await api.ge('/dynamic/all-content');
-                    // const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/all-content`, {
-                    //     headers: {
-                    //         Authorization: `Bearer ${token}`,
-                    //     },
-                    // });
-                    console.log(user.user_id)
+                    const response = await api.get('/dynamic/all-content');
                     setPosts(response.data.posts.filter(post => post.publisher_id === user.user_id));
                 } catch (error) {
                     console.error("Error fetching user posts", error);
@@ -84,8 +110,8 @@ const Profile = () => {
                         <h4>{user.role}</h4>
                         <div className="contact-info">
                             <p><i className="fas fa-envelope"></i> {user.email}</p>
-                            <p><a onClick={handleLogout} className="bigger"><i class="fa-solid fa-right-from-bracket"></i></a></p>
-                           
+                            <p><a onClick={handleShowModal} className="edit-preferences"><i className="fas fa-cog"></i> Edit Preferences</a></p>
+                            <p><a onClick={handleLogout} className="bigger"><i className="fa-solid fa-right-from-bracket"></i></a></p>
                         </div>
                     </div>
                     <div className="col-md-9 profile-content">
@@ -115,6 +141,13 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
+
+            <EditPreferencesModal 
+                showModal={showModal} 
+                handleCloseModal={handleCloseModal} 
+                Areas={Areas} 
+                Subtopics={Subtopics} 
+            />
         </>
     );
 };

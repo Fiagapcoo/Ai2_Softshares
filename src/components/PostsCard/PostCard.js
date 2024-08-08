@@ -111,12 +111,12 @@ const Card = ({ className = "", imagealt, imagePlaceholderChangeIma, title, desc
                   <i className="fas fa-ellipsis-v"></i>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
-                  <Dropdown.Item className='EditDropdownItem' href="#/edit">
+                  <Dropdown.Item className='EditDropdownItem' href={`/editEvent/${id}`}>
                     <i className="fas fa-pencil-alt"></i> Edit
                   </Dropdown.Item>
-                  <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
+                  {/* <Dropdown.Item className='DeleteDropdownItem' href="#/delete">
                     <i className="fas fa-trash-alt"></i> Delete
-                  </Dropdown.Item>
+                  </Dropdown.Item> */}
                 </Dropdown.Menu>
               </Dropdown>
             )}
