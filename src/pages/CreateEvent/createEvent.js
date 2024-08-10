@@ -177,14 +177,15 @@ const CreateEvent = ({ edit = false }) => {
       });
 
       const formData = {
-        sub_area_id: selectedSubArea,
+        subAreaId: selectedSubArea,
         name: eventName,
         description,
-        event_date: eventDate,
-        event_location: `${eventLocation.lat} ${eventLocation.lng}`,
+        eventDate: eventDate,
+        location: `${eventLocation.lat} ${eventLocation.lng}`,
         max_participants: maxParticipants,
-        photo: uploadResponse.data.file.filename,
+        filePath: uploadResponse.data.file.filename,
       };
+      console.log(formData);
 
       if (edit) {
         await api.patch(`/event/edit/${event_id}`, {
