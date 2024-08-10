@@ -6,6 +6,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import api from '../../api';
 import Authentication from '../../Auth.service';
 import './CreatePost.css';
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const CreatePost = ({ edit = false }) => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const CreatePost = ({ edit = false }) => {
   const [user, setUser] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [verified, setVerified] = useState(false);
+  const [pLocation, setPLocation] = useState({ lat: 0, lng: 0 });
 
   useEffect(() => {
     document.title = "SoftShares - Create Post";
@@ -62,6 +64,7 @@ const CreatePost = ({ edit = false }) => {
           setDescription(post.content);
           setSelectedImage(post.filepath);
           setVerified(post.validated);
+          setPLocation({ lat: parseFloat(post.location.lat), lng: parseFloat(post.location.lng) });
         } catch (error) {
           console.error(error);
         }
@@ -97,6 +100,10 @@ const CreatePost = ({ edit = false }) => {
     }
   };
 
+  const handleMapClick = (event) => {
+    setPLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedSubArea || !postTitle || !selectedImage || !description) {
@@ -118,11 +125,14 @@ const CreatePost = ({ edit = false }) => {
         }
       });
 
+      const location = (pLocation.lat && pLocation.lng) ? `${pLocation.lat}, ${pLocation.lng}` : null;
+
       const formData = {
         subArea: selectedSubArea,
         postTitle,
         description,
         photo: uploadResponse.data.file.filename,
+        pLocation: location
       };
 
       if (edit) {
@@ -133,6 +143,7 @@ const CreatePost = ({ edit = false }) => {
           title: postTitle,
           content: description,
           filePath: formData.photo,
+          location: `${pLocation.lat}, ${pLocation.lng}`,
           type: "P",
           rating: 1
         });
@@ -149,6 +160,7 @@ const CreatePost = ({ edit = false }) => {
           title: postTitle,
           content: description,
           filePath: formData.photo,
+          pLocation: location,
           type: "P",
           rating: 1
         });
@@ -164,6 +176,7 @@ const CreatePost = ({ edit = false }) => {
       setDescription("");
       setSelectedImage(null);
       fileInputRef.current.value = null;
+      setPLocation({ lat: 0, lng: 0 });
       navigate("/posts");
 
     } catch (error) {
@@ -238,6 +251,21 @@ const CreatePost = ({ edit = false }) => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
+              </Form.Group>
+              <Form.Group controlId="formPLocation" className="mb-3">
+                <Form.Label>Post Location *</Form.Label>
+                <div style={{ height: "400px", width: "100%" }}>
+                  <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                    <GoogleMap
+                      mapContainerStyle={{ height: "100%", width: "100%" }}
+                      center={pLocation.lat ? pLocation : { lat: 39.5, lng: -8.0 }}
+                      zoom={10}
+                      onClick={handleMapClick}
+                    >
+                      {pLocation.lat && <Marker position={pLocation} />}
+                    </GoogleMap>
+                  </LoadScript>
+                </div>
               </Form.Group>
               <div className="text-center">
                 <Button variant="primary" type="submit" className="w-25 softinsaButtonn">
