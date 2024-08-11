@@ -194,6 +194,8 @@ const CreateEvent = ({ edit = false }) => {
         filePath: changeImage ? filePath : undefined,
       };
 
+      console.log(formData);
+
       await api.patch(`/event/edit/${event_id}`, formData);
 
       Swal.fire({
@@ -201,6 +203,7 @@ const CreateEvent = ({ edit = false }) => {
         title: "Event Updated",
         text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
       });
+      navigate("/manage");
 
       resetForm();
     } catch (error) {
