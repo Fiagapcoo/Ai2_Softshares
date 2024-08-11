@@ -12,6 +12,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 const CreateEvent = ({ edit = false }) => {
   const navigate = useNavigate();
   const { event_id } = useParams();
+  const fileInputRef = useRef(null);
   const [selectedSubArea, setSelectedSubArea] = useState("");
   const [subAreaList, setSubAreaList] = useState([]);
   const [eventLocation, setEventLocation] = useState({ lat: 0, lng: 0 });
@@ -25,11 +26,10 @@ const CreateEvent = ({ edit = false }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [price, setPrice] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
   const [verified, setVerified] = useState(false);
+  const [changeImage, setChangeImage] = useState(false);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const CreateEvent = ({ edit = false }) => {
     if (token) {
       const fetchSubAreas = async () => {
         try {
-          const response = await api.get('/categories/get-sub-areas');
+          const response = await api.get("/categories/get-sub-areas");
           setSubAreaList(response.data.data);
         } catch (error) {
           console.error(error);
@@ -67,16 +67,17 @@ const CreateEvent = ({ edit = false }) => {
         try {
           const response = await api.get(`/event/get/${event_id}`);
           const event = response.data.data;
-          console.log(event);
           setSelectedSubArea(event.sub_area_id);
           setEventName(event.name);
           setDescription(event.description);
-          setSelectedImage(event.filePath);
+          setSelectedImage(event.filepath);
           setEventLocation({
             lat: parseFloat(event.event_location.split(" ")[0]),
-            lng: parseFloat(event.event_location.split(" ")[1])
+            lng: parseFloat(event.event_location.split(" ")[1]),
           });
-          setEventDate(event.event_date);
+
+          const formattedDate = event.event_date.split("T")[0];
+          setEventDate(formattedDate);
           setMaxParticipants(event.max_participants);
           setVerified(event.verified);
         } catch (error) {
@@ -101,9 +102,11 @@ const CreateEvent = ({ edit = false }) => {
 
   const handleImageClick = () => {
     fileInputRef.current.click();
+    setSelectedImage(null);
   };
 
   const handleFileChange = (event) => {
+    setChangeImage(true);
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -145,6 +148,70 @@ const CreateEvent = ({ edit = false }) => {
     setEventLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
   };
 
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    if (
+      !selectedSubArea ||
+      !eventName ||
+      !description ||
+      !eventDate ||
+      !eventLocation.lat ||
+      !eventLocation.lng ||
+      !maxParticipants
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "All fields are required!",
+      });
+      return;
+    }
+
+    try {
+      let filePath = selectedImage;
+
+      if (changeImage && fileInputRef.current.files[0]) {
+        const photoFormData = new FormData();
+        photoFormData.append("image", fileInputRef.current.files[0]);
+
+        const uploadResponse = await api.post("/upload/upload", photoFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        filePath = uploadResponse.data.file.filename;
+      }
+
+      const formData = {
+        subAreaId: selectedSubArea,
+        name: eventName,
+        description,
+        eventDate,
+        eventLocation: `${eventLocation.lat} ${eventLocation.lng}`,
+        maxParticipants,
+        filePath: changeImage ? filePath : undefined,
+      };
+
+      await api.patch(`/event/edit/${event_id}`, formData);
+
+      Swal.fire({
+        icon: "success",
+        title: "Event Updated",
+        text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
+      });
+
+      resetForm();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to update event",
+        text: error.message,
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -170,9 +237,9 @@ const CreateEvent = ({ edit = false }) => {
       const photoFormData = new FormData();
       photoFormData.append("image", fileInputRef.current.files[0]);
 
-      const uploadResponse = await api.post('/upload/upload', photoFormData, {
+      const uploadResponse = await api.post("/upload/upload", photoFormData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -180,47 +247,25 @@ const CreateEvent = ({ edit = false }) => {
         subAreaId: selectedSubArea,
         name: eventName,
         description,
-        eventDate: eventDate,
+        eventDate,
         location: `${eventLocation.lat} ${eventLocation.lng}`,
         max_participants: maxParticipants,
         filePath: uploadResponse.data.file.filename,
       };
-      console.log(formData);
 
-      if (edit) {
-        await api.patch(`/event/edit/${event_id}`, {
-          ...formData,
-          officeId: "1",
-          publisher_id: user.user_id,
-        });
-        Swal.fire({
-          icon: "success",
-          title: "Event Updated",
-          text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
-        });
-      } else {
-        await api.post('/event/create', {
-          ...formData,
-          officeId: "1",
-          publisher_id: user.user_id,
-        });
-        Swal.fire({
-          icon: "success",
-          title: "Event Created",
-          text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
-        });
-      }
+      await api.post("/event/create", {
+        ...formData,
+        officeId: "1",
+        publisher_id: user.user_id,
+      });
 
-      setEventName("");
-      setSelectedSubArea("");
-      setDescription("");
-      setSelectedImage(null);
-      setEventDate("");
-      setMaxParticipants("");
-      setEventLocation({ lat: 0, lng: 0 });
-      fileInputRef.current.value = null;
-      navigate("/events");
+      Swal.fire({
+        icon: "success",
+        title: "Event Created",
+        text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
+      });
 
+      resetForm();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -230,13 +275,16 @@ const CreateEvent = ({ edit = false }) => {
     }
   };
 
-  useEffect(() => {
-    if (selectedImage && !selectedImage.startsWith('data:')) {
-      setImageUrl(`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${selectedImage}`);
-    } else {
-      setImageUrl(selectedImage);
-    }
-  }, [selectedImage]);
+  const resetForm = () => {
+    setEventName("");
+    setSelectedSubArea("");
+    setDescription("");
+    setSelectedImage(null);
+    setEventDate("");
+    setMaxParticipants("");
+    setEventLocation({ lat: 0, lng: 0 });
+    fileInputRef.current.value = null;
+  };
 
   return (
     <>
@@ -249,12 +297,17 @@ const CreateEvent = ({ edit = false }) => {
                 className="image-placeholder"
                 onClick={handleImageClick}
                 style={{
-                  background: imageUrl ? `url(${imageUrl}) no-repeat center/cover` : "#000",
-                  position: "relative"
+                  background: selectedImage
+                    ? selectedImage.startsWith("data:")
+                      ? `url(${selectedImage}) no-repeat center/cover`
+                      : `url(${process.env.REACT_APP_BACKEND_URL}/api/uploads/${selectedImage}) no-repeat center/cover`
+                    : "#000",
+                  position: "relative",
                 }}
               >
                 {!selectedImage && <span className="text-white">Add +</span>}
               </div>
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -262,7 +315,8 @@ const CreateEvent = ({ edit = false }) => {
                 onChange={handleFileChange}
               />
             </div>
-            <Form onSubmit={handleSubmit}>
+
+            <Form>
               <Form.Group controlId="formArea" className="mb-3">
                 <Form.Label>Sub Area *</Form.Label>
                 <Form.Select
@@ -273,7 +327,10 @@ const CreateEvent = ({ edit = false }) => {
                     Select Sub Area
                   </option>
                   {subAreaList.map((subarea) => (
-                    <option key={subarea.sub_area_id} value={subarea.sub_area_id}>
+                    <option
+                      key={subarea.sub_area_id}
+                      value={subarea.sub_area_id}
+                    >
                       {subarea.title}
                     </option>
                   ))}
@@ -335,10 +392,16 @@ const CreateEvent = ({ edit = false }) => {
               <Form.Group controlId="eventLocation" className="mb-3">
                 <Form.Label>Event Location *</Form.Label>
                 <div style={{ height: "400px", width: "100%" }}>
-                  <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                  <LoadScript
+                    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                  >
                     <GoogleMap
                       mapContainerStyle={{ height: "100%", width: "100%" }}
-                      center={eventLocation.lat ? eventLocation : { lat: 39.5, lng: -8.0 }}
+                      center={
+                        eventLocation.lat
+                          ? eventLocation
+                          : { lat: 39.5, lng: -8.0 }
+                      }
                       zoom={10}
                       onClick={handleMapClick}
                     >
@@ -349,13 +412,25 @@ const CreateEvent = ({ edit = false }) => {
               </Form.Group>
 
               <div className="text-center">
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="w-25 softinsaButtonn"
-                >
-                  {edit ? 'Update Event' : 'Create Event'}
-                </Button>
+                {edit ? (
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="w-25 softinsaButtonn"
+                    onClick={handleUpdate}
+                  >
+                    Update Event
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="w-25 softinsaButtonn"
+                    onClick={handleSubmit}
+                  >
+                    Create Event
+                  </Button>
+                )}
               </div>
             </Form>
           </Col>
