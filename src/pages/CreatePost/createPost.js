@@ -16,12 +16,11 @@ const CreatePost = ({ edit = false }) => {
   const [selectedSubArea, setSelectedSubArea] = useState("");
   const [postTitle, setPostTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedImage, setSelectedImage] = useState("2.png");
+  const [selectedImage, setSelectedImage] = useState(null);
   const [pLocation, setPLocation] = useState({ lat: 0, lng: 0 });
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
   const fileInputRef = useRef(null);
   const [changeImage, setChangeImage] = useState(false);
 
@@ -244,13 +243,7 @@ const CreatePost = ({ edit = false }) => {
     setPLocation({ lat: 0, lng: 0 });
   };
 
-  useEffect(() => {
-    if (selectedImage && !selectedImage.startsWith('data:')) {
-      setImageUrl(`${process.env.REACT_APP_BACKEND_URL}/uploads/${selectedImage}`);
-    } else {
-      setImageUrl(selectedImage);
-    }
-  }, [selectedImage]);
+
 
   return (
     <>
