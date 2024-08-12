@@ -112,13 +112,6 @@ const Login = () => {
                 <a className="component-1" role="button" href="/signup">
                   Don’t have an account?
                 </a>
-                <a
-                  className="password-reset"
-                  role="button"
-                  href="/forgotpassword"
-                >
-                  Forgot password?
-                </a>
               </div>
               <div className="text-center mb-3">
                 <Button

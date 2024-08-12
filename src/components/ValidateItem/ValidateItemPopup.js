@@ -40,10 +40,10 @@ const ValidateItemPopup = ({ onClose, name, picture = null, email }) => {
                 {error && <p className="error">{error}</p>}
                 <div className="popup-buttons">
                     <button className="popup-button cancel" onClick={onClose}>
-                        No
+                        Reject
                     </button>
                     <button className="popup-button validate" onClick={handleSubmit} disabled={isSubmitting}>
-                        Yes
+                        Validate
                     </button>
                 </div>
             </div>
