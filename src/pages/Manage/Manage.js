@@ -121,7 +121,8 @@ const Manage = () => {
     const fetchUsersToValidate = async () => {
       try {
         const response = await api.get("/user/get-users-to-validate");
-        setUsersToValidate(response.data.data);
+        console.log("Users to validate", response.data.data);
+        setUsersToValidate(response.data.data.filter((user) => user.hashed_password !== null));
       } catch (error) {
         console.log("Error fetching users to validate", error);
       }

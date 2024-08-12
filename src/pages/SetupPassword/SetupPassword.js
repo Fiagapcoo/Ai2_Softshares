@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api";
+import axios from "axios";  
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import Swal from "sweetalert2";
 import "./setupPassword.css";

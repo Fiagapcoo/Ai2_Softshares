@@ -3,6 +3,7 @@ import { Button, Container, Row, Col } from 'react-bootstrap';
 import Card from '../../components/Card/Card';
 import './SelectCity.css';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const SelectCity = () => {
   const [user, setUser] = useState({ email: '', firstName: '', lastName: '' });
@@ -52,6 +53,11 @@ const SelectCity = () => {
     console.log('Response:', res);
   } catch (error) {
     console.error('Error registering user:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error registering user',
+      text: error.response.data.message,
+    });
   }
 
   }
