@@ -28,11 +28,11 @@ const SetupPassword = () => {
     const token = queryParams.get("token");
 
     try {
-      // const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/setup-password`,
-      //     { password },
-      //     { headers: { Authorization: 'Bearer ' + token } }
-      // );
-      const response = await api.post("/auth/setup-password", { password });
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/setup-password`,
+          { password },
+          { headers: { Authorization: 'Bearer ' + token } }
+      );
+      // const response = await api.post("/auth/setup-password", { password });
 
       if (response.status === 200) {
         navigate("/login");
