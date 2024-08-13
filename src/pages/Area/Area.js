@@ -10,7 +10,7 @@ import {
   Form,
 } from "react-bootstrap";
 import Swal from "sweetalert2";
-import "./OC.css";
+import "./area.css";
 import api from "../../api";
 import { useNavigate, useParams } from 'react-router-dom';
 import Authentication from "../../Auth.service";

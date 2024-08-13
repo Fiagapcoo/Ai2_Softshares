@@ -25,6 +25,7 @@ import PostDetail  from './pages/PostDetail/PostDetail';
 import EventDetail from './pages/EventDetail/EventDetail';
 import CreateAdmin from './pages/CreateAdmin/CreateAdmin';
 import Albums from './pages/Albums/Albums';
+import Area from './pages/Area/Area';
 const App = () => {
 
 
@@ -54,6 +55,7 @@ const App = () => {
          <Route path='/albums' element={<Albums/>}></Route>
          <Route path='/editPost/:post_id' element={<CreatePost edit={true}/>}></Route>
          <Route path='/editEvent/:event_id' element={<CreateEvent edit={true}/>}></Route>
+          <Route path='/area' element={<Area/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>

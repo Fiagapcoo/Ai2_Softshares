@@ -176,6 +176,12 @@ const Manage = () => {
                 navigate("/OC");
               }}
             />
+            <ButtonWithIcon
+              text={`Areas & Subareas`}
+              onClick={() => {
+                navigate("/area");
+              }}
+            />
             <div className="center-calendar">
               <Calendar token={token} user={user} />
             </div>
