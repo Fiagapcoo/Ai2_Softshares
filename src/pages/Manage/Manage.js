@@ -171,10 +171,9 @@ const Manage = () => {
               <CategoryCard token={token} />
             </div>
             <ButtonWithIcon
-              icon={"fas fa-plus plus_icon"}
-              text={`Create Operation Center`}
+              text={`Operational Centers`}
               onClick={() => {
-                navigate("/createOC");
+                navigate("/OC");
               }}
             />
             <div className="center-calendar">
