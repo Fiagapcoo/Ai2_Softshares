@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import Authentication from '../../Auth.service';
 import api from '../../api';
 import Swal from 'sweetalert2';
-import EditPreferencesModal from '../../components/EditPreferencesModal/EditPreferencesModal';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -72,8 +71,6 @@ const Profile = () => {
         fetchSubtopics();
     }, []);
 
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
 
     useEffect(() => {
         const fetchUserPosts = async () => {
@@ -110,7 +107,6 @@ const Profile = () => {
                         <h4>{user.role}</h4>
                         <div className="contact-info">
                             <p><i className="fas fa-envelope"></i> {user.email}</p>
-                            <p><a onClick={handleShowModal} className="edit-preferences"><i className="fas fa-cog"></i> Edit Preferences</a></p>
                             <p><a onClick={handleLogout} className="bigger"><i className="fa-solid fa-right-from-bracket"></i></a></p>
                         </div>
                     </div>
@@ -142,12 +138,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            <EditPreferencesModal 
-                showModal={showModal} 
-                handleCloseModal={handleCloseModal} 
-                Areas={Areas} 
-                Subtopics={Subtopics} 
-            />
+
         </>
     );
 };
