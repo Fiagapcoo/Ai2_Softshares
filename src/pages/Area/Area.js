@@ -12,49 +12,48 @@ import {
 import Swal from "sweetalert2";
 import "./area.css";
 import api from "../../api";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Authentication from "../../Auth.service";
 
 const CreateOC = () => {
   const navigate = useNavigate();
-  const [OC, setOC] = useState([]);
+  const [Area, setArea] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedCenter, setSelectedCenter] = useState(null);
+  const [selectedArea, setSelectedArea] = useState(null);
   const [changeImage, setChangeImage] = useState(false);
 
   useEffect(() => {
-    document.title = "Operational Centers";
+    document.title = "Areas & Subareas";
 
     const checkCurrentUser = async () => {
       const res = await Authentication.getCurrentUser();
       if (res) {
         setToken(JSON.stringify(res.token));
         setUser(res.user);
-        if (res.user.office_id != 0) {
+        if (res.user.office_id !== 0) {
           navigate("/notAuthorized");
         }
       }
     };
 
     checkCurrentUser();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
-    const fetchOC = async () => {
+    const fetchAreas = async () => {
       try {
-        const response = await api.get("/administration/get-all-centers");
-        console.log(response.data.data);
-        setOC(response.data.data);
+        const response = await api.get("/categories/get-areas");
+        setArea(response.data.data);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching areas:", error);
       }
     };
 
-    fetchOC();
+    fetchAreas();
   }, []);
 
   const handleImageClick = () => {
@@ -73,11 +72,11 @@ const CreateOC = () => {
     }
   };
 
-  const handleEditClick = (center) => {
-    setSelectedCenter(center);
-    if (center.officeImage) {
+  const handleEditClick = (area) => {
+    setSelectedArea(area);
+    if (area.icon_name) {
       setSelectedImage(
-        `${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeImage}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/uploads/${area.icon_name}`
       );
     } else {
       setSelectedImage(null);
@@ -87,13 +86,14 @@ const CreateOC = () => {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setSelectedCenter(null);
+    setSelectedArea(null);
     setSelectedImage(null);
+    setChangeImage(false);
   };
 
   const handleSaveChanges = async () => {
-    if (!selectedCenter.city) {
-      Swal.fire("Error", "City is required", "error");
+    if (!selectedArea.title) {
+      Swal.fire("Error", "Area title is required", "error");
       return;
     }
     try {
@@ -112,23 +112,24 @@ const CreateOC = () => {
       }
 
       const formData = {
-        city: selectedCenter.city,
-        officeImage: changeImage ? filePath : undefined,
+        title: selectedArea.title,
+        icon: changeImage ? filePath : undefined,
       };
       await api.patch(
-        `/administration/update-center/${selectedCenter.office_id}`,
+        `categories/update-category/${selectedArea.area_id}`,
         formData
       );
       setShowModal(false);
-      Swal.fire("Success", "The center has been updated.", "success");
+      Swal.fire("Success", "The area has been updated.", "success");
+
       // Refresh the data
-      const response = await api.get("/administration/get-all-centers");
-      setOC(response.data.data);
+      const response = await api.get("/categories/get-areas");
+      setArea(response.data.data);
     } catch (error) {
-      console.error("Error updating center", error);
+      console.error("Error updating area:", error);
       Swal.fire(
         "Error!",
-        "An error occurred while updating the center.",
+        error.response?.data?.message || "An error occurred while updating the area.",
         "error"
       );
     }
@@ -136,7 +137,7 @@ const CreateOC = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSelectedCenter((prevState) => ({
+    setSelectedArea((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -148,7 +149,7 @@ const CreateOC = () => {
       <Container className="down mt-5">
         <Row className="mb-4">
           <Col>
-            <h1 className="text-center">Operational Centers</h1>
+            <h1 className="text-center">Areas & Subareas</h1>
           </Col>
         </Row>
         <Row className="mb-4">
@@ -160,9 +161,9 @@ const CreateOC = () => {
                 borderColor: "#00b0ff",
                 fontWeight: "bold",
               }}
-              onClick={() => navigate("/add-center")}
+              onClick={() => navigate("/addArea")}
             >
-              + Add Operational Center
+              + Add Area
             </Button>
           </Col>
         </Row>
@@ -177,44 +178,31 @@ const CreateOC = () => {
         >
           <thead style={{ backgroundColor: "#00b0ff", color: "#fff" }}>
             <tr>
-              <th>City</th>
-              <th>Office Image</th>
-              <th>Admin</th>
+              <th>Title</th>
+              <th>Icon</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {OC.map((center) => (
-              <tr key={center.office_id}>
+            {Area.map((area) => (
+              <tr key={area.area_id}>
+                <td>{area.title}</td>
                 <td>
-                  {center.city === "ALL" ? (
-                    <span style={{ fontWeight: "bold", color: "#000" }}>
-                      Server Admin
-                    </span>
-                  ) : (
-                    center.city
-                  )}
-                </td>
-
-                <td>
-                  {center.officeImage ? (
+                  {area.icon_name ? (
                     <img
-                      src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeImage}`}
-                      alt="Office"
-                      style={{ width: "100px", height: "auto" }}
+                      src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${area.icon_name}`}
+                      alt="Icon"
+                      style={{ width: "30px", height: "auto" }}
                     />
                   ) : (
                     "No Image"
                   )}
                 </td>
                 <td>
-                  {center.first_name} {center.last_name}
-                </td>
-                <td>
                   <Button
                     variant="primary"
                     className="me-2"
-                    onClick={() => handleEditClick(center)}
+                    onClick={() => handleEditClick(area)}
                     style={{
                       backgroundColor: "#00b0ff",
                       borderColor: "#00b0ff",
@@ -237,24 +225,23 @@ const CreateOC = () => {
                         if (result.isConfirmed) {
                           try {
                             await api.delete(
-                              `/administration/delete-center/${center.office_id}`
+                              `/categories/delete-category/${area.area_id}`
                             );
                             Swal.fire(
                               "Deleted!",
-                              "The center has been deleted.",
+                              "The area has been deleted.",
                               "success"
                             );
-                            setOC(
-                              OC.filter(
-                                (office) =>
-                                  office.office_id !== center.office_id
+                            setArea(
+                              Area.filter(
+                                (areaItem) => areaItem.area_id !== area.area_id
                               )
                             );
                           } catch (error) {
-                            console.error("Error deleting center", error);
+                            console.error("Error deleting area:", error);
                             Swal.fire(
                               "Error!",
-                              error.response.data.message || "An error occurred.",
+                              error.response?.data?.message || "An error occurred.",
                               "error"
                             );
                           }
@@ -273,14 +260,14 @@ const CreateOC = () => {
         {/* Modal for editing */}
         <Modal show={showModal} onHide={handleModalClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit Operational Center</Modal.Title>
+            <Modal.Title>Edit Area</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {selectedCenter && (
+            {selectedArea && (
               <Form>
                 {/* Image Placeholder */}
                 <div
-                  className="image-placeholder"
+                  className="image-placeholderlight"
                   onClick={handleImageClick}
                   style={{
                     background: selectedImage
@@ -317,19 +304,16 @@ const CreateOC = () => {
                   onChange={handleFileChange}
                 />
 
-                {/* City Field */}
-                <Form.Group controlId="formCity">
-                  <Form.Label>City</Form.Label>
+                {/* Title Field */}
+                <Form.Group controlId="formTitle">
+                  <Form.Label>Area Title</Form.Label>
                   <Form.Control
                     type="text"
-                    name="city"
-                    value={selectedCenter.city}
+                    name="title"
+                    value={selectedArea.title}
                     onChange={handleInputChange}
                   />
                 </Form.Group>
-
-                {/* Other Form Fields (if any) */}
-                {/* Add more Form.Group components here as needed */}
               </Form>
             )}
           </Modal.Body>
