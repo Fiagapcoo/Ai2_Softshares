@@ -51,6 +51,11 @@ const SelectCity = () => {
     });
 
     console.log('Response:', res);
+    Swal.fire({
+      icon: 'success',
+      title: 'User registered successfully',
+      text: 'Please check your email for the activation link'
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     Swal.fire({

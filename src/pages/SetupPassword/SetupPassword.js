@@ -35,13 +35,19 @@ const SetupPassword = () => {
       // const response = await api.post("/auth/setup-password", { password });
 
       if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Password setup successful",
+          text: "You have to wait for the admin to approve your account.",
+        });
         navigate("/login");
       }
     } catch (error) {
+      console.log("Error setting up password:", error);
       Swal.fire({
         icon: "error",
         title: "Error setting up password",
-        text: "An error occurred while setting up your password. Please try again.",
+        text: error.response.data.message || "An error occurred while setting up your password.",
       });
       console.log("Error setting up password:", error);
     }
