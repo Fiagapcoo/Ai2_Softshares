@@ -172,26 +172,25 @@ const Manage = () => {
             </div>
             {user && user.office_id === 0 && (
               <>
-            <ButtonWithIcon
-              text={`Operational Centers`}
-              onClick={() => {
-                navigate("/OC");
-              }}
-            />
-            <ButtonWithIcon
-              text={`Areas`}
-              onClick={() => {
-                navigate("/area");
-              }}
-            />
-            <ButtonWithIcon
-              text={`SubAreas`}
-              onClick={() => {
-                navigate("/subArea");
-              }}
-            />
-            
-            </>
+                <ButtonWithIcon
+                  text={`Operational Centers`}
+                  onClick={() => {
+                    navigate("/OC");
+                  }}
+                />
+                <ButtonWithIcon
+                  text={`Areas`}
+                  onClick={() => {
+                    navigate("/area");
+                  }}
+                />
+                <ButtonWithIcon
+                  text={`SubAreas`}
+                  onClick={() => {
+                    navigate("/subArea");
+                  }}
+                />
+              </>
             )}
             <ButtonWithIcon
               text={`Forums`}
@@ -222,7 +221,7 @@ const Manage = () => {
                       id={post.post_id}
                       token={token}
                       showOptions
-                      onValidate={() => handleValidateClick(post, 'post')}
+                      onValidate={() => handleValidateClick(post, "post")}
                     />
                   ))}
                 </div>
@@ -254,21 +253,28 @@ const Manage = () => {
                         date={formatDate(event.event_date)}
                         token={token}
                         showOptions
-                        onValidate={() => handleValidateClick(event, 'event')}
+                        onValidate={() => handleValidateClick(event, "event")}
                       />
                     </Col>
                   ))}
                 </div>
               </Row>
             )}
-            <Row>
-              <h1 className="title my-4">Validate Users</h1>
-              <div className="d-flex flex-wrap justify-content-start">
-                {usersToValidate.map((user) => (
-                  <ParentComponent key={user.id} name={`${user.first_name} ${user.last_name}`} picture={user.profile_pic} email={user.email} />
-                ))}
-              </div>
-            </Row>
+            {usersToValidate.length > 0 && (
+              <Row>
+                <h1 className="title my-4">Validate Users</h1>
+                <div className="d-flex flex-wrap justify-content-start">
+                  {usersToValidate.map((user) => (
+                    <ParentComponent
+                      key={user.id}
+                      name={`${user.first_name} ${user.last_name}`}
+                      picture={user.profile_pic}
+                      email={user.email}
+                    />
+                  ))}
+                </div>
+              </Row>
+            )}
           </Col>
         </Row>
       </Container>
