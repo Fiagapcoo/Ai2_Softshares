@@ -1,19 +1,37 @@
 import React, { useState } from "react";
 import "./ValidateItemPopup.css"; // Importing the CSS file for styling
-
-const ValidateItemPopup = ({ onClose, name, picture = null, email }) => {
+import api from "../../api";
+import Swal from "sweetalert2";
+const ValidateItemPopup = ({ id, onClose, name, picture = null, email }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setIsSubmitting(true);
-        // Add your validation logic here
+        try{
+            console.log('Validating user with id:', id);
+            api.patch('/administration/validate-user',{
+                user_id: id
+            });
 
-        // Simulate an API call
-        setTimeout(() => {
-            setIsSubmitting(false);
+            Swal.fire({
+                icon: 'success',
+                title: 'User validated',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
             onClose();
-        }, 2000);
+
+        }catch(error){
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An error occurred',
+                text: error.response.data.message || 'Please try again later',
+            });
+        }
+       
     };
 
     return (

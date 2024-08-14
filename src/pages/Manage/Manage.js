@@ -309,6 +309,7 @@ const Manage = () => {
                   {usersToValidate.map((user) => (
                     <ParentComponent
                       key={user.id}
+                      id={user.id}
                       name={`${user.first_name} ${user.last_name}`}
                       picture={user.profile_pic}
                       email={user.email}
