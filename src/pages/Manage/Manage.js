@@ -190,8 +190,15 @@ const Manage = () => {
                 navigate("/subArea");
               }}
             />
+            
             </>
             )}
+            <ButtonWithIcon
+              text={`Forums`}
+              onClick={() => {
+                navigate("/forum");
+              }}
+            />
             <div className="center-calendar">
               <Calendar token={token} user={user} />
             </div>

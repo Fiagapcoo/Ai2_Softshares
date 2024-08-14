@@ -27,6 +27,8 @@ import CreateAdmin from './pages/CreateAdmin/CreateAdmin';
 import Albums from './pages/Albums/Albums';
 import Area from './pages/Area/Area';
 import Subarea from './pages/Subarea/Subarea';
+import Form from './pages/Forum/Forum';
+import Forums from './pages/Forum/Forum';
 const App = () => {
 
 
@@ -56,8 +58,9 @@ const App = () => {
          <Route path='/albums' element={<Albums/>}></Route>
          <Route path='/editPost/:post_id' element={<CreatePost edit={true}/>}></Route>
          <Route path='/editEvent/:event_id' element={<CreateEvent edit={true}/>}></Route>
-          <Route path='/area' element={<Area/>}></Route>
-          <Route path='/subArea' element={<Subarea/>}></Route>
+         <Route path='/area' element={<Area/>}></Route>
+         <Route path='/subArea' element={<Subarea/>}></Route>
+         <Route path='/forum' element={<Forums/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>
