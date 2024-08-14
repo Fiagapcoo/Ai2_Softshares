@@ -65,6 +65,7 @@ const UsersTable = ({ token, user }) => {
     );
 
     const handleShowModal = (user) => {
+        console.log(user);
         setSelectedUser(user);
         setSelectedOffice(user.office_id);
         setUserStatus(user.is_active ? 'Activate' : 'Inactivate'); // Assuming `is_active` is the field for user status
@@ -104,7 +105,6 @@ const UsersTable = ({ token, user }) => {
             console.error(err.response ? err.response.data : err.message);
         }
     };
-    // TODO 
     const updateUser = async () => {
         try {
             const status = userStatus === 'Activate';
@@ -116,7 +116,8 @@ const UsersTable = ({ token, user }) => {
             //         Authorization: `Bearer ${token}`
             //     },
             // });
-
+            console.log(selectedUser.user_id);
+            console.log(status);
             await api.put('/user/update-acc-status', {
                 user_id: selectedUser.user_id,
                 status: status
@@ -125,7 +126,18 @@ const UsersTable = ({ token, user }) => {
             setUsers(users.map(user =>
                 user.user_id === selectedUser.user_id ? { ...user, is_active: status } : user
             ));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'User status updated successfully',
+            });
         } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: err.response.data.message,
+            });
             console.error(err.response ? err.response.data : err.message);
         }
     };
