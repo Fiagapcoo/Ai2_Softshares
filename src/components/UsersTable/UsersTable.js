@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import './UsersTable.css';
 import api from '../../api';
 import { Modal, Button, Form } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
 const UsersTable = ({ token, user }) => {
     const [users, setUsers] = useState([]);
@@ -47,6 +48,7 @@ const UsersTable = ({ token, user }) => {
                 const response = await api.get('/administration/get-all-centers');
                 const filteredOffices = response.data.data.filter(office => office.city !== 'ALL');
                 setOffices(filteredOffices);
+                console.log(filteredOffices);
             } catch (err) {
                 console.error(err.response ? err.response.data : err.message);
             }
@@ -78,14 +80,7 @@ const UsersTable = ({ token, user }) => {
 
     const updateOffice = async () => {
         try {
-            // await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dynamic/update-user-office`, {
-            //     user_id: selectedUser.user_id,
-            //     office_id: selectedOffice,
-            // }, {
-            //     headers: {
-            //         Authorization: `Bearer ${token}`
-            //     },
-            // });
+
             await api.post('/dynamic/update-user-office', {
                 user_id: selectedUser.user_id,
                 office_id: selectedOffice,
@@ -93,7 +88,19 @@ const UsersTable = ({ token, user }) => {
             setUsers(users.map(user =>
                 user.user_id === selectedUser.user_id ? { ...user, office_id: selectedOffice } : user
             ));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Office updated successfully',
+            });
+
         } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: err.response.data.message,
+            });
             console.error(err.response ? err.response.data : err.message);
         }
     };
@@ -184,7 +191,7 @@ const UsersTable = ({ token, user }) => {
                                     onChange={e => setSelectedOffice(e.target.value)}
                                 >
                                     {offices.map((office, index) => (
-                                        <option key={index} value={office.office_id}>
+                                        <option key={index} value={office.officeid}>
                                             {office.city}
                                         </option>
                                     ))}
