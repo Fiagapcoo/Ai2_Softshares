@@ -12,6 +12,7 @@ import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
 import ParentComponent from "../../components/ParentComponent/ParentComponent";
 import PostValidationPopup from "../../components/PostValidationPopup/PostValidationPopup";
 import EventValidationPopup from "../../components/EventValidationPopup/EventValidationPopup";
+import ForumCard from "../../components/ForumCard/ForumCard";
 import Authentication from "../../Auth.service";
 import api from "../../api";
 import "./Manage.css";
@@ -38,6 +39,7 @@ const Manage = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [forums, setForums] = useState([]);
   const [usersToValidate, setUsersToValidate] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [showPostPopup, setShowPostPopup] = useState(false);
@@ -75,6 +77,7 @@ const Manage = () => {
           const response = await api.get("/dynamic/all-content");
           let eventsData = response.data.events;
           let postsData = response.data.posts;
+          let forumsData = response.data.forums;
 
           if (user.office_id !== 0) {
             eventsData = eventsData.filter(
@@ -83,9 +86,13 @@ const Manage = () => {
             postsData = postsData.filter(
               (post) => post.office_id === user.office_id && !post.validated
             );
+            forumsData = forumsData.filter(
+              (forum) => forum.office_id === user.office_id && !forum.validated
+            );
           } else {
             eventsData = eventsData.filter((event) => !event.validated);
             postsData = postsData.filter((post) => !post.validated);
+            forumsData = forumsData.filter((forum) => !forum.validated);
           }
           eventsData = eventsData.filter(
             (event) => isInFuture(event.event_date)
@@ -103,11 +110,19 @@ const Manage = () => {
                 parseInt(post.sub_area_id.toString().slice(0, 3), 10) ===
                   areaNumber || post.area === areaNumber
             );
+            forumsData = forumsData.filter(
+              (forum) =>
+                parseInt(forum.sub_area_id.toString().slice(0, 3), 10) ===
+                  areaNumber || forum.area === areaNumber
+            );
           }
 
           setPosts(postsData);
           setFilteredEvents(eventsData);
           setEvents(eventsData);
+          setForums(forumsData);
+          console.log("forums", forumsData);
+
         } catch (error) {
           console.error("Error fetching posts", error);
         }
@@ -254,6 +269,33 @@ const Manage = () => {
                         token={token}
                         showOptions
                         onValidate={() => handleValidateClick(event, "event")}
+                      />
+                    </Col>
+                  ))}
+                </div>
+              </Row>
+            )}
+            {forums.length > 0 && (
+              <Row>
+                <h1 className="title my-4">Validate Forums</h1>
+                <div className="d-flex flex-wrap justify-content-start">
+                  {forums.map((event) => (
+                    <Col
+                      xs={12}
+                      md={4}
+                      lg={3}
+                      key={event.forum_id}
+                      className="mb-4"
+                    >
+                      <ForumCard
+                      id={event.forum_id}
+                      title={event.title}
+                      content={event.content}
+                      onValidate = {true}
+                      showOptions = {true}
+                      
+                      
+                      
                       />
                     </Col>
                   ))}
