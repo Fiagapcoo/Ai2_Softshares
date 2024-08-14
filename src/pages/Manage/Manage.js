@@ -170,6 +170,8 @@ const Manage = () => {
             <div className="center-category">
               <CategoryCard token={token} />
             </div>
+            {user && user.office_id === 0 && (
+              <>
             <ButtonWithIcon
               text={`Operational Centers`}
               onClick={() => {
@@ -177,11 +179,19 @@ const Manage = () => {
               }}
             />
             <ButtonWithIcon
-              text={`Areas & Subareas`}
+              text={`Areas`}
               onClick={() => {
                 navigate("/area");
               }}
             />
+            <ButtonWithIcon
+              text={`SubAreas`}
+              onClick={() => {
+                navigate("/subArea");
+              }}
+            />
+            </>
+            )}
             <div className="center-calendar">
               <Calendar token={token} user={user} />
             </div>

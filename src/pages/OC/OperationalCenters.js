@@ -15,7 +15,7 @@ import api from "../../api";
 import { useNavigate, useParams } from 'react-router-dom';
 import Authentication from "../../Auth.service";
 
-const CreateOC = () => {
+const OC = () => {
   const navigate = useNavigate();
   const [OC, setOC] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -351,4 +351,4 @@ const CreateOC = () => {
   );
 };
 
-export default CreateOC;
+export default OC;

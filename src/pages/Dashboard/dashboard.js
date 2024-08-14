@@ -172,6 +172,8 @@ const Dashboard = () => {
             <div className="center-category">
               {token && user && <UsersTable token={token} user={user} />}
             </div>
+            {user && user.office_id === 0 && (
+              <>
             <ButtonWithIcon
               icon={"fas fa-plus plus_icon"}
               text={`Create Area/ Category`}
@@ -186,7 +188,7 @@ const Dashboard = () => {
                 navigate("/addSubArea");
               }}
             />
-            {user && user.office_id === 0 && (
+           
               <ButtonWithIcon
                 icon={"fas fa-plus plus_icon"}
                 text={`Create Office/ Company`}
@@ -194,6 +196,7 @@ const Dashboard = () => {
                   navigate("/createAdmin");
                 }}
               />
+              </>
             )}
           </Col>
           <Col xs={12} md={9} className="posts-manage-grid w-100">
