@@ -12,7 +12,7 @@ import {
 import Swal from "sweetalert2";
 import "./OC.css";
 import api from "../../api";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from "react-router-dom";
 import Authentication from "../../Auth.service";
 
 const OC = () => {
@@ -179,7 +179,7 @@ const OC = () => {
             <tr>
               <th>City</th>
               <th>Office Image</th>
-              <th>Admin</th>
+              <th>Admins</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -197,9 +197,9 @@ const OC = () => {
                 </td>
 
                 <td>
-                  {center.officeImage ? (
+                  {center.officeimage ? (
                     <img
-                      src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeImage}`}
+                      src={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeimage}`}
                       alt="Office"
                       style={{ width: "100px", height: "auto" }}
                     />
@@ -208,8 +208,13 @@ const OC = () => {
                   )}
                 </td>
                 <td>
-                  {center.first_name} {center.last_name}
+                  <ul>
+                    {center.name.map((name, index) => (
+                      <li key={index}>{name}</li>
+                    ))}
+                  </ul>
                 </td>
+
                 <td>
                   <Button
                     variant="primary"
@@ -254,7 +259,8 @@ const OC = () => {
                             console.error("Error deleting center", error);
                             Swal.fire(
                               "Error!",
-                              error.response.data.message || "An error occurred.",
+                              error.response.data.message ||
+                                "An error occurred.",
                               "error"
                             );
                           }
