@@ -75,9 +75,9 @@ const OC = () => {
 
   const handleEditClick = (center) => {
     setSelectedCenter(center);
-    if (center.officeImage) {
+    if (center.officeimage) {
       setSelectedImage(
-        `${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeImage}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/uploads/${center.officeimage}`
       );
     } else {
       setSelectedImage(null);
@@ -116,7 +116,7 @@ const OC = () => {
         officeImage: changeImage ? filePath : undefined,
       };
       await api.patch(
-        `/administration/update-center/${selectedCenter.office_id}`,
+        `/administration/update-center/${selectedCenter.officeid}`,
         formData
       );
       setShowModal(false);
@@ -185,7 +185,7 @@ const OC = () => {
           </thead>
           <tbody>
             {OC.map((center) => (
-              <tr key={center.office_id}>
+              <tr key={center.officeid}>
                 <td>
                   {center.city === "ALL" ? (
                     <span style={{ fontWeight: "bold", color: "#000" }}>
@@ -242,7 +242,7 @@ const OC = () => {
                         if (result.isConfirmed) {
                           try {
                             await api.delete(
-                              `/administration/delete-center/${center.office_id}`
+                              `/administration/delete-center/${center.officeid}`
                             );
                             Swal.fire(
                               "Deleted!",
@@ -252,7 +252,7 @@ const OC = () => {
                             setOC(
                               OC.filter(
                                 (office) =>
-                                  office.office_id !== center.office_id
+                                  office.officeid !== center.officeid
                               )
                             );
                           } catch (error) {

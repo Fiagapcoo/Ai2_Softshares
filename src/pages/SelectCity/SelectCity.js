@@ -12,21 +12,19 @@ const SelectCity = () => {
 
   useEffect(() => {
     document.title = 'SoftShares - Select City';
-    
+
     const storedUser = localStorage.getItem('user');
     console.log('Stored user:', storedUser);
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    
-
-    //localStorage.removeItem('user');
 
     const fetchCities = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/administration/get-all-centers`);
-        const filteredCities = response.data.data.filter(city => city.city !== 'ALL');
+        const filteredCities = response.data.data.filter((city) => city.city !== 'ALL');
         setCity(filteredCities);
+        console.log('Cities:', filteredCities);
       } catch (error) {
         console.error('Error fetching cities:', error);
       }
@@ -35,37 +33,34 @@ const SelectCity = () => {
     fetchCities();
   }, []);
 
-
-  
   const { email, firstName, lastName } = user;
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     console.log('User:', user);
     console.log('Selected city:', selectedCity);
-    try{
-    const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, {
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      centerId: selectedCity,
-    });
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, {
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        centerId: selectedCity,
+      });
 
-    console.log('Response:', res);
-    Swal.fire({
-      icon: 'success',
-      title: 'User registered successfully',
-      text: 'Please check your email for the activation link'
-    });
-  } catch (error) {
-    console.error('Error registering user:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error registering user',
-      text: error.response.data.message,
-    });
-  }
-
-  }
+      console.log('Response:', res);
+      Swal.fire({
+        icon: 'success',
+        title: 'User registered successfully',
+        text: 'Please check your email for the activation link',
+      });
+    } catch (error) {
+      console.error('Error registering user:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error registering user',
+        text: error.response.data.message,
+      });
+    }
+  };
 
   return (
     <div className="selectcity">
@@ -79,13 +74,13 @@ const SelectCity = () => {
       <Container>
         <Row className="justify-content-center">
           {city.map((city) => (
-            <Col key={city.office_id} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <div onClick={() => setSelectedCity(city.office_id)}>
+            <Col key={city.officeid} xs={12} sm={6} md={4} lg={3} className="mb-4">
+              <div onClick={() => setSelectedCity(city.officeid)}>
                 <Card
-                  imagePlaceholderChangeIma={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${city.officeImage}`}
+                  imagePlaceholderChangeIma={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${city.officeimage}`}
                   content={city.city}
-                  selected={selectedCity === city.office_id}
-                  className={selectedCity === city.office_id ? 'selected2' : ''}
+                  selected={selectedCity === city.officeid}
+                  className={selectedCity === city.officeid ? 'selected' : ''}
                 />
               </div>
             </Col>
@@ -93,7 +88,9 @@ const SelectCity = () => {
         </Row>
       </Container>
       <div className="text-center my-4">
-        <Button variant="primary" className="advance-button" onClick={handleSubmit}>Advance</Button>
+        <Button variant="primary" className="advance-button" onClick={handleSubmit}>
+          Advance
+        </Button>
       </div>
     </div>
   );
