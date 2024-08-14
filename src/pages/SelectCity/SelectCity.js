@@ -77,7 +77,7 @@ const SelectCity = () => {
             <Col key={city.office_id} xs={12} sm={6} md={4} lg={3} className="mb-4">
               <div onClick={() => setSelectedCity(city.office_id)}>
                 <Card
-                  imagePlaceholderChangeIma={`https://backendpint-w3vz.onrender.com/api/uploads/${city.officeImage}`}
+                  imagePlaceholderChangeIma={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/${city.officeImage}`}
                   content={city.city}
                   selected={selectedCity === city.office_id}
                   className={selectedCity === city.office_id ? 'selected2' : ''}
