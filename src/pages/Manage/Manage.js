@@ -129,7 +129,15 @@ const Manage = () => {
       }
     };
 
+    // Fetch the posts immediately
     fetchPosts();
+
+    // Set up interval to refetch every 3 seconds
+    const intervalId = setInterval(fetchPosts, 3000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+
   }, [token, user, filteredArea]);
 
   useEffect(() => {
@@ -138,12 +146,21 @@ const Manage = () => {
         const response = await api.get("/user/get-users-to-validate");
         console.log("Users to validate", response.data.data);
         setUsersToValidate(response.data.data.filter((user) => user.hashed_password !== null));
+        console.log("Users to validate", usersToValidate);
       } catch (error) {
         console.log("Error fetching users to validate", error);
       }
     };
 
+    // Fetch users immediately
     fetchUsersToValidate();
+
+    // Set up interval to refetch every 3 seconds
+    const intervalId = setInterval(fetchUsersToValidate, 3000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+
   }, [token, user]);
 
   const handleValidatePosts = (postId) => {
@@ -308,8 +325,8 @@ const Manage = () => {
                 <div className="d-flex flex-wrap justify-content-start">
                   {usersToValidate.map((user) => (
                     <ParentComponent
-                      key={user.id}
-                      id={user.id}
+                      key={user.user_id}
+                      id={user.user_id}
                       name={`${user.first_name} ${user.last_name}`}
                       picture={user.profile_pic}
                       email={user.email}

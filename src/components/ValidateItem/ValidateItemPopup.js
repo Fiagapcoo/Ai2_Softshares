@@ -31,7 +31,35 @@ const ValidateItemPopup = ({ id, onClose, name, picture = null, email }) => {
                 text: error.response.data.message || 'Please try again later',
             });
         }
+
        
+    };
+
+    const handleReject = async () => {
+        setIsSubmitting(true);
+        try{
+            api.patch('/administration/deactivate-user',{
+                user_id: id
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'User deactivated',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            onClose();
+
+        }catch(error){
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An error occurred',
+                text: error.response.data.message || 'Please try again later',
+            });
+        }
+
     };
 
     return (
@@ -57,7 +85,7 @@ const ValidateItemPopup = ({ id, onClose, name, picture = null, email }) => {
                 </div>
                 {error && <p className="error">{error}</p>}
                 <div className="popup-buttons">
-                    <button className="popup-button cancel" onClick={onClose}>
+                    <button className="popup-button cancel" onClick={handleReject} disabled={isSubmitting}>
                         Reject
                     </button>
                     <button className="popup-button validate" onClick={handleSubmit} disabled={isSubmitting}>
