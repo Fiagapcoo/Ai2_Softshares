@@ -53,7 +53,7 @@ const EventDetail = () => {
         //   }
         // );
         const response = await api.get(`/dynamic/get-event/${event_id}`);
-        setEvent(response.data.data.event);
+        setEvent(response.data.data.event_);
       } catch (error) {
         setError(error.message);
       } finally {
