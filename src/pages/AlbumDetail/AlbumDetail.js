@@ -49,6 +49,7 @@ const AlbumsPage = () => {
           },
         });
         setAlbumPhotos(response.data.data);
+        console.log(response.data.data);
       } catch (error) {
         console.error(error);
       }
@@ -134,11 +135,9 @@ const AlbumsPage = () => {
                       alt="Album Photo"
                       className="photo-img"
                     />
-                    {photo.description && (
                       <Card.Body>
-                        <Card.Text>{photo.description}</Card.Text>
+                        <Card.Text>{photo.first_name} {" "} {photo.last_name}</Card.Text>
                       </Card.Body>
-                    )}
                   </Card>
                 </Col>
               );

@@ -27,6 +27,7 @@ h1 {
     width: 250px;
     text-align: center;
     transition: transform 0.2s;
+    text-decoration: none;
 }
 
 .album-item h2 {
