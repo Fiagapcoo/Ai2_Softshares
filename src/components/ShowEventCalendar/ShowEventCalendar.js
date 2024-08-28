@@ -9,16 +9,17 @@ const ShowEventCalendar = ({ show, handleClose, eventIdList, token }) => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const eventPromises = eventIdList.map(id => api.get(`/event/get/${id}`));
+        const eventPromises = eventIdList.map(id => api.get(`/dynamic/get-event/${id}`));
         const eventResponses = await Promise.all(eventPromises);
-        setEvents(eventResponses.map(response => response.data.data));
+        setEvents(eventResponses.map(response => response.data.data.event_));
+        
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     };
 
     if (eventIdList && eventIdList.length > 0) {
-      fetchEvents();
+      fetchEvents()
     }
   }, [eventIdList]);
 
