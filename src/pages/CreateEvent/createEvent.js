@@ -30,6 +30,8 @@ const CreateEvent = ({ edit = false }) => {
   const [user, setUser] = useState(null);
   const [verified, setVerified] = useState(false);
   const [changeImage, setChangeImage] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -80,6 +82,10 @@ const CreateEvent = ({ edit = false }) => {
           setEventDate(formattedDate);
           setMaxParticipants(event.max_participants);
           setVerified(event.verified);
+
+          // Set the startTime and endTime from the event data if available
+          setStartTime(event.start_time || ""); // Assuming `start_time` exists in the event object
+          setEndTime(event.end_time || "");     // Assuming `end_time` exists in the event object
         } catch (error) {
           console.error(error);
         }
@@ -158,7 +164,9 @@ const CreateEvent = ({ edit = false }) => {
       !eventDate ||
       !eventLocation.lat ||
       !eventLocation.lng ||
-      !maxParticipants
+      !maxParticipants ||
+      !startTime || // Ensure startTime is provided
+      !endTime      // Ensure endTime is provided
     ) {
       Swal.fire({
         icon: "error",
@@ -192,6 +200,8 @@ const CreateEvent = ({ edit = false }) => {
         eventLocation: `${eventLocation.lat} ${eventLocation.lng}`,
         maxParticipants,
         filePath: changeImage ? filePath : undefined,
+        startTime, // Include startTime
+        endTime,   // Include endTime
       };
 
       console.log(formData);
@@ -226,7 +236,9 @@ const CreateEvent = ({ edit = false }) => {
       !eventDate ||
       !eventLocation.lat ||
       !eventLocation.lng ||
-      !maxParticipants
+      !maxParticipants ||
+      !startTime || // Ensure startTime is provided
+      !endTime      // Ensure endTime is provided
     ) {
       Swal.fire({
         icon: "error",
@@ -254,6 +266,8 @@ const CreateEvent = ({ edit = false }) => {
         location: `${eventLocation.lat} ${eventLocation.lng}`,
         max_participants: maxParticipants,
         filePath: uploadResponse.data.file.filename,
+        startTime: startTime,
+        endTime: endTime
       };
 
       await api.post("/event/create", {
@@ -286,6 +300,8 @@ const CreateEvent = ({ edit = false }) => {
     setEventDate("");
     setMaxParticipants("");
     setEventLocation({ lat: 0, lng: 0 });
+    setStartTime(""); // Reset startTime
+    setEndTime("");   // Reset endTime
     fileInputRef.current.value = null;
   };
 
@@ -365,6 +381,24 @@ const CreateEvent = ({ edit = false }) => {
                   value={eventDate}
                   min={today}
                   onChange={(e) => setEventDate(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group controlId="formStartTime" className="mb-3">
+                <Form.Label>Start Time *</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  placeholder="12:00:00"
+                />
+              </Form.Group>
+              <Form.Group controlId="formEndTime" className="mb-3">
+                <Form.Label>End Time *</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  placeholder="12:00:00"
                 />
               </Form.Group>
               <Form.Group controlId="recurring" className="mb-3">
