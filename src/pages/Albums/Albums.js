@@ -51,11 +51,12 @@ const AlbumsPage = () => {
                 {albums.length > 0 ? (
                     <div className="albums-list">
                         {albums.map((album, index) => (
-                            <div key={index} className="album-item">
+                           <a href={`/album/${album.album_id}`} className="album-item" >
+                             <div key={index}>
                                 <h2>{album.title}</h2>
                                 <p>{album.description}</p>
-                                {/* Add more album details here if needed */}
                             </div>
+                           </a>
                         ))}
                     </div>
                 ) : (

@@ -27,8 +27,10 @@ import CreateAdmin from './pages/CreateAdmin/CreateAdmin';
 import Albums from './pages/Albums/Albums';
 import Area from './pages/Area/Area';
 import Subarea from './pages/Subarea/Subarea';
-import Form from './pages/Forum/Forum';
 import Forums from './pages/Forum/Forum';
+import AlbumDetail from './pages/AlbumDetail/AlbumDetail';
+
+
 const App = () => {
 
 
@@ -61,6 +63,7 @@ const App = () => {
          <Route path='/area' element={<Area/>}></Route>
          <Route path='/subArea' element={<Subarea/>}></Route>
          <Route path='/forum' element={<Forums/>}></Route>
+         <Route path='/album/:album_id' element={<AlbumDetail/>}></Route>
          <Route path="/*" element={<NotFoundPage/>} />
       </Routes>
     </Router>
