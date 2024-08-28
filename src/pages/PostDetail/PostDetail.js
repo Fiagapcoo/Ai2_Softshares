@@ -41,6 +41,7 @@ const PostDetail = () => {
       try {
         const response = await api.get(`/dynamic/get-post/${post_id}`);
         setPost(response.data);
+        console.log(response.data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -107,6 +108,7 @@ const PostDetail = () => {
 
   const findUserById = (userId) => {
     const user = allUsers.find((user) => user.user_id === userId);
+    console.log(user);
     return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
   };
 
@@ -146,8 +148,7 @@ const PostDetail = () => {
             <div className="post-header">
               <h2>{post.title}</h2>
               <p className="text-muted">
-                Posted by {post.Publisher.first_name} {post.Publisher.last_name}{" "}
-                ({post.Publisher.email}) on{" "}
+                Posted by {post.PublisherFirstName} {post.PublisherLastName}{" "}
                 {new Date(post.creation_date).toLocaleString()}
               </p>
             </div>
@@ -164,7 +165,7 @@ const PostDetail = () => {
             </div>
             <div className="post-footer">
               <p>
-                <strong>Sub Area:</strong> {post.SubArea.title}
+                <strong>Sub Area:</strong> {post.SubAreaTitle}
               </p>
               {post.price && (
                 <p>
