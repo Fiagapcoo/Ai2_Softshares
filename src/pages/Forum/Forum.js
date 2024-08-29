@@ -23,6 +23,10 @@ const Forums = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedForum, setSelectedForum] = useState({});
   const [updateStatus, setUpdateStatus] = useState(null);
+  const [newForumTitle, setNewForumTitle] = useState("");
+  const [newForumContent, setNewForumContent] = useState("");
+  const [subareas, setSubareas] = useState([]);
+  const [selectedSubarea, setSelectedSubarea] = useState("");
 
   useEffect(() => {
     document.title = "Forums";
@@ -57,10 +61,30 @@ const Forums = () => {
     fetchForums();
   }, [user]);
 
+
+  useEffect(() => {
+    const fetchSubareas = async () => {
+      try {
+        const response = await api.get("/categories/get-sub-areas");
+        setSubareas(response.data.data);
+      } catch (error) {
+        console.error("Error fetching subareas:", error);
+      }
+    };
+
+    fetchSubareas();
+
+  }, []);
+
   const handleEditClick = (forum) => {
     setSelectedForum(forum);
     setUpdateStatus(forum.forum_status); // Initialize with current status
     setShowModal(true);
+  };
+
+  const handleAddForumClick = () => {
+    setShowModal(true);
+    setSelectedForum(null);
   };
 
   const handleModalClose = () => {
@@ -69,25 +93,58 @@ const Forums = () => {
   };
 
   const handleSaveChanges = async () => {
-    try {
-      const formData = {
-        state: updateStatus,
-      };
+    if (selectedForum) {
+      // Update existing forum
+      try {
+        const formData = {
+          state: updateStatus,
+        };
 
-      await api.patch(`/forum/change-state/${selectedForum.forum_id}`, formData);
-      setShowModal(false);
-      Swal.fire("Success", "The Forum has been updated.", "success");
+        await api.patch(`/forum/change-state/${selectedForum.forum_id}`, formData);
+        setShowModal(false);
+        Swal.fire("Success", "The Forum has been updated.", "success");
 
-      // Refresh the data
-      const response = await api.get("/dynamic/all-content");
-      setForums(response.data.forums.filter(forum => forum.validated === true));
-    } catch (error) {
-      console.error("Error updating Forum:", error);
-      Swal.fire(
-        "Error!",
-        error.response?.data?.message || "An error occurred while updating the Forum.",
-        "error"
-      );
+        // Refresh the data
+        const response = await api.get("/dynamic/all-content");
+        if (user.office_id === 0) {
+          setForums(response.data.forums.filter(forum => forum.validated === true));
+        } else {
+          setForums(response.data.forums.filter(forum => forum.validated === true && forum.office_id === user.office_id));
+        }
+      } catch (error) {
+        console.error("Error updating Forum:", error);
+        Swal.fire(
+          "Error!",
+          error.response?.data?.message || "An error occurred while updating the Forum.",
+          "error"
+        );
+      }
+    } else {
+      // Add new forum
+      try {
+        const formData = {
+          title: newForumTitle,
+          description: newForumContent,
+          subAreaId: selectedSubarea, // Include the selected subarea
+          publisher_id: user.user_id,
+          officeID: user.office_id,
+        };
+
+        await api.post("/forum/create", formData);
+        setShowModal(false);
+        Swal.fire("Success", "The Forum has been added.", "success");
+
+        // Refresh the data
+        const response = await api.get("/dynamic/all-content");
+        setForums(response.data.forums.filter(forum => forum.validated === true));
+      } catch (error) {
+        console.error("Error adding Forum:", error);
+        Swal.fire(
+          "Error!",
+          error.response?.data?.message || "An error occurred while adding the Forum.",
+          "error"
+        );
+      }
     }
   };
 
@@ -113,7 +170,7 @@ const Forums = () => {
                 borderColor: "#00b0ff",
                 fontWeight: "bold",
               }}
-              onClick={() => navigate("/addForum")}
+              onClick={handleAddForumClick}
             >
               + Add Forum
             </Button>
@@ -208,13 +265,13 @@ const Forums = () => {
           </tbody>
         </Table>
 
-        {/* Modal for editing */}
+        {/* Modal for adding/editing */}
         <Modal show={showModal} onHide={handleModalClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Update Forum State</Modal.Title>
+            <Modal.Title>{selectedForum ? "Update Forum State" : "Add New Forum"}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {selectedForum && (
+            {selectedForum ? (
               <Form>
                 {selectedForum.forum_status ? (
                   <>
@@ -243,6 +300,43 @@ const Forums = () => {
                     </Form.Group>
                   </>
                 )}
+              </Form>
+            ) : (
+              <Form>
+                <Form.Group className="mb-3" controlId="newForumTitle">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter title"
+                    value={newForumTitle}
+                    onChange={(e) => setNewForumTitle(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="newForumContent">
+                  <Form.Label>Content</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder="Enter content"
+                    value={newForumContent}
+                    onChange={(e) => setNewForumContent(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="selectSubarea">
+                  <Form.Label>Select Subarea</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={selectedSubarea}
+                    onChange={(e) => setSelectedSubarea(e.target.value)}
+                  >
+                    <option value="">Select Subarea</option>
+                    {subareas.map((subarea) => (
+                      <option key={subarea.sub_area_id} value={subarea.sub_area_id}>
+                        {subarea.title}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
               </Form>
             )}
           </Modal.Body>
