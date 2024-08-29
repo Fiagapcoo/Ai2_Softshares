@@ -67,8 +67,9 @@ const CreateEvent = ({ edit = false }) => {
     if (edit && event_id) {
       const fetchEventData = async () => {
         try {
-          const response = await api.get(`/event/get/${event_id}`);
-          const event = response.data.data;
+          const response = await api.get(`/dynamic/get-event/${event_id}`);
+          const event = response.data.data.event_;
+          console.log(event);
           setSelectedSubArea(event.sub_area_id);
           setEventName(event.name);
           setDescription(event.description);
@@ -77,15 +78,15 @@ const CreateEvent = ({ edit = false }) => {
             lat: parseFloat(event.event_location.split(" ")[0]),
             lng: parseFloat(event.event_location.split(" ")[1]),
           });
+          
 
           const formattedDate = event.event_date.split("T")[0];
           setEventDate(formattedDate);
           setMaxParticipants(event.max_participants);
           setVerified(event.verified);
 
-          // Set the startTime and endTime from the event data if available
-          setStartTime(event.start_time || ""); // Assuming `start_time` exists in the event object
-          setEndTime(event.end_time || "");     // Assuming `end_time` exists in the event object
+          setStartTime(event.start_time || "");
+          setEndTime(event.end_time || "");
         } catch (error) {
           console.error(error);
         }

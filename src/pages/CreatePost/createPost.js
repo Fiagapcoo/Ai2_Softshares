@@ -58,7 +58,8 @@ const CreatePost = ({ edit = false }) => {
         try {
           const response = await api.get(`/dynamic/get-post/${post_id}`);
           const post = response.data;
-          setSelectedSubArea(post.SubArea.sub_area_id);
+          console.log(post);
+          setSelectedSubArea(post.sub_area_id);
           setPostTitle(post.title);
           setDescription(post.content);
           console.log(post.filepath);

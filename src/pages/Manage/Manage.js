@@ -179,7 +179,7 @@ const Manage = () => {
     setEvents(events.filter((event) => event.event_id !== eventId));
   };
 
-  const handleValidateClick = (item, type) => {
+  const handleValidateClick = (item, type) => { 
     if (type === "post") {
       setSelectedPost(item);
       setShowPostPopup(true);

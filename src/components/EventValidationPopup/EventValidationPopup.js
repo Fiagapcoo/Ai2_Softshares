@@ -7,13 +7,12 @@ import api from "../../api";
 
 const EventValidationPopup = ({ show, handleClose, event, user, onValidate, onReject }) => {
   const [actualEvent, setActualEvent] = useState(null);
-
   useEffect(() => {
     if (event) {
       const fetchEventDetail = async () => {
         try {
           const response = await api.get(`/dynamic/get-event/${event.event_id}`);
-          setActualEvent(response.data.data.event);
+          setActualEvent(response.data.data.event_);
         } catch (error) {
           console.error("Error fetching event detail", error);
         }

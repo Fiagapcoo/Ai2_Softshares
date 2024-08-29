@@ -169,6 +169,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
                     id={post.event_id}
                     date={formatDate(post.event_date)}
                     token={token}
+                    showOptions={true}
                   />
                 )
               )
