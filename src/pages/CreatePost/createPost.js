@@ -329,7 +329,7 @@ const CreatePost = ({ edit = false }) => {
                     className="w-25 softinsaButtonn"
                     onClick={handleUpdate}
                   >
-                    Update Event
+                    Update Publication
                   </Button>
                 ) : (
                   <Button
@@ -338,7 +338,7 @@ const CreatePost = ({ edit = false }) => {
                     className="w-25 softinsaButtonn"
                     onClick={handleSubmit}
                   >
-                    Create Event
+                    Create Publication
                   </Button>
                 )}
               </div>

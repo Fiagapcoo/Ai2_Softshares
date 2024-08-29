@@ -12,6 +12,7 @@ import ButtonWithIcon from "../../components/ButtonWithIcon/ButtonWithIcon";
 import ParentComponent from "../../components/ParentComponent/ParentComponent";
 import PostValidationPopup from "../../components/PostValidationPopup/PostValidationPopup";
 import EventValidationPopup from "../../components/EventValidationPopup/EventValidationPopup";
+import ForumValidationPopup from "../../components/ForumValidationPopup/ForumValidationPopup";
 import ForumCard from "../../components/ForumCard/ForumCard";
 import Authentication from "../../Auth.service";
 import api from "../../api";
@@ -44,8 +45,10 @@ const Manage = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [showPostPopup, setShowPostPopup] = useState(false);
   const [showEventPopup, setShowEventPopup] = useState(false);
+  const [showForumPopup, setShowForumPopup] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedForum, setSelectedForum] = useState(null);
   const [filteredArea, setFilteredArea] = useState("");
 
   useEffect(() => {
@@ -186,6 +189,9 @@ const Manage = () => {
     } else if (type === "event") {
       setSelectedEvent(item);
       setShowEventPopup(true);
+    }else if (type === "forum") {
+      setSelectedForum(item);
+      setShowForumPopup(true);
     }
   };
 
@@ -296,23 +302,20 @@ const Manage = () => {
               <Row>
                 <h1 className="title my-4">Validate Forums</h1>
                 <div className="d-flex flex-wrap justify-content-start">
-                  {forums.map((event) => (
+                  {forums.map((forum) => (
                     <Col
                       xs={12}
                       md={4}
                       lg={3}
-                      key={event.forum_id}
+                      key={forum.forum_id}
                       className="mb-4"
                     >
                       <ForumCard
-                      id={event.forum_id}
-                      title={event.title}
-                      content={event.content}
-                      onValidate = {true}
+                      id={forum.forum_id}
+                      title={forum.title}
+                      content={forum.content}
+                      onValidate = {() => handleValidateClick(forum, "forum")}
                       showOptions = {true}
-                      
-                      
-                      
                       />
                     </Col>
                   ))}
@@ -353,6 +356,13 @@ const Manage = () => {
         onValidate={handleValidateEvents}
         onReject={handleRejectEvents}
         event={selectedEvent}
+      />
+
+      <ForumValidationPopup
+        show={showForumPopup}
+        handleClose={handleClose}
+        user={user}
+        forum={selectedForum}
       />
     </>
   );
