@@ -12,7 +12,7 @@ import {
 import Swal from "sweetalert2";
 import "./Forum.css";
 import api from "../../api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useHistory } from "react-router-dom";
 import Authentication from "../../Auth.service";
 
 const Forums = () => {
@@ -49,9 +49,16 @@ const Forums = () => {
       try {
         const response = await api.get("/dynamic/all-content");
         if (user.office_id === 0) {
-          setForums(response.data.forums.filter(forum => forum.validated === true));
+          setForums(
+            response.data.forums.filter((forum) => forum.validated === true)
+          );
         } else {
-          setForums(response.data.forums.filter(forum => forum.validated === true && forum.office_id === user.office_id));
+          setForums(
+            response.data.forums.filter(
+              (forum) =>
+                forum.validated === true && forum.office_id === user.office_id
+            )
+          );
         }
       } catch (error) {
         console.error("Error fetching forums:", error);
@@ -60,7 +67,6 @@ const Forums = () => {
 
     fetchForums();
   }, [user]);
-
 
   useEffect(() => {
     const fetchSubareas = async () => {
@@ -73,7 +79,6 @@ const Forums = () => {
     };
 
     fetchSubareas();
-
   }, []);
 
   const handleEditClick = (forum) => {
@@ -100,22 +105,33 @@ const Forums = () => {
           state: updateStatus,
         };
 
-        await api.patch(`/forum/change-state/${selectedForum.forum_id}`, formData);
+        await api.patch(
+          `/forum/change-state/${selectedForum.forum_id}`,
+          formData
+        );
         setShowModal(false);
         Swal.fire("Success", "The Forum has been updated.", "success");
 
         // Refresh the data
         const response = await api.get("/dynamic/all-content");
         if (user.office_id === 0) {
-          setForums(response.data.forums.filter(forum => forum.validated === true));
+          setForums(
+            response.data.forums.filter((forum) => forum.validated === true)
+          );
         } else {
-          setForums(response.data.forums.filter(forum => forum.validated === true && forum.office_id === user.office_id));
+          setForums(
+            response.data.forums.filter(
+              (forum) =>
+                forum.validated === true && forum.office_id === user.office_id
+            )
+          );
         }
       } catch (error) {
         console.error("Error updating Forum:", error);
         Swal.fire(
           "Error!",
-          error.response?.data?.message || "An error occurred while updating the Forum.",
+          error.response?.data?.message ||
+            "An error occurred while updating the Forum.",
           "error"
         );
       }
@@ -136,12 +152,15 @@ const Forums = () => {
 
         // Refresh the data
         const response = await api.get("/dynamic/all-content");
-        setForums(response.data.forums.filter(forum => forum.validated === true));
+        setForums(
+          response.data.forums.filter((forum) => forum.validated === true)
+        );
       } catch (error) {
         console.error("Error adding Forum:", error);
         Swal.fire(
           "Error!",
-          error.response?.data?.message || "An error occurred while adding the Forum.",
+          error.response?.data?.message ||
+            "An error occurred while adding the Forum.",
           "error"
         );
       }
@@ -176,6 +195,7 @@ const Forums = () => {
             </Button>
           </Col>
         </Row>
+
         <Table
           striped
           bordered
@@ -195,7 +215,11 @@ const Forums = () => {
           </thead>
           <tbody>
             {forums.map((forum) => (
-              <tr key={forum.sub_area_id}>
+              <tr
+                key={forum.sub_area_id}
+                onClick={() => navigate(`/forum/${forum.forum_id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <td>{forum.title}</td>
                 <td>{forum.content}</td>
                 <td>
@@ -205,7 +229,9 @@ const Forums = () => {
                     <span style={{ color: "red" }}>Inactive</span>
                   )}
                 </td>
-                <td>
+                <td
+                  onClick={(e) => e.stopPropagation()} // Prevents the row click from triggering when clicking the buttons
+                >
                   <Button
                     variant="primary"
                     className="me-2"
@@ -231,9 +257,7 @@ const Forums = () => {
                       }).then(async (result) => {
                         if (result.isConfirmed) {
                           try {
-                            await api.delete(
-                              `/forum/delete/${forum.forum_id}`
-                            );
+                            await api.delete(`/forum/delete/${forum.forum_id}`);
                             Swal.fire(
                               "Deleted!",
                               "The Forum has been deleted.",
@@ -249,7 +273,8 @@ const Forums = () => {
                             console.error("Error deleting Forum:", error);
                             Swal.fire(
                               "Error!",
-                              error.response?.data?.message || "An error occurred.",
+                              error.response?.data?.message ||
+                                "An error occurred.",
                               "error"
                             );
                           }
@@ -268,7 +293,9 @@ const Forums = () => {
         {/* Modal for adding/editing */}
         <Modal show={showModal} onHide={handleModalClose}>
           <Modal.Header closeButton>
-            <Modal.Title>{selectedForum ? "Update Forum State" : "Add New Forum"}</Modal.Title>
+            <Modal.Title>
+              {selectedForum ? "Update Forum State" : "Add New Forum"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {selectedForum ? (
@@ -331,7 +358,10 @@ const Forums = () => {
                   >
                     <option value="">Select Subarea</option>
                     {subareas.map((subarea) => (
-                      <option key={subarea.sub_area_id} value={subarea.sub_area_id}>
+                      <option
+                        key={subarea.sub_area_id}
+                        value={subarea.sub_area_id}
+                      >
                         {subarea.title}
                       </option>
                     ))}

@@ -29,6 +29,7 @@ import Area from './pages/Area/Area';
 import Subarea from './pages/Subarea/Subarea';
 import Forums from './pages/Forum/Forum';
 import AlbumDetail from './pages/AlbumDetail/AlbumDetail';
+import ForumDetail from './pages/ForumDetail/ForumDetail';
 
 
 const App = () => {
@@ -37,34 +38,35 @@ const App = () => {
   return (
     <Router>
       <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-         <Route path="/login" element={<Login />} />
-         <Route path="/signup" element={<SignUp />} />
-         <Route path="/SignUpKeyCode" element={<SignUpKeyCode />} />
+         <Route path="/" element={<Navigate to="/login" />}/>
+         <Route path="/login" element={<Login />}/>
+         <Route path="/signup" element={<SignUp />}/>
+         <Route path="/SignUpKeyCode" element={<SignUpKeyCode />}/>
          <Route path="/selectcity" element={<SelectCity />}/>
-         <Route path="/homepage" element={<Homepage />} />
-         <Route path="/profile" element={<Profile />} />
-         <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />} />
+         <Route path="/homepage" element={<Homepage />}/>
+         <Route path="/profile" element={<Profile />}/>
+         <Route path="/posts" element={<PostsOrEvents type="Post" CreateRoute='/createPost' />}/>
          <Route path="/events" element={<PostsOrEvents type="Event" CreateRoute="/createEvent" />}/>
          <Route path="/manage" element={<Manage/>}/>
          <Route path='/OC' element={<OC/>}/>
          <Route path='/createPost' element={<CreatePost/>}/>
          <Route path='/createEvent' element={<CreateEvent/>}/>
-         <Route path="/dashboard" element={<Dashboard/>} />
+         <Route path="/dashboard" element={<Dashboard/>}/>
          <Route path="/addArea" element={<CreateArea/>}/>
          <Route path="/addSubArea" element={<CreateSubarea/>}/>
-         <Route path='/setup-password/:mashup' element={<SetupPassword/>}></Route>
-         <Route path='/posts/:post_id' element={ <PostDetail/>}></Route>
-         <Route path='/event/:event_id' element={<EventDetail/>}></Route>
-         <Route path='/createAdmin' element={<CreateAdmin/>}></Route>
-         <Route path='/albums' element={<Albums/>}></Route>
-         <Route path='/editPost/:post_id' element={<CreatePost edit={true}/>}></Route>
-         <Route path='/editEvent/:event_id' element={<CreateEvent edit={true}/>}></Route>
-         <Route path='/area' element={<Area/>}></Route>
-         <Route path='/subArea' element={<Subarea/>}></Route>
-         <Route path='/forum' element={<Forums/>}></Route>
-         <Route path='/album/:album_id' element={<AlbumDetail/>}></Route>
-         <Route path="/*" element={<NotFoundPage/>} />
+         <Route path='/setup-password/:mashup' element={<SetupPassword/>}/>
+         <Route path='/posts/:post_id' element={ <PostDetail/>}/>
+         <Route path='/event/:event_id' element={<EventDetail/>}/>
+         <Route path='/createAdmin' element={<CreateAdmin/>}/>
+         <Route path='/albums' element={<Albums/>}/>
+         <Route path='/editPost/:post_id' element={<CreatePost edit={true}/>}/>
+         <Route path='/editEvent/:event_id' element={<CreateEvent edit={true}/>}/>
+         <Route path='/area' element={<Area/>}/>
+         <Route path='/subArea' element={<Subarea/>}/>
+         <Route path='/forum' element={<Forums/>}/>
+         <Route path='/album/:album_id' element={<AlbumDetail/>}/>
+         <Route path='/forum/:forum_id' element={<ForumDetail/>}/>
+         <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>
   );

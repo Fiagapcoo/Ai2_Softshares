@@ -62,6 +62,12 @@ const PostDetail = () => {
 
     fetchPostDetail();
     fetchComments();
+
+    const interval = setInterval(() => {
+      fetchComments();
+    }, 3000); // Reload every 3 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, [post_id, token]);
 
   useEffect(() => {
