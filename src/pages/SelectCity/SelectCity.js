@@ -4,8 +4,10 @@ import Card from '../../components/Card/Card';
 import './SelectCity.css';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 const SelectCity = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState({ email: '', firstName: '', lastName: '' });
   const [city, setCity] = useState([]);
   const [selectedCity, setSelectedCity] = useState('');
@@ -45,22 +47,27 @@ const SelectCity = () => {
         lastName: lastName,
         centerId: selectedCity,
       });
-
+  
       console.log('Response:', res);
       Swal.fire({
         icon: 'success',
         title: 'User registered successfully',
         text: 'Please check your email for the activation link',
+      }).then(() => {
+        navigate('/');
       });
     } catch (error) {
       console.error('Error registering user:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error registering user',
-        text: error.response.data.message,
+        text: error.response?.data?.message || 'An error occurred during registration',
+      }).then(() => {
+        navigate('/signup');
       });
     }
   };
+  
 
   return (
     <div className="selectcity">
