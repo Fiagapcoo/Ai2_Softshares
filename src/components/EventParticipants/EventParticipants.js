@@ -34,6 +34,7 @@ const EventParticipantComponent = ({ EventID, token }) => {
                 .toLowerCase()
                 .includes(search.toLowerCase())
         );
+        console.log(filtered);
         setFilteredParticipants(filtered);
     }, [search, participants]);
 
