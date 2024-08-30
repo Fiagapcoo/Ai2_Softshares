@@ -16,7 +16,7 @@ const EventParticipantComponent = ({ EventID, token }) => {
                 //         Authorization: `Bearer ${token}`,
                 //     },
                 // });
-                const response = await api.get(`/event/get-participants/${EventID}`);
+                const response = await api.get(`/event/get-participants-adm/${EventID}`);
                 console.log(response.data);
                 setParticipants(response.data.data);
                 setFilteredParticipants(response.data.data);
