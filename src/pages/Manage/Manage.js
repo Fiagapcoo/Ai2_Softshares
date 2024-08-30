@@ -236,6 +236,12 @@ const Manage = () => {
                 navigate("/forum");
               }}
             />
+             <ButtonWithIcon
+              text={`Reports`}
+              onClick={() => {
+                navigate("/reports");
+              }}
+            />
             <div className="center-calendar">
               <Calendar token={token} user={user} />
             </div>

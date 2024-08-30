@@ -30,6 +30,7 @@ import Subarea from './pages/Subarea/Subarea';
 import Forums from './pages/Forum/Forum';
 import AlbumDetail from './pages/AlbumDetail/AlbumDetail';
 import ForumDetail from './pages/ForumDetail/ForumDetail';
+import Reports from './pages/Reports/Reports';
 
 
 const App = () => {
@@ -66,6 +67,7 @@ const App = () => {
          <Route path='/forum' element={<Forums/>}/>
          <Route path='/album/:album_id' element={<AlbumDetail/>}/>
          <Route path='/forum/:forum_id' element={<ForumDetail/>}/>
+          <Route path='/reports' element={<Reports/>}/>
          <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>
