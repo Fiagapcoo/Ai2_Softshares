@@ -97,8 +97,8 @@ const Manage = () => {
             postsData = postsData.filter((post) => !post.validated);
             forumsData = forumsData.filter((forum) => !forum.validated);
           }
-          eventsData = eventsData.filter(
-            (event) => isInFuture(event.event_date)
+          eventsData = eventsData.filter((event) =>
+            isInFuture(event.event_date)
           );
 
           if (filteredArea) {
@@ -125,7 +125,6 @@ const Manage = () => {
           setEvents(eventsData);
           setForums(forumsData);
           console.log("forums", forumsData);
-
         } catch (error) {
           console.error("Error fetching posts", error);
         }
@@ -140,7 +139,6 @@ const Manage = () => {
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-
   }, [token, user, filteredArea]);
 
   useEffect(() => {
@@ -148,7 +146,9 @@ const Manage = () => {
       try {
         const response = await api.get("/user/get-users-to-validate");
         console.log("Users to validate", response.data.data);
-        setUsersToValidate(response.data.data.filter((user) => user.hashed_password !== null));
+        setUsersToValidate(
+          response.data.data.filter((user) => user.hashed_password !== null)
+        );
         console.log("Users to validate", usersToValidate);
       } catch (error) {
         console.log("Error fetching users to validate", error);
@@ -163,7 +163,6 @@ const Manage = () => {
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-
   }, [token, user]);
 
   const handleValidatePosts = (postId) => {
@@ -182,14 +181,14 @@ const Manage = () => {
     setEvents(events.filter((event) => event.event_id !== eventId));
   };
 
-  const handleValidateClick = (item, type) => { 
+  const handleValidateClick = (item, type) => {
     if (type === "post") {
       setSelectedPost(item);
       setShowPostPopup(true);
     } else if (type === "event") {
       setSelectedEvent(item);
       setShowEventPopup(true);
-    }else if (type === "forum") {
+    } else if (type === "forum") {
       setSelectedForum(item);
       setShowForumPopup(true);
     }
@@ -236,12 +235,27 @@ const Manage = () => {
                 navigate("/forum");
               }}
             />
-             <ButtonWithIcon
+            <ButtonWithIcon
               text={`Reports`}
               onClick={() => {
                 navigate("/reports");
               }}
             />
+
+            <ButtonWithIcon
+              text={`Forms`}
+              onClick={() => {
+                navigate("/forms");
+              }}
+            />
+
+            <ButtonWithIcon
+              text={`Warnings`}
+              onClick={() => {
+                navigate("/warnings");
+              }}
+            />
+
             <div className="center-calendar">
               <Calendar token={token} user={user} />
             </div>
@@ -317,11 +331,11 @@ const Manage = () => {
                       className="mb-4"
                     >
                       <ForumCard
-                      id={forum.forum_id}
-                      title={forum.title}
-                      content={forum.content}
-                      onValidate = {() => handleValidateClick(forum, "forum")}
-                      showOptions = {true}
+                        id={forum.forum_id}
+                        title={forum.title}
+                        content={forum.content}
+                        onValidate={() => handleValidateClick(forum, "forum")}
+                        showOptions={true}
                       />
                     </Col>
                   ))}

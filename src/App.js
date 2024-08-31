@@ -31,6 +31,8 @@ import Forums from './pages/Forum/Forum';
 import AlbumDetail from './pages/AlbumDetail/AlbumDetail';
 import ForumDetail from './pages/ForumDetail/ForumDetail';
 import Reports from './pages/Reports/Reports';
+import Forms from './pages/Forms/Forms';
+import Warnings from './pages/Warnings/Warnings';
 
 
 const App = () => {
@@ -67,7 +69,9 @@ const App = () => {
          <Route path='/forum' element={<Forums/>}/>
          <Route path='/album/:album_id' element={<AlbumDetail/>}/>
          <Route path='/forum/:forum_id' element={<ForumDetail/>}/>
-          <Route path='/reports' element={<Reports/>}/>
+         <Route path='/reports' element={<Reports/>}/>
+         <Route path='/forms' element={<Forms/>}/>
+         <Route path='/warnings' element={<Warnings/>}/>
          <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>
