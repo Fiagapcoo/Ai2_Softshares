@@ -15,6 +15,7 @@ const ForumDetail = () => {
   const [user, setUser] = useState(null);
   const [likes, setLikes] = useState([]);
   const [error, setError] = useState(null);
+  const [state, setState] = useState(false);
 
   useEffect(() => {
     document.title = "SoftShares - Forum Detail";
@@ -43,7 +44,17 @@ const ForumDetail = () => {
       }
     };
 
+    const fetchForum = async () => {
+      try {
+        const response = await api.get(`/dynamic/get-forum/${forum_id}`);
+        setState(response.data.forum_status);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
     fetchAllUsers();
+    fetchForum();
   }, []);
 
   useEffect(() => {
@@ -53,8 +64,8 @@ const ForumDetail = () => {
           `/comment/get-comment-tree/content/forum/id/${forum_id}`
         );
         // Sort comments by date
-        const sortedMessages = response.data.data.sort((a, b) =>
-          new Date(b.comment_date) - new Date(a.comment_date)
+        const sortedMessages = response.data.data.sort(
+          (a, b) => new Date(b.comment_date) - new Date(a.comment_date)
         );
         setForumMessages(sortedMessages);
       } catch (error) {
@@ -99,8 +110,8 @@ const ForumDetail = () => {
       const response = await api.get(
         `/comment/get-comment-tree/content/forum/id/${forum_id}`
       );
-      const sortedMessages = response.data.data.sort((a, b) =>
-        new Date(b.comment_date) - new Date(a.comment_date)
+      const sortedMessages = response.data.data.sort(
+        (a, b) => new Date(b.comment_date) - new Date(a.comment_date)
       );
       setForumMessages(sortedMessages);
     } catch (error) {
@@ -190,13 +201,26 @@ const ForumDetail = () => {
             ))}
           </div>
           <div className="message-input">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
+            {state ? (
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+            ) : (
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={true}
+                title="Disabled"
+              />
+            )}
+
             <button type="button" onClick={handleSendComment}>
               Send
             </button>
