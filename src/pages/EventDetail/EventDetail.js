@@ -24,6 +24,7 @@ const EventDetail = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [forums, setForums] = useState([]);
   const [selectedForum, setSelectedForum] = useState(null);
+  const [state, setState] = useState(false);
 
   useEffect(() => {
     document.title = "SoftShares - Event Detail";
@@ -36,7 +37,18 @@ const EventDetail = () => {
       }
     };
 
+    const fetchForum = async () => {
+      try {
+        const response = await api.get(`/dynamic/get-forum/${event_id}`);
+        setState(response.data.forum_status);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+
     checkCurrentUser();
+    fetchForum();
   }, []);
 
   useEffect(() => {
@@ -329,13 +341,25 @@ const EventDetail = () => {
                 ))}
               </div>
               <div className="message-input">
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                />
+              {state ? (
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+            ) : (
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={true}
+                title="Disabled"
+              />
+            )}
                 <button type="button" onClick={handleSendComment}>
                   Send
                 </button>
