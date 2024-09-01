@@ -339,6 +339,7 @@ const EventDetail = () => {
                 <button type="button" onClick={handleSendComment}>
                   Send
                 </button>
+                <a className="btn btn-primary" href={`/forum/${event_id}`}>Go To Form</a>
               </div>
             </div>
           </div>
