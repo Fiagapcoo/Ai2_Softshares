@@ -112,6 +112,15 @@ const Card = ({ id = null, title = null, content = null, onValidate = false, sho
             </div>
           </>
         )}
+        {!showOptions && (
+        <>
+        <div className="ml-auto2">
+          <small className="text-muted">
+            {thisForum.PublisherFirstName} {thisForum.PublisherLastName}
+          </small>
+        </div>
+      </>
+        )}
       </div>
 
       {/* Edit Modal */}

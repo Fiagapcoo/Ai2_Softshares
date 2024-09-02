@@ -11,6 +11,7 @@ import './Homepage.css';
 import api from '../../api';
 import Authentication from '../../Auth.service';
 import Swal from 'sweetalert2';
+import ForumCard from '../../components/ForumCard/ForumCard';
 
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -201,6 +202,21 @@ const Homepage = () => {
                 token={token}
               />
             ))}
+            {forum.map((forum) => (
+                    <Col
+                      xs={12}
+                      md={4}
+                      lg={3}
+                      key={forum.forum_id}
+                      className="mb-4"
+                    >
+                      <ForumCard
+                        id={forum.forum_id}
+                        title={forum.title}
+                        content={forum.content}
+                      />
+                    </Col>
+                  ))}
           </Col>
         </Row>
       </Container>
