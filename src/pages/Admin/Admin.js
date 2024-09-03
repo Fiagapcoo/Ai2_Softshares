@@ -302,7 +302,7 @@ const Admin = () => {
                 value={selectedOffice}
                 onChange={(e) => setSelectedOffice(e.target.value)}
               >
-                <option value="" disabled>
+                <option value="" disabled selected>
                   Select an option
                 </option>
                 {offices.map((office, index) => (
