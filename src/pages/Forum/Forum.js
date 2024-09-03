@@ -244,7 +244,8 @@ const Forums = () => {
                     Update
                   </Button>
                   <Button
-                    variant="danger"
+                    variant="secondary"
+                    disabled
                     onClick={() => {
                       Swal.fire({
                         title: "Are you sure?",
