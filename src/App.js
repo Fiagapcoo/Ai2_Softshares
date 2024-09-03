@@ -34,6 +34,7 @@ import Reports from './pages/Reports/Reports';
 import Forms from './pages/Forms/Forms';
 import Warnings from './pages/Warnings/Warnings';
 import Admin from './pages/Admin/Admin';
+import CreateOC from './pages/CreateOC/CreateOC';
 
 
 const App = () => {
@@ -74,6 +75,7 @@ const App = () => {
          <Route path='/forms' element={<Forms/>}/>
          <Route path='/warnings' element={<Warnings/>}/>
          <Route path='/admins' element={<Admin/>}/>
+         <Route path='/add-center' element={<CreateOC/>}/>
          <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>
