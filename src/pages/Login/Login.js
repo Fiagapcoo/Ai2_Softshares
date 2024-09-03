@@ -36,6 +36,7 @@ const Login = () => {
 
     try {
       const response = await Authentication.login(email, password);
+      console.log(response);
 
       const token = localStorage.getItem('token');
 

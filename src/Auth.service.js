@@ -2,23 +2,31 @@ import axios from 'axios';
 
 class Authentication {
     async login(email, password) {
+        
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, {
                 email,
                 password 
             });
 
-            console.log(response);
             
+
 
             if (response.data.success) {
                 localStorage.setItem('token', JSON.stringify(response.data.token));
                 localStorage.setItem('refreshToken', JSON.stringify(response.data.refreshToken));
                 return response.data;
             } else {
-                return null;
+                window.location.href = '/signup';
+                
             }
         } catch (error) {
+            console.log(error);
+            if(error.response.data.success == false){
+                console.log("AA");
+                localStorage.setItem('tempReset', JSON.stringify(error.response.data.redirect));
+                window.location.href = '/reset-password';
+            }
             return error.response.data;
         }
     }

@@ -35,6 +35,7 @@ import Forms from './pages/Forms/Forms';
 import Warnings from './pages/Warnings/Warnings';
 import Admin from './pages/Admin/Admin';
 import CreateOC from './pages/CreateOC/CreateOC';
+import ResetPassWD from './pages/ChangePassword/ChangePassword';
 
 
 const App = () => {
@@ -76,6 +77,7 @@ const App = () => {
          <Route path='/warnings' element={<Warnings/>}/>
          <Route path='/admins' element={<Admin/>}/>
          <Route path='/add-center' element={<CreateOC/>}/>
+         <Route path='/reset-password' element={<ResetPassWD/>}/>
          <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>
