@@ -87,7 +87,9 @@ const AlbumsPage = () => {
         filePath: uploadResponse.data.file.filename,
       };
 
-      await api.post(`/media/add-photo/${album_id}/${user.user_id}`, formData, {
+      console.log("formData", formData);
+
+      await api.post(`/media/add-photo/album/${album_id}/${user.user_id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
