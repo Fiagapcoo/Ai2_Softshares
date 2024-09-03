@@ -33,6 +33,7 @@ import ForumDetail from './pages/ForumDetail/ForumDetail';
 import Reports from './pages/Reports/Reports';
 import Forms from './pages/Forms/Forms';
 import Warnings from './pages/Warnings/Warnings';
+import Admin from './pages/Admin/Admin';
 
 
 const App = () => {
@@ -72,6 +73,7 @@ const App = () => {
          <Route path='/reports' element={<Reports/>}/>
          <Route path='/forms' element={<Forms/>}/>
          <Route path='/warnings' element={<Warnings/>}/>
+         <Route path='/admins' element={<Admin/>}/>
          <Route path="/*" element={<NotFoundPage/>}/>
       </Routes>
     </Router>

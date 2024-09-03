@@ -227,6 +227,12 @@ const Manage = () => {
                     navigate("/subArea");
                   }}
                 />
+                <ButtonWithIcon
+                  text={`Admins`}
+                  onClick={() => {
+                    navigate("/admins");
+                  }}
+                />
               </>
             )}
             <ButtonWithIcon
