@@ -87,7 +87,7 @@ const Warnings = () => {
       admin_id: user.user_id,
       office_id: user.office_id,
     };
-
+    
     api
       .post("/administration/create-warnings", teste)
       .then((res) => {
