@@ -36,22 +36,57 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    const fetchOldPreferences = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get("/user/get-user-preferences");
-        setOldPreferences(response.data.preferences);
-        setSelectedSubareas(response.data.preferences); // Set initial selected subareas
+        const areasResponse = await api.get("/categories/get-areas");
+        const subtopicsResponse = await api.get("/categories/get-sub-areas");
+        setAreas(areasResponse.data.data);
+        setSubtopics(subtopicsResponse.data.data);
       } catch (error) {
-        if (error.response && error.response.status === 404) {
-          setCreatePreferences(true);
-        } else {
-          console.error("Error fetching user preferences", error);
-        }
+        console.error("Error fetching areas and subtopics", error);
       }
     };
 
-    fetchOldPreferences();
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    if (Areas.length > 0 && Subtopics.length > 0) {
+      const fetchOldPreferences = async () => {
+        try {
+          const response = await api.get("/user/get-user-preferences");
+          const notificationsTopic = response.data.data.notifications_topic;
+          setOldPreferences(notificationsTopic);
+
+          // Flatten the subareas from notificationsTopic into selectedSubareas
+          const selectedSubareas = notificationsTopic.flatMap((item) =>
+            item.subareas
+              .map((subarea) => {
+                const matchingSubtopic = Subtopics.find(
+                  (sub) =>
+                    sub.title === subarea &&
+                    sub.area_id ===
+                      Areas.find((area) => area.title === item.area).area_id
+                );
+                return matchingSubtopic
+                  ? matchingSubtopic.sub_area_id.toString()
+                  : null;
+              })
+              .filter(Boolean)
+          );
+          setSelectedSubareas(selectedSubareas); // Set initial selected subareas
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setCreatePreferences(true);
+          } else {
+            console.error("Error fetching user preferences", error);
+          }
+        }
+      };
+
+      fetchOldPreferences();
+    }
+  }, [Subtopics, Areas]);
 
   const handleLogout = () => {
     Swal.fire({
@@ -70,70 +105,62 @@ const Profile = () => {
 
   const updateUserPreferences = async () => {
     const notificationsTopic = Areas.map((area) => {
-      const subareasInArea = Subtopics.filter(
-        (sub) => sub.area_id === area.area_id && selectedSubareas.includes(sub.sub_area_id.toString())
-      ).map((sub) => sub.title);
-
-      if (subareasInArea.length > 0) {
-        return {
-          area: area.title,
-          subareas: subareasInArea,
-        };
+        const subareasInArea = Subtopics.filter(
+          (sub) => sub.area_id === area.area_id && selectedSubareas.includes(sub.sub_area_id.toString())
+        ).map((sub) => sub.title);
+  
+        if (subareasInArea.length > 0) {
+          return {
+            area: area.title,
+            subareas: subareasInArea,
+          };
+        }
+        return null;
+      }).filter((topic) => topic !== null);
+  
+      console.log(notificationsTopic); // To verify the structure before sending
+  
+      if (createPreferences) {
+        try {
+          const response = await api.post("/user/create-user-preferences", {
+            notificationsTopic: JSON.stringify(notificationsTopic),
+          });
+          console.log(response.data);
+          Swal.fire({
+            title: "Preferences created successfully!",
+            icon: "success",
+          });
+          handleCloseModal();
+        } catch (error) {
+          console.error("Error creating preferences", error);
+          Swal.fire({
+            title: "An error occurred while creating preferences",
+            icon: "error",
+          });
+        }
+      } else {
+        try {
+            const response = await api.patch(`/user/update-user-preferences/${user.user_id}`, {
+                preferences: JSON.stringify(notificationsTopic),
+            });
+            console.log(response.data);
+            Swal.fire({
+              title: "Preferences created successfully!",
+              icon: "success",
+            });
+            handleCloseModal();
+          } catch (error) {
+            console.error("Error creating preferences", error);
+            Swal.fire({
+              title: "An error occurred while creating preferences",
+              icon: "error",
+            });
+          }
       }
-      return null;
-    }).filter((topic) => topic !== null);
-
-    console.log(notificationsTopic); // To verify the structure before sending
-
-    if (createPreferences) {
-      try {
-        const response = await api.post("/user/create-user-preferences", {
-          notificationsTopic: JSON.stringify(notificationsTopic),
-        });
-        console.log(response.data);
-        Swal.fire({
-          title: "Preferences created successfully!",
-          icon: "success",
-        });
-        handleCloseModal();
-      } catch (error) {
-        console.error("Error creating preferences", error);
-        Swal.fire({
-          title: "An error occurred while creating preferences",
-          icon: "error",
-        });
-      }
-    } else {
-      // Update existing preferences logic
-    }
   };
-
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-
-  useEffect(() => {
-    const fetchAreas = async () => {
-      try {
-        const response = await api.get("/categories/get-areas");
-        setAreas(response.data.data);
-      } catch (error) {
-        console.error("Error fetching areas", error);
-      }
-    };
-
-    const fetchSubtopics = async () => {
-      try {
-        const response = await api.get("/categories/get-sub-areas");
-        setSubtopics(response.data.data);
-      } catch (error) {
-        console.error("Error fetching subtopics", error);
-      }
-    };
-
-    fetchAreas();
-    fetchSubtopics();
-  }, []);
 
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -242,29 +269,25 @@ const Profile = () => {
         <Modal.Body>
           <Form.Group controlId="subareaSelect">
             <Form.Label>Select Subareas</Form.Label>
-            {createPreferences ? (
-              Areas.map((area) => (
-                <div key={area.area_id}>
-                  <h5>{area.title}</h5>
-                  {Subtopics.filter((sub) => sub.area_id === area.area_id).map(
-                    (sub) => (
-                      <Form.Check
-                        key={sub.sub_area_id}
-                        type="checkbox"
-                        label={sub.title}
-                        value={sub.sub_area_id.toString()}
-                        checked={selectedSubareas.includes(
-                          sub.sub_area_id.toString()
-                        )}
-                        onChange={handleSubareaChange}
-                      />
-                    )
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>Loading preferences...</p>
-            )}
+            {Areas.map((area) => (
+              <div key={area.area_id}>
+                <h5>{area.title}</h5>
+                {Subtopics.filter((sub) => sub.area_id === area.area_id).map(
+                  (sub) => (
+                    <Form.Check
+                      key={sub.sub_area_id}
+                      type="checkbox"
+                      label={sub.title}
+                      value={sub.sub_area_id.toString()}
+                      checked={selectedSubareas.includes(
+                        sub.sub_area_id.toString()
+                      )}
+                      onChange={handleSubareaChange}
+                    />
+                  )
+                )}
+              </div>
+            ))}
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
