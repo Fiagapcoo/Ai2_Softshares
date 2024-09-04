@@ -20,6 +20,7 @@ const EditForm = () => {
                 const res = await api.get(`/form/event-form/${event.event_id}`);
                 const formFields = res.data.data;
                 setFormFields(formFields);
+                console.log("Form fields:", formFields);
             } catch (error) {
                 console.error("Error fetching form fields:", error);
             }
@@ -33,6 +34,8 @@ const EditForm = () => {
     const [showModal, setShowModal] = useState(false);
     const [newField, setNewField] = useState({ type: "", name: "", options: [] });
     const [jsonForm, setJsonForm] = useState([]);
+    const [fieldsAdded, setFieldsAdded] = useState([]);
+    const [fieldsDeleted, setFieldsDeleted] = useState([]);
 
     const addInfo = (label, options, type, id) => {
         const obj = {
@@ -57,22 +60,57 @@ const EditForm = () => {
     };
 
     const handleAddField = () => {
-        const allowedTypes = ["Radio", "Checkbox", "Text", "Number"];
-        if (!allowedTypes.includes(newField.type)) {
-            alert(`Invalid field type: ${newField.type}. Allowed types are Radio, Checkbox, Text, and Number.`);
+        if (!newField.name.trim()) {
+            alert("Field name is required");
             return;
         }
-
-        const fieldToAdd = { ...newField, field_id: Date.now() };
+        
+        const allowedTypes = ["Radio", "Checkbox", "Text", "Number"];
+        if (!allowedTypes.includes(newField.type)) {
+            alert(`Invalid field type: ${newField.type}.`);
+            return;
+        }
+    
+        // Create the fieldToAdd object based on the structure you need
+        const fieldToAdd = {
+            event_id: event.event_id,           // Add event_id from the event
+            field_id: Date.now(),               // Generate a unique ID for the field
+            def_field_id: null,                 // This is set to null as per your example
+            field_name: newField.name,          // Set field_name from the newField state
+            field_type: newField.type,          // Set field_type from the newField state
+            field_value: JSON.stringify(newField.options || []), // Defaulting to empty array
+            max_value: null,                    // Set to null (as per your example)
+            min_value: null                     // Set to null (as per your example)
+        };
+    
         console.log("Adding field:", fieldToAdd);
+    
+        // Update formFields with the new field
         setFormFields(prevFields => [...prevFields, fieldToAdd]);
+    
+        // Update fieldsAdded array with the new field's ID
+        setFieldsAdded(prevFieldsAdded => [...prevFieldsAdded, fieldToAdd.field_id]);
+    
+        // Update jsonForm to include the new field in JSON format
         addInfo(newField.name, newField.options, newField.type, fieldToAdd.field_id);
+    
+        // Close the modal after adding the field
         handleCloseModal();
     };
+    
+    
 
     const handleDeleteField = async (id) => {
         console.log(`Deleting field with id ${id}`);
+    
+        // Remove the field from the formFields state
         setFormFields(prevFields => prevFields.filter(field => field.field_id !== id));
+    
+        // Add the deleted field's ID to fieldsDeleted
+        setFieldsDeleted(prevFieldsDeleted => [...prevFieldsDeleted, id]);
+    
+        // If the field was added in this session (exists in fieldsAdded), remove it from fieldsAdded
+        setFieldsAdded(prevFieldsAdded => prevFieldsAdded.filter(fieldId => fieldId !== id));
     };
 
     const handleCloseModal = () => setShowModal(false);
@@ -105,19 +143,45 @@ const EditForm = () => {
         setNewField(prevField => ({ ...prevField, name }));
     };
 
-    const createF = async (event) => {
-        event.preventDefault();
+    const createF = async (events) => {
+        events.preventDefault();
         try {
+            console.log("event", event.event_id);
             const customFieldsJson = JSON.stringify(jsonForm);
-            const res = await api.post('/form/create-form', {
-                event_id: event.event_id,
-                customFieldsJson
-            });
-            console.log("Response from server:", res.data);
+            
+            // Check if fields were added
+            if (fieldsAdded.length > 0) {
+                console.log("Fields Added:", fieldsAdded.length);
+    
+                const res = await api.post(`/form/add-fields-to-form/event/${event.event_id}/fields/${customFieldsJson}`, {
+                    eventID: event.event_id,
+                    customFieldsJson,
+                    fieldsAdded // Passing the added fields
+                });
+                console.log("Response from server (fields added):", res.data);
+            } else {
+                console.log("No fields added.");
+            }
+    
+            // Check if fields were deleted
+            if (fieldsDeleted.length > 0) {
+                console.log("Fields deleted:", fieldsDeleted);
+    
+                // Assuming there's a separate API to handle field deletions
+               fieldsDeleted.forEach(async (fieldId) => {
+                    const res2 = await api.delete(`/form/delete-field/${event.event_id}/${fieldId}`);
+                    console.log("Response from server (fields deleted):", res2.data);
+               });
+                
+            } else {
+                console.log("No fields deleted.");
+            }
+            
         } catch (error) {
-            console.error("Error creating form:", error);
+            console.error("Error processing form:", error);
         }
     };
+    
 
     return (
         <div>
