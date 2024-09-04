@@ -271,17 +271,21 @@ const CreateEvent = ({ edit = false }) => {
         endTime: endTime
       };
 
-      await api.post("/event/create", {
+     const newEvent = await api.post("/event/create", {
         ...formData,
         officeId: "1",
         publisher_id: user.user_id,
       });
+
+      console.log(newEvent.data.data);
 
       Swal.fire({
         icon: "success",
         title: "Event Created",
         text: `Name: ${eventName}, Sub Area: ${selectedSubArea}`,
       });
+
+      navigate(`/createform/${newEvent.data.data}`);
 
       resetForm();
     } catch (error) {
