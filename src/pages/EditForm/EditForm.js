@@ -1,21 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col, Modal, InputGroup } from "react-bootstrap";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Navbar from "../../components/Navbar/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
-import './CreateForm.css';
+import './EditForm.css';
 import api from "../../api";
+import { useLocation } from 'react-router-dom';
 
-const CreateForm = () => {
+const EditForm = () => {
+    const location = useLocation();
+    const event = location.state?.event || {};
+
+    useEffect(() => {
+        document.title = `Edit Form ${event.name || ""}`;
+
+        const getFormFields = async () => {
+            try {
+                const res = await api.get(`/form/event-form/${event.event_id}`);
+                const formFields = res.data.data;
+                setFormFields(formFields);
+            } catch (error) {
+                console.error("Error fetching form fields:", error);
+            }
+        }
+
+        getFormFields();
+    }, [event]);
+
     const [formFields, setFormFields] = useState([]);
     const [formData, setFormData] = useState({});
     const [showModal, setShowModal] = useState(false);
     const [newField, setNewField] = useState({ type: "", name: "", options: [] });
     const [jsonForm, setJsonForm] = useState([]);
 
-    const addInfo = (label, options, type) => {
+    const addInfo = (label, options, type, id) => {
         const obj = {
+            field_id: id,
             field_name: label,
             field_type: type,
             field_value: JSON.stringify(options || []),
@@ -42,16 +63,28 @@ const CreateForm = () => {
             return;
         }
 
-        const fieldToAdd = { ...newField, id: Date.now() };
+        const fieldToAdd = { ...newField, field_id: Date.now() };
+        console.log("Adding field:", fieldToAdd);
         setFormFields(prevFields => [...prevFields, fieldToAdd]);
-        addInfo(newField.name, newField.options, newField.type);
+        addInfo(newField.name, newField.options, newField.type, fieldToAdd.field_id);
         handleCloseModal();
+    };
+
+    const handleDeleteField = async (id) => {
+        console.log(`Deleting field with id ${id}`);
+        setFormFields(prevFields => prevFields.filter(field => field.field_id !== id));
     };
 
     const handleCloseModal = () => setShowModal(false);
 
-    const handleInputChange = (id, value) => {
-        setFormData(prevData => ({ ...prevData, [id]: value }));
+    const handleInputChange = (id, value, type) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [id]: {
+                value: value,
+                type: type
+            }
+        }));
     };
 
     const handleRadioOptionChange = (optionIndex, value) => {
@@ -75,24 +108,22 @@ const CreateForm = () => {
     const createF = async (event) => {
         event.preventDefault();
         try {
-          const customFieldsJson = JSON.stringify(jsonForm);
-          const res = await api.post('/form/create-form-web', {
-            eventID: 2, // Update this to the actual event id
-            customFieldsJson,
-          });
-          console.log("Response from server:", res.data);
-          // Handle the response from the backend, e.g., display a success message
+            const customFieldsJson = JSON.stringify(jsonForm);
+            const res = await api.post('/form/create-form', {
+                event_id: event.event_id,
+                customFieldsJson
+            });
+            console.log("Response from server:", res.data);
         } catch (error) {
-          console.error("Error creating form:", error);
-          // Handle the error, e.g., display an error message
+            console.error("Error creating form:", error);
         }
-      };
+    };
 
     return (
         <div>
             <Navbar />
             <div className="container mt-4 down">
-                <h1>Create Form</h1>
+                <h1>{event.name}</h1>
                 <DropdownButton id="dropdown-basic-button" title="Add a field">
                     <Dropdown.Item onClick={() => handleShowModal("Text")}>Text Field</Dropdown.Item>
                     <Dropdown.Item onClick={() => handleShowModal("Number")}>Numeric Field</Dropdown.Item>
@@ -145,62 +176,74 @@ const CreateForm = () => {
 
                 <Form className="mt-4" onSubmit={createF}>
                     {formFields.map((field) => (
-                        <div key={field.id} className="mb-4">
-                            {field.type === "Text" && (
+                        <div key={field.field_id} className="mb-4">
+                            {field.field_type === "Text" && (
                                 <Form.Group as={Row} controlId={`text-${field.id}`}>
-                                    <Form.Label column sm={2}>{field.name || "Text Field"}:</Form.Label>
-                                    <Col sm={10}>
+                                    <Form.Label column sm={2}>{field.field_name || "Text Field"}:</Form.Label>
+                                    <Col sm={8}>
                                         <Form.Control
                                             type="text"
                                             placeholder="Enter text"
-                                            value={formData[field.id] || ""}
-                                            onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                            value={formData[field.id]?.value || ""}
+                                            onChange={(e) => handleInputChange(field.id, e.target.value, 'text')}
                                         />
+                                    </Col>
+                                    <Col sm={2}>
+                                        <Button variant="danger" onClick={() => handleDeleteField(field.field_id)}>Delete</Button>
                                     </Col>
                                 </Form.Group>
                             )}
-                            {field.type === "Number" && (
+                            {field.field_type === "Number" && (
                                 <Form.Group as={Row} controlId={`number-${field.id}`}>
-                                    <Form.Label column sm={2}>{field.name || "Numeric Field"}:</Form.Label>
-                                    <Col sm={10}>
+                                    <Form.Label column sm={2}>{field.field_name || "Numeric Field"}:</Form.Label>
+                                    <Col sm={8}>
                                         <Form.Control
                                             type="number"
                                             placeholder="Enter a number"
-                                            value={formData[field.id] || ""}
-                                            onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                            value={formData[field.id]?.value || ""}
+                                            onChange={(e) => handleInputChange(field.id, e.target.value, 'number')}
                                         />
+                                    </Col>
+                                    <Col sm={2}>
+                                        <Button variant="danger" onClick={() => handleDeleteField(field.field_id)}>Delete</Button>
                                     </Col>
                                 </Form.Group>
                             )}
-                            {field.type === "Checkbox" && (
+                            {field.field_type === "Checkbox" && (
                                 <Form.Group as={Row} controlId={`checkbox-${field.id}`}>
-                                    <Col sm={{ span: 10, offset: 2 }}>
+                                    <Col sm={8} offset={2}>
                                         <Form.Check
                                             type="checkbox"
-                                            label={field.name || "Checkbox"}
-                                            checked={formData[field.id] || false}
-                                            onChange={(e) => handleInputChange(field.id, e.target.checked)}
+                                            label={field.field_name || "Checkbox"}
+                                            checked={formData[field.id]?.value || false}
+                                            onChange={(e) => handleInputChange(field.id, e.target.checked, 'checkbox')}
                                         />
+                                    </Col>
+                                    <Col sm={2}>
+                                        <Button variant="danger" onClick={() => handleDeleteField(field.field_id)}>Delete</Button>
                                     </Col>
                                 </Form.Group>
                             )}
-                            {field.type === "Radio" && (
+                            {field.field_type === "Radio" && (
                                 <Form.Group as={Row} controlId={`radio-${field.id}`}>
                                     <Form.Label as="legend" column sm={2}>
-                                        {field.name || "Radio Buttons"}:
+                                        {field.field_name || "Radio Buttons"}:
                                     </Form.Label>
-                                    <Col sm={10}>
-                                        {field.options.map((option, optionIndex) => (
+                                    <Col sm={8}>
+                                        {JSON.parse(field.field_value).map((option, optionIndex) => (
                                             <Form.Check
                                                 type="radio"
                                                 label={option}
                                                 name={`radio-${field.id}`}
                                                 value={option}
-                                                checked={formData[field.id] === option}
-                                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                                checked={formData[field.id]?.value === option}
+                                                onChange={(e) => handleInputChange(field.id, e.target.value, 'radio')}
                                                 key={optionIndex}
                                             />
                                         ))}
+                                    </Col>
+                                    <Col sm={2}>
+                                        <Button variant="danger" onClick={() => handleDeleteField(field.field_id)}>Delete</Button>
                                     </Col>
                                 </Form.Group>
                             )}
@@ -215,4 +258,4 @@ const CreateForm = () => {
     );
 };
 
-export default CreateForm;
+export default EditForm;
