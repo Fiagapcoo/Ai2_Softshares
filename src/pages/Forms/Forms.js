@@ -54,6 +54,14 @@ const Forms = () => {
 
     const handleEditClick = (event) => {
         console.log('Edit clicked for event', event);
+        if(event.validated){
+            Swal.fire({
+                title: "Warning",
+                text: "You can not edit a validated form",
+                icon: "warning",
+            });
+            return;
+        }
         navigate('/edit-form', { state: { event } });
     };
 
@@ -86,6 +94,7 @@ const Forms = () => {
                             <tr key={event.event_id}>
                                 <td>{event.name}</td>
                                 <td>
+
                                     <Button
                                         variant="primary"
                                         className="me-2"
