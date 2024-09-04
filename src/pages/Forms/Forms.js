@@ -10,26 +10,51 @@ import {
     Button,
     Row,
     Col,
-  } from "react-bootstrap";
-  import { useNavigate } from 'react-router-dom';
+    Modal // Import Modal from React-Bootstrap
+} from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 
 const Forms = () => {
     const navigate = useNavigate();
     const [eventWithForm, setEventWithForm] = useState([]);
     const [user, setUser] = useState(null);  // Initialize user with null to avoid issues with undefined properties
+    const [showModal, setShowModal] = useState(false);  // State to control modal visibility
+    const [selectedEvent, setSelectedEvent] = useState(null); // Store the event for which the answers are being checked
+    const [answers, setAnswers] = useState([]);  // Store the answers of the selected event
 
     useEffect(() => {
         document.title = "Forms";
-    
+
         const checkCurrentUser = async () => {
             const res = await Authentication.getCurrentUser();
             if (res) {
                 setUser(res.user);
             }
         };
-    
+
         checkCurrentUser();
     }, []);
+
+    // Fetch answers when selectedEvent is updated and modal is opened
+    useEffect(() => {
+        const fetchAnswers = async () => {
+            if (!selectedEvent) return;
+
+            try {
+                const response = await api.get(`/form/get-event-answers-web/${selectedEvent.event_id}`);
+                const answers = response.data.data;
+                console.log(answers);
+
+                setAnswers(answers);  // Set the answers for the selected event
+            } catch (error) {
+                console.error('Error fetching answers', error);
+            }
+        };
+
+        if (selectedEvent) {
+            fetchAnswers();
+        }
+    }, [selectedEvent]);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -54,7 +79,7 @@ const Forms = () => {
 
     const handleEditClick = (event) => {
         console.log('Edit clicked for event', event);
-        if(event.validated){
+        if (event.validated) {
             Swal.fire({
                 title: "Warning",
                 text: "You can not edit a validated form",
@@ -63,6 +88,17 @@ const Forms = () => {
             return;
         }
         navigate('/edit-form', { state: { event } });
+    };
+
+    const handleCheckAnswersClick = (event) => {
+        setSelectedEvent(event);  // Set the event to be shown in the modal
+        setShowModal(true);  // Open the modal
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);  // Close the modal
+        setSelectedEvent(null);  // Reset selected event
+        setAnswers([]);  // Reset answers when modal is closed
     };
 
     return (
@@ -94,7 +130,6 @@ const Forms = () => {
                             <tr key={event.event_id}>
                                 <td>{event.name}</td>
                                 <td>
-
                                     <Button
                                         variant="primary"
                                         className="me-2"
@@ -106,52 +141,48 @@ const Forms = () => {
                                     >
                                         Edit Form
                                     </Button>
-                                    <Button
-                                        variant="danger"
-                                        onClick={() => {
-                                            Swal.fire({
-                                                title: "Are you sure?",
-                                                text: "You won't be able to revert this!",
-                                                icon: "warning",
-                                                showCancelButton: true,
-                                                confirmButtonColor: "#3085d6",
-                                                cancelButtonColor: "#d33",
-                                                confirmButtonText: "Yes, delete it!",
-                                            }).then(async (result) => {
-                                                if (result.isConfirmed) {
-                                                    try {
-                                                        await api.delete(
-                                                            `/categories/delete-category/${event.area_id}`
-                                                        );
-                                                        Swal.fire(
-                                                            "Deleted!",
-                                                            "The area has been deleted.",
-                                                            "success"
-                                                        );
-                                                        setEventWithForm(prevEvents =>
-                                                            prevEvents.filter(
-                                                                (ev) => ev.area_id !== event.area_id
-                                                            )
-                                                        );
-                                                    } catch (error) {
-                                                        console.error("Error deleting area:", error);
-                                                        Swal.fire(
-                                                            "Error!",
-                                                            error.response?.data?.message || "An error occurred.",
-                                                            "error"
-                                                        );
-                                                    }
-                                                }
-                                            });
+                                   <Button
+                                        variant="primary"
+                                        className="me-2"
+                                        onClick={() => handleCheckAnswersClick(event)}  // Open modal on click
+                                        style={{
+                                            backgroundColor: "#00b0ff",
+                                            borderColor: "#00b0ff",
                                         }}
                                     >
-                                        Delete
+                                        Check Answers
                                     </Button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
+
+                {/* Modal for Checking Answers */}
+                <Modal show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Check Answers for {selectedEvent?.name}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {/* Display the answers in the desired format */}
+                        {answers.length > 0 ? (
+                            <ul>
+                                {answers.map((answer) => (
+                                    <li key={answer.field_id}>
+                                        {answer.first_name} {answer.last_name} answers {answer.field_name} with {answer.answer}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>No answers available for this event.</p>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleCloseModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </>
     );
