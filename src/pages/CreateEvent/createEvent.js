@@ -273,7 +273,7 @@ const CreateEvent = ({ edit = false }) => {
 
      const newEvent = await api.post("/event/create", {
         ...formData,
-        officeId: "1",
+        officeId: user.office_id,
         publisher_id: user.user_id,
       });
 
