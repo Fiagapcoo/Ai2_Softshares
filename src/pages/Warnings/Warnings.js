@@ -23,6 +23,19 @@ const Warnings = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedWarning, setSelectedWarning] = useState(null);
   const [reload, setReload] = useState(false);
+  const [centers, setCenters] = useState([]);
+
+  useEffect(() => {
+   const fetchCenters = async () => {
+    try{
+      const centers = await api.get("/administration/get-all-centers");
+      setCenters(centers.data.data);
+    } catch (error) {
+      console.error("Error fetching centers:", error);
+    }
+    };
+    fetchCenters();
+    }, []);
 
   useEffect(() => {
     document.title = "Warnings";
@@ -222,6 +235,7 @@ const Warnings = () => {
             <thead style={{ backgroundColor: "#00b0ff", color: "#fff" }}>
               <tr>
                 <th>Warning</th>
+                <th>OfficeID</th>
                 <th>State</th>
               </tr>
             </thead>
@@ -229,6 +243,8 @@ const Warnings = () => {
               {warnings.map((warning) => (
                 <tr key={warning.warning_id}>
                   <td>{warning.description}</td>
+                  <td>{centers.find((center) => center.officeid === warning.office_id)?.city || "City not found"}</td>
+
                   <td style={{ color: warning.state ? "green" : "red" }}>
                     {warning.state ? "Active" : "Inactive"}
                     <Button
