@@ -81,15 +81,38 @@ const Warnings = () => {
   const handleAddWarning = async () => {
     console.log(selectedWarning);
     console.log(user);
-    const teste = {
+    if (user.office_id === 0) {
+      const centers = await api.get("/administration/get-all-centers");
+      console.log(centers.data.data);
+    
+      centers.data.data.forEach(async (element) => {
+        const teste = {
+          warning_level: selectedWarning.warning_level,
+          description: selectedWarning.content,
+          admin_id: user.user_id,
+          office_id: element.officeid,
+        };
+    
+        try {
+          await api.post("/administration/create-warnings", teste);
+          console.log(`Warning created for office ${element.officeid}`);
+        } catch (error) {
+          console.error(`Error creating warning for office ${element.officeid}`, error);
+        }
+      });
+    
+      return;
+    }
+    
+    const teste2 = {
       warning_level: selectedWarning.warning_level,
       description: selectedWarning.content,
       admin_id: user.user_id,
       office_id: user.office_id,
     };
-    
+
     api
-      .post("/administration/create-warnings", teste)
+      .post("/administration/create-warnings", teste2)
       .then((res) => {
         console.log(res);
         Swal.fire({
