@@ -86,7 +86,7 @@ const Admin = () => {
 
     if (result.isConfirmed) {
       try {
-        await api.delete(`/user/delete-user/${admin.user_id}`);
+        await api.delete(`/administration/delete-admin/${admin.user_id}`);
         Swal.fire("Deleted!", "The admin has been deleted.", "success");
         setRefresh(!refresh);
       } catch (error) {

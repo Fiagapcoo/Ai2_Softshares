@@ -74,12 +74,12 @@ const Navbar = () => {
               </a>
             </li>
             <li className="nav-item d-flex align-items-center">
-              <FaBell size="1.5em" className="me-3 softinsa_icon" />
+            <FaBell size="1.5em" className="me-3" />
             </li>
             <li className="nav-item">
               <form className="d-flex" role="search">
                 <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                <button className="btn btn-outline-primary softinsaaButton" type="submit">Search</button>
+                <button disabled={true} className="btn btn-secondary softinsaaButtonDisabled" type="submit">Search</button>
               </form>
             </li>
           </ul>

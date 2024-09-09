@@ -130,6 +130,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
               onClick={handleCreateClick}
             />
             <ButtonWithIcon
+              disabled={true}
               icon="fas fa-filter filter_icon"
               text={`Filter ${type}`}
             />
