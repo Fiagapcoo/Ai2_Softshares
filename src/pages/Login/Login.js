@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
-import SSOButton from "../../components/SSOButton/SSOButton";
 import Authentication from "../../Auth.service";
 import "./Login.css";
 
@@ -10,6 +9,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isEmailEmpty, setIsEmailEmpty] = useState(false);
+  const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
 
   useEffect(() => {
     document.title = "SoftShares - Login";
@@ -22,9 +23,12 @@ const Login = () => {
     };
 
     checkCurrentUser();
-  }, []);
+  }, [navigate]);
 
   const handleLogin = async () => {
+    setIsEmailEmpty(email === "");
+    setIsPasswordEmpty(password === "");
+
     if (email === "" || password === "") {
       Swal.fire({
         icon: "warning",
@@ -38,12 +42,8 @@ const Login = () => {
       const response = await Authentication.login(email, password);
       console.log(response);
 
-      const token = localStorage.getItem('token');
-
       if (response) {
-
-        // Assuming response contains the token if successful
-       navigate("/homepage");
+        navigate("/homepage");
       } else {
         Swal.fire({
           icon: "error",
@@ -97,7 +97,11 @@ const Login = () => {
                   placeholder="Email"
                   value={email}
                   required
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (e.target.value !== "") setIsEmailEmpty(false);
+                  }}
+                  className={isEmailEmpty ? "is-invalid" : ""}
                 />
               </Form.Group>
               <Form.Group controlId="formPassword" className="mb-3">
@@ -105,8 +109,12 @@ const Login = () => {
                   type="password"
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (e.target.value !== "") setIsPasswordEmpty(false);
+                  }}
+                  className={isPasswordEmpty ? "is-invalid" : ""}
                 />
               </Form.Group>
               <div className="d-flex justify-content-between mb-3">
@@ -123,9 +131,7 @@ const Login = () => {
                   Login
                 </Button>
               </div>
-              
             </div>
-            
           </Form>
         </Col>
       </Row>
