@@ -14,7 +14,7 @@ const SetupPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (password !== password2) {
       Swal.fire({
         icon: "warning",
@@ -23,17 +23,32 @@ const SetupPassword = () => {
       });
       return;
     }
-
+  
+    // Step 1: Get the token from the query parameters
     const queryParams = new URLSearchParams(window.location.search);
     const token = queryParams.get("token");
-
+  
+    if (!token) {
+      Swal.fire({
+        icon: "error",
+        title: "Token not found",
+        text: "No token found in the URL. Please check the link.",
+      });
+      return;
+    }
+  
+    // Step 2: Decode the URL-encoded token
+    const decodedToken = decodeURIComponent(token);
+  
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/setup-password`,
-          { password },
-          { headers: { Authorization: 'Bearer ' + token } }
+      // Step 3: Send the decoded token in the POST request body
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/setup-password`,
+        { password, token: decodedToken }, // Send the decoded token in the body
+        { headers: { "Content-Type": "application/json" } }
       );
-      // const response = await api.post("/auth/setup-password", { password });
-
+  
+      // Step 4: Handle success or error
       if (response.status === 200) {
         Swal.fire({
           icon: "success",
@@ -47,9 +62,8 @@ const SetupPassword = () => {
       Swal.fire({
         icon: "error",
         title: "Error setting up password",
-        text: error.response.data.message || "An error occurred while setting up your password.",
+        text: error.response?.data?.message || "An error occurred while setting up your password.",
       });
-      console.log("Error setting up password:", error);
     }
   };
 
