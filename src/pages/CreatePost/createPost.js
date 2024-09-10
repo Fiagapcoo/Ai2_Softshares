@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import Navbar from '../../components/Navbar/Navbar';
-import api from '../../api';
-import Authentication from '../../Auth.service';
-import './CreatePost.css';
+import React, { useState, useRef, useEffect } from "react";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+import Navbar from "../../components/Navbar/Navbar";
+import api from "../../api";
+import Authentication from "../../Auth.service";
+import "./CreatePost.css";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const CreatePost = ({ edit = false }) => {
@@ -16,6 +16,8 @@ const CreatePost = ({ edit = false }) => {
   const [selectedSubArea, setSelectedSubArea] = useState("");
   const [postTitle, setPostTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(null);
+  const [Rating, setRating] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [pLocation, setPLocation] = useState({ lat: 0, lng: 0 });
   const [token, setToken] = useState(null);
@@ -41,10 +43,10 @@ const CreatePost = ({ edit = false }) => {
     if (token) {
       const fetchSubAreas = async () => {
         try {
-          const response = await api.get('/categories/get-sub-areas');
+          const response = await api.get("/categories/get-sub-areas");
           setSubAreaList(response.data.data);
         } catch (error) {
-          console.error('Error fetching sub-areas:', error);
+          console.error("Error fetching sub-areas:", error);
         }
       };
 
@@ -65,12 +67,14 @@ const CreatePost = ({ edit = false }) => {
           console.log(post.filepath);
           setSelectedImage(post.filepath);
           setIsVerified(post.validated);
+          setRating(post.score);
+          setPrice(post.price);
           setPLocation({
             lat: parseFloat(post.p_location.split(" ")[0]),
             lng: parseFloat(post.p_location.split(" ")[1]),
           });
         } catch (error) {
-          console.error('Error fetching post data:', error);
+          console.error("Error fetching post data:", error);
         }
       };
 
@@ -81,9 +85,9 @@ const CreatePost = ({ edit = false }) => {
   useEffect(() => {
     if (edit && isVerified) {
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'You cannot edit a validated post!',
+        icon: "error",
+        title: "Oops...",
+        text: "You cannot edit a validated post!",
       });
       navigate("/posts");
     }
@@ -162,7 +166,6 @@ const CreatePost = ({ edit = false }) => {
       });
       navigate("/manage");
 
-
       resetForm();
     } catch (error) {
       Swal.fire({
@@ -177,26 +180,29 @@ const CreatePost = ({ edit = false }) => {
     e.preventDefault();
     if (!selectedSubArea || !postTitle || !selectedImage || !description) {
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'All fields are required!',
+        icon: "error",
+        title: "Oops...",
+        text: "All fields are required!",
       });
       return;
     }
 
     try {
       const photoFormData = new FormData();
-      photoFormData.append('image', fileInputRef.current.files[0]);
+      photoFormData.append("image", fileInputRef.current.files[0]);
 
-      const uploadResponse = await api.post('/upload/upload', photoFormData, {
+      const uploadResponse = await api.post("/upload/upload", photoFormData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
-      const location = pLocation.lat && pLocation.lng ? `${pLocation.lat}, ${pLocation.lng}` : null;
+      const location =
+        pLocation.lat && pLocation.lng
+          ? `${pLocation.lat}, ${pLocation.lng}`
+          : null;
 
-      const postData = {
+      let postData = {
         subAreaId: selectedSubArea,
         officeId: "1",
         publisher_id: user.user_id,
@@ -205,21 +211,31 @@ const CreatePost = ({ edit = false }) => {
         filePath: uploadResponse.data.file.filename,
         pLocation: location,
         type: "P",
-        rating: 1,
       };
+
+      if(price) {
+        postData.price = price;
+      }
+
+      if(Rating) {
+        postData.rating = Rating;
+      }
 
       if (edit) {
         await api.patch(`/post/edit/${post_id}`, postData);
         Swal.fire({
-          icon: 'success',
-          title: 'Post Updated',
+          icon: "success",
+          title: "Post Updated",
           text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
         });
       } else {
-        await api.post('/post/create', postData);
+        await api.post("/post/create", postData);
+        
+        
+        
         Swal.fire({
-          icon: 'success',
-          title: 'Post Created',
+          icon: "success",
+          title: "Post Created",
           text: `Title: ${postTitle}, Area: ${selectedSubArea}`,
         });
       }
@@ -228,8 +244,8 @@ const CreatePost = ({ edit = false }) => {
       navigate("/posts");
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Failed to upload image',
+        icon: "error",
+        title: "Failed to upload image",
         text: error.message,
       });
     }
@@ -244,8 +260,6 @@ const CreatePost = ({ edit = false }) => {
     setPLocation({ lat: 0, lng: 0 });
   };
 
-
-
   return (
     <>
       <Navbar />
@@ -253,7 +267,7 @@ const CreatePost = ({ edit = false }) => {
         <Row className="w-100 justify-content-center">
           <Col xs={12} md={8} lg={5} className="bg-light rounded p-4 shadow">
             <div className="text-center mb-4">
-            <div
+              <div
                 className="image-placeholder"
                 onClick={handleImageClick}
                 style={{
@@ -281,9 +295,16 @@ const CreatePost = ({ edit = false }) => {
                   value={selectedSubArea}
                   onChange={(e) => setSelectedSubArea(e.target.value)}
                 >
-                  <option value="" disabled>Select Sub Area</option>
+                  <option value="" disabled>
+                    Select Sub Area
+                  </option>
                   {subAreaList.map((subarea) => (
-                    <option key={subarea.sub_area_id} value={subarea.sub_area_id}>{subarea.title}</option>
+                    <option
+                      key={subarea.sub_area_id}
+                      value={subarea.sub_area_id}
+                    >
+                      {subarea.title}
+                    </option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -306,13 +327,40 @@ const CreatePost = ({ edit = false }) => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Form.Group>
+              <Form.Group controlId="formPrice" className="mb-3">
+                <Form.Label>Price</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Price"
+                  value={price || ""} 
+                  min={1}
+                  onChange={(e) => setPrice(Number(e.target.value))} 
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formRating" className="mb-3">
+                <Form.Label>Rating</Form.Label>
+                <Form.Control
+                  type="range" 
+                  value={Rating || 1} 
+                  min={1}
+                  max={5}
+                  step={1} 
+                  onChange={(e) => setRating(Number(e.target.value))}
+                />
+              </Form.Group>
+
               <Form.Group controlId="formPLocation" className="mb-3">
                 <Form.Label>Post Location *</Form.Label>
                 <div style={{ height: "400px", width: "100%" }}>
-                  <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                  <LoadScript
+                    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                  >
                     <GoogleMap
                       mapContainerStyle={{ height: "100%", width: "100%" }}
-                      center={pLocation.lat ? pLocation : { lat: 39.5, lng: -8.0 }}
+                      center={
+                        pLocation.lat ? pLocation : { lat: 39.5, lng: -8.0 }
+                      }
                       zoom={10}
                       onClick={handleMapClick}
                     >
@@ -322,7 +370,7 @@ const CreatePost = ({ edit = false }) => {
                 </div>
               </Form.Group>
               <div className="text-center">
-              {edit ? (
+                {edit ? (
                   <Button
                     variant="primary"
                     type="submit"

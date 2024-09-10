@@ -151,7 +151,7 @@ const PostsOrEvents = ({ type, CreateRoute }) => {
                     title={post.title}
                     description={post.description}
                     content={post.content}
-                    rating={post.rating}
+                    rating={post.score}
                     postedBy={post.publisher_id}
                     id={post.post_id}
                     token={token}
