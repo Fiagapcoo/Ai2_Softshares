@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Authentication from "../../Auth.service";
 import "./Login.css";
 
@@ -11,6 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isEmailEmpty, setIsEmailEmpty] = useState(false);
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   useEffect(() => {
     document.title = "SoftShares - Login";
@@ -105,17 +108,25 @@ const Login = () => {
                 />
               </Form.Group>
               <Form.Group controlId="formPassword" className="mb-3">
-                <Form.Control
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  required
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (e.target.value !== "") setIsPasswordEmpty(false);
-                  }}
-                  className={isPasswordEmpty ? "is-invalid" : ""}
-                />
+                <div className="input-group">
+                  <Form.Control
+                    type={showPassword ? "text" : "password"} // Toggle input type
+                    placeholder="Password"
+                    value={password}
+                    required
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (e.target.value !== "") setIsPasswordEmpty(false);
+                    }}
+                    className={isPasswordEmpty ? "is-invalid" : ""}
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </Button>
+                </div>
               </Form.Group>
               <div className="d-flex justify-content-between mb-3">
                 <a className="component-1" role="button" href="/signup">
